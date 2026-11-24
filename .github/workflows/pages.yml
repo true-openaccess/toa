@@ -33,6 +33,10 @@ env:
   PANDOC_SHA256: c224fab89f827d3623380ecb7c1078c163c769c849a14ac27e8d3bfbb914c9b4
   TYPST_URL: https://github.com/typst/typst/releases/download/v0.15.1/typst-x86_64-unknown-linux-musl.tar.xz
   TYPST_SHA256: a6d077d0a95eed5a2eba715b2dae06be954f624ccbf85758a03f389ded33118c
+  # The fonts the PDFs name (FONTS in scripts/spec/build.py) that typst does not carry: Noto Sans
+  # for the English, Noto Sans and Serif CJK SC for the Chinese. Packages of Ubuntu 24.04, pinned
+  # to their versions there; apt checks them against the archive's signed indexes.
+  FONT_PACKAGES: fonts-noto-core=20201225-2 fonts-noto-cjk=1:20230817+repack1-3
 
 jobs:
   build:
@@ -43,7 +47,7 @@ jobs:
         with:
           fetch-depth: 0
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-      - name: Install pandoc, typst and fonts for Chinese
+      - name: Install pandoc, typst and the fonts of the PDFs
         run: |
           bin="$RUNNER_TEMP/bin" && d="$RUNNER_TEMP/dl" && mkdir -p "$bin" "$d/pandoc" "$d/typst"
           curl -fsSL --retry 3 "$PANDOC_URL" -o "$d/pandoc.tar.gz"
@@ -57,17 +61,21 @@ jobs:
           echo "$bin" >> "$GITHUB_PATH"
           "$bin/pandoc" --version | head -n 1
           "$bin/typst" --version
-          # the Chinese PDF: Noto Serif CJK SC and Noto Sans CJK SC (FONTS in scripts/spec/build.py)
-          sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends fonts-noto-cjk
+          sudo apt-get update -q
+          # shellcheck disable=SC2086 # one word per package
+          sudo apt-get install -y -q --no-install-recommends $FONT_PACKAGES
+          # typst names a font it cannot find nowhere but in an empty fallback list; say which one
+          fonts=$("$bin/typst" fonts)
+          for f in "Libertinus Serif" "DejaVu Sans Mono" "Noto Sans" "Noto Sans CJK SC" "Noto Serif CJK SC"; do
+            grep -qxF "$f" <<<"$fonts" || { echo "::error::typst does not find the font $f, which the PDFs of the standard use"; exit 1; }
+          done
       - name: Check the site and its translations
         run: |
           python3 site/build.py --check --incubating
           python3 scripts/i18n/status.py check
           python3 -m unittest discover -s scripts/i18n
-      # --no-pdf for now: the fonts the PDFs name are not on the runner yet (typst: empty font
-      # fallback list); the pages leave out the PDF downloads until they are
       - name: Build the standard's pages
-        run: python3 scripts/spec/build.py --no-pdf --site site/dist
+        run: python3 scripts/spec/build.py --site site/dist
       - name: Build the site
         run: python3 site/build.py --incubating --preview --out site/dist
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
