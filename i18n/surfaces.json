@@ -54,6 +54,7 @@
       "translation": "i18n/{lang}/site/messages.json",
       "keep": [
         "full_name",
+        "gazettoa",
         "not_translated",
         "partly_translated",
         "spec_stale",
@@ -63,7 +64,7 @@
         "spec_english"
       ],
       "owner": "site",
-      "notes": "The registry holds the English; a language's translations are keyed by the names of the messages. Listed in keep and not translated: the full name of the project, full_name, which every page and message takes from here so that it is written in one place; and the notices of a page or part not wholly translated, which are in English in every language."
+      "notes": "The registry holds the English; a language's translations are keyed by the names of the messages. Listed in keep and not translated: the full name of the project, full_name, which every page and message takes from here so that it is written in one place; the name of the library browser, gazettoa, a product name; and the notices of a page or part not wholly translated, which are in English in every language."
     }
   ],
   "not_translated": [
