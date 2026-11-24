@@ -64,8 +64,10 @@ jobs:
           python3 site/build.py --check --incubating
           python3 scripts/i18n/status.py check
           python3 -m unittest discover -s scripts/i18n
+      # --no-pdf for now: the fonts the PDFs name are not on the runner yet (typst: empty font
+      # fallback list); the pages leave out the PDF downloads until they are
       - name: Build the standard's pages
-        run: python3 scripts/spec/build.py --site site/dist
+        run: python3 scripts/spec/build.py --no-pdf --site site/dist
       - name: Build the site
         run: python3 site/build.py --incubating --preview --out site/dist
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
