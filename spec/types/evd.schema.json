@@ -1,0 +1,395 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TOA type evd: evidence record",
+  "description": "The fields of the manifest toa.yaml of an object of type evd, checked when it is sealed. Readers ignore fields they do not know (3.2.4). Text: types/en/evd.md.",
+  "type": "object",
+  "required": [
+    "type",
+    "license",
+    "kind"
+  ],
+  "properties": {
+    "type": {
+      "const": "evd",
+      "description": "The type: the prefix of the object name (3.2.1)."
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "description": "SPDX licence expression of the whole object (3.2.2)."
+    },
+    "author": {
+      "type": "string",
+      "description": "A credit in free text; no proof of identity."
+    },
+    "base": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^evd_[0-9a-f]{40}$"
+      },
+      "description": "The objects of the same type this object was directly derived from (3.4)."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "A title of one line."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What the object is, in a paragraph or a few."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words to find the object by."
+    },
+    "kind": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{0,31}$",
+      "description": "The kind of evidence; 0.1 defines only sim."
+    },
+    "dut": {
+      "type": "string",
+      "pattern": "^ckt_[0-9a-f]{40}$"
+    },
+    "tbs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^tb_[0-9a-f]{40}$"
+      }
+    },
+    "conditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "number",
+              "string",
+              "boolean"
+            ]
+          }
+        },
+        "options": {
+          "type": "object"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "file"
+            ],
+            "properties": {
+              "file": {
+                "type": "string",
+                "pattern": "^[^/\\\\]+$",
+                "minLength": 1
+              },
+              "section": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "version": {
+                "type": "string"
+              },
+              "match": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "process": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,39}$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "simulator"
+      ],
+      "properties": {
+        "simulator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "version"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "command": {
+              "type": "string"
+            }
+          }
+        },
+        "pdk": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "process": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]{0,39}$"
+            },
+            "release": {
+              "type": "string"
+            }
+          }
+        },
+        "analysis": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "python": {
+              "type": "string"
+            },
+            "packages": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "system": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "os": {
+              "type": "string"
+            },
+            "cpu": {
+              "type": "string"
+            },
+            "threads": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^tb_[a-z0-9_]{1,36}\\.[a-zA-Z][a-zA-Z0-9_]{0,31}$"
+      },
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "kind"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+            "maxLength": 80
+          },
+          "kind": {
+            "enum": [
+              "spectrum",
+              "curve",
+              "waveform",
+              "table",
+              "json"
+            ]
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "lock": {
+      "description": "The file lock.json of an evidence record of the kind sim (types/en/evd.md).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "toa",
+        "dut",
+        "tbs",
+        "tree"
+      ],
+      "properties": {
+        "toa": {
+          "const": "lock/1"
+        },
+        "dut": {
+          "type": "string",
+          "pattern": "^ckt_[0-9a-f]{40}$"
+        },
+        "label": {
+          "type": "string"
+        },
+        "tbs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "object",
+              "files"
+            ],
+            "properties": {
+              "object": {
+                "type": "string",
+                "pattern": "^tb_[0-9a-f]{40}$"
+              },
+              "files": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+                  "maxLength": 80
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "tree": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "object",
+              "ifc",
+              "files"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^([A-Za-z_][A-Za-z0-9_]{0,63}(\\.[A-Za-z_][A-Za-z0-9_]{0,63})*)?$"
+              },
+              "object": {
+                "type": "string",
+                "pattern": "^ckt_[0-9a-f]{40}$"
+              },
+              "ifc": {
+                "type": "string",
+                "pattern": "^ifc_[0-9a-f]{40}$"
+              },
+              "files": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+                  "maxLength": 80
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "sim"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "dut",
+          "tbs",
+          "conditions",
+          "environment",
+          "metrics"
+        ],
+        "properties": {
+          "type": true,
+          "license": true,
+          "author": true,
+          "base": true,
+          "title": true,
+          "description": true,
+          "tags": true,
+          "kind": true,
+          "dut": true,
+          "tbs": true,
+          "conditions": true,
+          "environment": true,
+          "metrics": true,
+          "evidence": true
+        },
+        "additionalProperties": false
+      },
+      "else": {
+        "description": "A kind this specification does not define: only the common rules and kind are checked."
+      }
+    }
+  ]
+}

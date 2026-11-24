@@ -1,0 +1,589 @@
+{
+ "language": "zh",
+ "about": "Chinese renderings of the terms of TOA. The English terms are the only normative ones (spec/0.1/en/ch01.md, 1.4); this list is a convention for translating and talking about TOA, not part of the standard. kind: toa (a term of TOA), eda (of circuit design), general.",
+ "terms": [
+  {
+   "en": "ancestor",
+   "term": "祖先",
+   "kind": "toa"
+  },
+  {
+   "en": "arrangement",
+   "term": "摆法",
+   "avoid": [
+    "布局"
+   ],
+   "kind": "toa",
+   "note": "How objects are placed in a library (6.2). Not 'layout' in English, which is reserved for IC layouts (prefix lay)."
+  },
+  {
+   "en": "assemble",
+   "term": "组装",
+   "kind": "toa"
+  },
+  {
+   "en": "author",
+   "term": "作者",
+   "kind": "general"
+  },
+  {
+   "en": "base",
+   "sense": "the field `base`",
+   "term": "base",
+   "kind": "toa",
+   "note": "Written as the field name; 改自 in running text. Not the previous head of the library check (基准)."
+  },
+  {
+   "en": "bus",
+   "sense": "a pin with width",
+   "term": "总线",
+   "kind": "eda"
+  },
+  {
+   "en": "canonical tree hash",
+   "term": "规范的 tree 号",
+   "kind": "toa"
+  },
+  {
+   "en": "check",
+   "term": "检查",
+   "kind": "toa",
+   "note": "Whether rules are kept. Not to be confused with verify (核对)."
+  },
+  {
+   "en": "circuit",
+   "sense": "the type ckt",
+   "term": "电路网表",
+   "kind": "eda",
+   "note": "The type ckt. 电路 alone stays for circuits in the general sense, such as 晶体管电路; 子电路 is a subcircuit. The circuit tested is 被测电路网表."
+  },
+  {
+   "en": "common fields",
+   "term": "公共字段",
+   "kind": "toa"
+  },
+  {
+   "en": "contribution",
+   "term": "投稿",
+   "kind": "general"
+  },
+  {
+   "en": "cross-check hash",
+   "term": "对照值",
+   "kind": "toa"
+  },
+  {
+   "en": "dangling reference",
+   "term": "悬空的引用",
+   "kind": "toa"
+  },
+  {
+   "en": "declared",
+   "sense": "the part of a history that cannot be verified",
+   "term": "只是声明的",
+   "kind": "toa"
+  },
+  {
+   "en": "deployment",
+   "term": "部署",
+   "kind": "toa"
+  },
+  {
+   "en": "descendant",
+   "term": "后代",
+   "kind": "toa"
+  },
+  {
+   "en": "document",
+   "sense": "the type doc",
+   "term": "文档",
+   "kind": "toa"
+  },
+  {
+   "en": "draft",
+   "term": "草稿",
+   "kind": "toa"
+  },
+  {
+   "en": "draft name",
+   "term": "草稿名",
+   "kind": "toa"
+  },
+  {
+   "en": "evidence",
+   "term": "关键数据",
+   "kind": "toa",
+   "note": "Key data kept in an evidence record (验证记录), under evidence/; not raw simulation data."
+  },
+  {
+   "en": "evidence record",
+   "sense": "the type evd",
+   "term": "验证记录",
+   "avoid": [
+    "证据"
+   ],
+   "kind": "toa",
+   "note": "条 for counting: 一条验证记录. Its files under evidence/ are 关键数据. 证据 stays for evidence in the general sense, such as 时间的证据."
+  },
+  {
+   "en": "expanded tree",
+   "term": "展开树",
+   "kind": "toa"
+  },
+  {
+   "en": "external dependency",
+   "term": "外部依赖",
+   "kind": "toa"
+  },
+  {
+   "en": "external file",
+   "term": "外部文件",
+   "kind": "toa"
+  },
+  {
+   "en": "fetch",
+   "term": "取对象",
+   "kind": "toa",
+   "note": "Also 取 for short."
+  },
+  {
+   "en": "follow",
+   "sense": "a reference following a newer version",
+   "term": "跟进",
+   "kind": "toa"
+  },
+  {
+   "en": "form",
+   "sense": "of a circuit (`form`)",
+   "term": "形态",
+   "kind": "toa",
+   "note": "How the circuit itself is written: ideal, va, rtl, transistor, composition, mixed."
+  },
+  {
+   "en": "frozen library",
+   "sense": "the type lib",
+   "term": "冻结库",
+   "kind": "toa",
+   "note": "Not to be confused with library (库), the git repository."
+  },
+  {
+   "en": "gate-level netlist",
+   "sense": "the form gates",
+   "term": "门级网表",
+   "kind": "eda"
+  },
+  {
+   "en": "generation",
+   "term": "代",
+   "kind": "toa",
+   "note": "How far an object is down its series: 1 for the first, one more than its parent for each next one. Sealing writes it in history.json; for people only (3.4)."
+  },
+  {
+   "en": "group",
+   "sense": "the group path of a source list",
+   "term": "分组",
+   "avoid": [
+    "组"
+   ],
+   "kind": "toa",
+   "note": "A series of generations is 一支, not 分组."
+  },
+  {
+   "en": "header",
+   "sense": "the first line of a source list",
+   "term": "头",
+   "kind": "toa"
+  },
+  {
+   "en": "history",
+   "term": "来历名单",
+   "kind": "toa",
+   "note": "The file history.json; 来历 alone is lineage."
+  },
+  {
+   "en": "include line",
+   "term": "包含行",
+   "kind": "toa"
+  },
+  {
+   "en": "index",
+   "term": "索引",
+   "kind": "toa"
+  },
+  {
+   "en": "interface",
+   "sense": "the type ifc",
+   "term": "模块定义",
+   "avoid": [
+    "接口"
+   ],
+   "kind": "eda",
+   "note": "The type ifc. 接口 stays for interfaces in the general sense, such as an API; 模块名 is the name of a module, the `name` of a 模块定义."
+  },
+  {
+   "en": "invalid",
+   "term": "不合格",
+   "kind": "toa"
+  },
+  {
+   "en": "latest mark",
+   "term": "最新标记",
+   "kind": "toa",
+   "note": "\"latest\": true on a line of a library list (5.2)."
+  },
+  {
+   "en": "lenient reading",
+   "term": "容错的读法",
+   "kind": "toa"
+  },
+  {
+   "en": "library",
+   "term": "库",
+   "kind": "toa"
+  },
+  {
+   "en": "library check",
+   "term": "库的检查",
+   "kind": "toa"
+  },
+  {
+   "en": "library list",
+   "term": "库的清单",
+   "kind": "toa",
+   "note": "The file library.source.jsonl. 库顶层的清单 in earlier drafts."
+  },
+  {
+   "en": "lineage",
+   "term": "来历",
+   "avoid": [
+    "来源"
+   ],
+   "kind": "toa",
+   "note": "Which objects an object was derived from. 来源 is source, a place to fetch from."
+  },
+  {
+   "en": "list of members",
+   "sense": "members.source.jsonl of a frozen library",
+   "term": "成员表",
+   "kind": "toa"
+  },
+  {
+   "en": "listing",
+   "sense": "git's list of the entries of a tree",
+   "term": "目录列表",
+   "kind": "toa"
+  },
+  {
+   "en": "local file map",
+   "term": "本机映射表",
+   "avoid": [
+    "环境表"
+   ],
+   "kind": "toa"
+  },
+  {
+   "en": "local path",
+   "term": "本机路径",
+   "kind": "toa"
+  },
+  {
+   "en": "local source",
+   "term": "本机来源",
+   "kind": "toa"
+  },
+  {
+   "en": "maintainer",
+   "term": "维护者",
+   "kind": "general"
+  },
+  {
+   "en": "manifest",
+   "term": "入口文件",
+   "kind": "toa",
+   "note": "The file toa.yaml."
+  },
+  {
+   "en": "metric",
+   "term": "指标",
+   "kind": "eda"
+  },
+  {
+   "en": "netlist",
+   "term": "网表",
+   "kind": "eda"
+  },
+  {
+   "en": "newer version",
+   "term": "新版",
+   "kind": "toa"
+  },
+  {
+   "en": "note",
+   "sense": "one file of a notes directory",
+   "term": "说明",
+   "avoid": [
+    "备注"
+   ],
+   "kind": "toa"
+  },
+  {
+   "en": "notes directory",
+   "term": "说明目录",
+   "kind": "toa"
+  },
+  {
+   "en": "object",
+   "term": "对象",
+   "kind": "toa"
+  },
+  {
+   "en": "object line",
+   "term": "对象行",
+   "kind": "toa"
+  },
+  {
+   "en": "object name",
+   "term": "对象名",
+   "kind": "toa"
+  },
+  {
+   "en": "prefix",
+   "term": "前缀",
+   "kind": "toa"
+  },
+  {
+   "en": "previous head",
+   "sense": "the commit the library check compares with",
+   "term": "基准",
+   "kind": "toa"
+  },
+  {
+   "en": "process",
+   "sense": "a semiconductor process",
+   "term": "工艺",
+   "kind": "eda"
+  },
+  {
+   "en": "publication branch",
+   "term": "发布分支",
+   "kind": "toa"
+  },
+  {
+   "en": "publish",
+   "term": "发布",
+   "kind": "toa"
+  },
+  {
+   "en": "published",
+   "term": "已发布",
+   "kind": "toa"
+  },
+  {
+   "en": "readable name",
+   "term": "可读名",
+   "kind": "toa"
+  },
+  {
+   "en": "reference",
+   "term": "引用",
+   "kind": "toa"
+  },
+  {
+   "en": "removal",
+   "term": "删除",
+   "kind": "toa",
+   "note": "Verb remove (删除、删掉); not delete."
+  },
+  {
+   "en": "removal record",
+   "term": "删除记录",
+   "kind": "toa"
+  },
+  {
+   "en": "reserved form",
+   "term": "保留的形式",
+   "kind": "toa"
+  },
+  {
+   "en": "reverse lookup",
+   "term": "反查",
+   "kind": "toa"
+  },
+  {
+   "en": "seal",
+   "term": "定稿",
+   "kind": "toa"
+  },
+  {
+   "en": "series",
+   "sense": "the generations of one design",
+   "term": "一支",
+   "avoid": [
+    "系列",
+    "分支"
+   ],
+   "kind": "toa",
+   "note": "分支 is a git branch."
+  },
+  {
+   "en": "sidecar file",
+   "term": "旁挂文件",
+   "kind": "toa"
+  },
+  {
+   "en": "signed commit",
+   "term": "签名的提交",
+   "kind": "toa",
+   "note": "A commit signed with git's SSH or GPG signing; it shows who put an object into a library (6.3)."
+  },
+  {
+   "en": "source",
+   "term": "来源",
+   "avoid": [
+    "来历"
+   ],
+   "kind": "toa",
+   "note": "Where an object can be fetched. 来历 is lineage."
+  },
+  {
+   "en": "source list",
+   "term": "来源表",
+   "avoid": [
+    "来源清单"
+   ],
+   "kind": "toa",
+   "note": "Any file ending in .source.jsonl."
+  },
+  {
+   "en": "stamps directory",
+   "term": "时间戳目录",
+   "kind": "toa",
+   "note": "The sidecar <object name>.stamps/ (4.3)."
+  },
+  {
+   "en": "standard",
+   "sense": "this standard",
+   "term": "标准",
+   "kind": "toa",
+   "note": "本标准. The draft called it 规范; the folder stays spec/."
+  },
+  {
+   "en": "strict reading",
+   "term": "严格的读法",
+   "kind": "toa"
+  },
+  {
+   "en": "subcircuit",
+   "term": "子电路",
+   "kind": "eda"
+  },
+  {
+   "en": "subscribe",
+   "term": "订阅",
+   "kind": "toa"
+  },
+  {
+   "en": "superseded",
+   "term": "被取代",
+   "kind": "toa"
+  },
+  {
+   "en": "tag",
+   "sense": "the part of a draft name after draft-",
+   "term": "标签",
+   "kind": "toa"
+  },
+  {
+   "en": "testbench",
+   "term": "测试用例",
+   "kind": "eda"
+  },
+  {
+   "en": "timestamp proof",
+   "term": "时间戳证明",
+   "kind": "toa",
+   "note": "A proof by a third party that an object name existed at a time, such as an OpenTimestamps .ots file (4.3)."
+  },
+  {
+   "en": "tolerance",
+   "term": "容差",
+   "kind": "eda",
+   "note": "How far apart two results of a metric may be and still agree (tolerance of a metric of a testbench)."
+  },
+  {
+   "en": "type",
+   "sense": "of an object, named by its prefix",
+   "term": "类型",
+   "kind": "toa"
+  },
+  {
+   "en": "type directory",
+   "term": "类型目录",
+   "kind": "toa"
+  },
+  {
+   "en": "type specification",
+   "term": "类型规格",
+   "kind": "toa"
+  },
+  {
+   "en": "unseal",
+   "term": "取消定稿",
+   "kind": "toa"
+  },
+  {
+   "en": "user",
+   "term": "使用者",
+   "kind": "general"
+  },
+  {
+   "en": "valid",
+   "term": "合格",
+   "kind": "toa"
+  },
+  {
+   "en": "verified",
+   "sense": "the part of a history verified link by link",
+   "term": "核对过的",
+   "kind": "toa"
+  },
+  {
+   "en": "verify",
+   "term": "核对",
+   "kind": "toa",
+   "note": "Recompute a hash and compare it with the name. Not to be confused with check (检查)."
+  },
+  {
+   "en": "verify from the files",
+   "term": "读文件核对",
+   "kind": "toa"
+  },
+  {
+   "en": "verify from the listing",
+   "term": "读目录列表核对",
+   "kind": "toa"
+  },
+  {
+   "en": "volume",
+   "sense": "a part of a large library list",
+   "term": "分卷",
+   "kind": "toa"
+  },
+  {
+   "en": "well-formed object tree",
+   "term": "合法的对象树",
+   "kind": "toa"
+  },
+  {
+   "en": "withdrawn",
+   "term": "撤回",
+   "kind": "toa"
+  },
+  {
+   "en": "workspace list",
+   "term": "工作区清单",
+   "kind": "toa",
+   "note": "The file workspace.source.jsonl. 库表 in earlier drafts."
+  }
+ ]
+}

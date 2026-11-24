@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TOA</title>
+<meta http-equiv="refresh" content="0; url=en/index.html">
+<script>
+(function () {
+  var table = {"en": "en", "zh": "zh", "zh-CN": "zh", "zh-Hans": "zh", "zh-MY": "zh", "zh-SG": "zh"};
+  var langs = navigator.languages || [navigator.language || ""];
+  for (var i = 0; i < langs.length; i++) {
+    var tag = langs[i], code = table[tag] || table[tag.split("-")[0]];
+    if (code) { location.replace(code + "/index.html" + location.hash); return; }
+  }
+  location.replace("en/index.html" + location.hash);
+})();
+</script>
+</head>
+<body><p><a href="en/index.html">TOA</a></p></body>
+</html>

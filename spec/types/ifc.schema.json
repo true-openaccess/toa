@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TOA type ifc: interface",
+  "description": "The fields of the manifest toa.yaml of an object of type ifc, checked when it is sealed. Readers ignore fields they do not know (3.2.4). Text: types/en/ifc.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "license",
+    "name",
+    "title",
+    "pins"
+  ],
+  "properties": {
+    "type": {
+      "const": "ifc",
+      "description": "The type: the prefix of the object name (3.2.1)."
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "description": "SPDX licence expression of the whole object (3.2.2)."
+    },
+    "author": {
+      "type": "string",
+      "description": "A credit in free text; no proof of identity."
+    },
+    "base": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^ifc_[0-9a-f]{40}$"
+      },
+      "description": "The objects of the same type this object was directly derived from (3.4)."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "A title of one line."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What the object is, in a paragraph or a few."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words to find the object by."
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]{0,39}(-[a-z0-9]+)*$"
+    },
+    "pins": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,31}$"
+          },
+          "kind": {
+            "enum": [
+              "analog",
+              "digital",
+              "supply",
+              "ground"
+            ]
+          },
+          "direction": {
+            "enum": [
+              "in",
+              "out",
+              "inout"
+            ]
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TOA type doc: document",
+  "description": "The fields of the manifest toa.yaml of an object of type doc, checked when it is sealed. Readers ignore fields they do not know (3.2.4). Text: types/en/doc.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "license"
+  ],
+  "properties": {
+    "type": {
+      "const": "doc",
+      "description": "The type: the prefix of the object name (3.2.1)."
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "description": "SPDX licence expression of the whole object (3.2.2)."
+    },
+    "author": {
+      "type": "string",
+      "description": "A credit in free text; no proof of identity."
+    },
+    "base": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^doc_[0-9a-f]{40}$"
+      },
+      "description": "The objects of the same type this object was directly derived from (3.4)."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "A title of one line."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What the object is, in a paragraph or a few."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words to find the object by."
+    },
+    "refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]{1,7}_[0-9a-f]{40}$"
+      }
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "format": 1,
+  "source_language": "en",
+  "about": "Every kind of text of TOA there is to translate, a surface: where its English is, where each language's translation goes, and who keeps it. Paths are relative to the root of the repository. scripts/i18n/status.py reads this file.",
+  "surfaces": [
+    {
+      "id": "spec-0.1",
+      "title": "The standard 0.1: its chapters and annexes",
+      "kind": "document",
+      "source": "spec/0.1/en/*.md",
+      "translation": "spec/0.1/{lang}/{name}",
+      "stamp": "en/{name}",
+      "owner": "spec",
+      "notes": "Each translated part starts with <!-- translated from en/<part> sha256:<12 hex> -->, written by scripts/spec/build.py --stamp, which also compares the structure of the two languages. The combined texts, spec/toa-0.1.md and spec/toa-0.1.<lang>.md, are assembled from the parts and are not translated on their own."
+    },
+    {
+      "id": "spec-types",
+      "title": "The type specifications",
+      "kind": "document",
+      "source": "spec/types/en/*.md",
+      "translation": "spec/types/{lang}/{name}",
+      "stamp": "en/{name}",
+      "owner": "spec",
+      "notes": "Stamped as the chapters are. The field definitions, spec/types/*.schema.json, are English only."
+    },
+    {
+      "id": "glossary",
+      "title": "Glossary: how a language renders the English terms of TOA",
+      "kind": "glossary",
+      "translation": "i18n/{lang}/glossary.json",
+      "owner": "spec",
+      "notes": "The English terms are the only normative ones (spec/0.1/en/ch01.md, 1.4). Every term of a glossary is counted; there is no English list to compare it with."
+    },
+    {
+      "id": "site-pages",
+      "title": "Pages of the project site and their scripts",
+      "kind": "inline",
+      "markers": "en-groups",
+      "source": [
+        "site/src/*.html",
+        "site/src/assets/*.js"
+      ],
+      "translation": "i18n/{lang}/site/{path}.json",
+      "owner": "site",
+      "notes": "The source files hold the English only, each text in a group <en>…</en>; a group that names a context, <en ctx=NAME>, has the key NAME|English. The catalog of a file is named after its path under site/src/, such as i18n/zh/site/index.html.json.",
+      "base": "site/src"
+    },
+    {
+      "id": "site-messages",
+      "title": "Shared messages of the site and of the standard's pages",
+      "kind": "dictionary",
+      "format": "registry-messages",
+      "source": "i18n/languages.json",
+      "translation": "i18n/{lang}/site/messages.json",
+      "keep": [
+        "full_name",
+        "not_translated",
+        "partly_translated",
+        "spec_stale",
+        "help_translate",
+        "terms_normative",
+        "spec_translated",
+        "spec_english"
+      ],
+      "owner": "site",
+      "notes": "The registry holds the English; a language's translations are keyed by the names of the messages. Listed in keep and not translated: the full name of the project, full_name, which every page and message takes from here so that it is written in one place; and the notices of a page or part not wholly translated, which are in English in every language."
+    }
+  ],
+  "not_translated": [
+    {
+      "what": "The diagnostics and usage text of the tool toa",
+      "where": "crates/",
+      "why": "Their wording and language are the tool's; the standard does not fix them."
+    },
+    {
+      "what": "The plain-text entry for agents",
+      "where": "site/src/llms.txt",
+      "why": "Agents read English; one text is kept up to date."
+    },
+    {
+      "what": "The repository's documentation",
+      "where": "README.md, CONTRIBUTING.md, docs/, the READMEs of the crates and scripts",
+      "why": "Written for developers, in English only."
+    },
+    {
+      "what": "Data",
+      "where": "spec/vectors/, tests/, examples/",
+      "why": "Test data and examples, read by tools."
+    },
+    {
+      "what": "The field definitions of the types",
+      "where": "spec/types/*.schema.json",
+      "why": "Machine-readable; the type specifications carry the explanations."
+    },
+    {
+      "what": "Comments in code",
+      "where": "everywhere",
+      "why": "English only."
+    }
+  ]
+}

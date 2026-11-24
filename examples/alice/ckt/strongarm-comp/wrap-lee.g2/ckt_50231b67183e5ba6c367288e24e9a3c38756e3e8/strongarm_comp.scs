@@ -1,0 +1,5 @@
+// A StrongARM comparator made of Lee's dynamic latch comparator, with the
+// inputs swapped so that outp rises when inp is the higher
+subckt strongarm_comp inp inn clk outp outn vdd vss
+  xlatch (inn inp clk outn outp vdd vss) dyn_latch_cmp
+ends strongarm_comp

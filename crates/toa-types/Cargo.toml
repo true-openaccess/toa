@@ -1,0 +1,13 @@
+[package]
+name = "toa-types"
+description = "The five types of TOA 0.1 (ip, imp, tb, ver, doc): their fields, checks at sealing and readable names. Pure: no files, no processes."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+toa-core.workspace = true
+serde_json.workspace = true

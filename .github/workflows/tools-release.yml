@@ -1,0 +1,135 @@
+# Builds the release packages of the tool `toa` when a tag `v<version>` is pushed, and puts them in
+# a DRAFT release: a maintainer reads it and publishes it by hand. Started by hand, it only builds
+# and reports the sizes, with no release.
+#
+# Each package: the executable (with the built-in git, docs/lines/tools.md 3.1), LICENSE, README.md
+# and THIRD-PARTY-LICENSES.txt, written by cargo-about (crates/toa-cli/about.toml); and a
+# SHA256SUMS file over all packages. Windows uses MSVC with the C runtime linked in, Linux musl,
+# so that neither needs anything installed besides it.
+name: Tools release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_ABOUT_VERSION: "0.9.3"
+
+jobs:
+  # the tag names the version of the tool; the licence notice is written once for all packages
+  prepare:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: The tag and the version agree
+        id: tag
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml | head -1)
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            test "$GITHUB_REF_NAME" = "v$version" || { echo "tag $GITHUB_REF_NAME, but Cargo.toml says $version"; exit 1; }
+            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install Rust and cargo-about
+        run: |
+          rustup toolchain install stable --profile minimal && rustup default stable
+          cargo install cargo-about --locked --features cli --version "$CARGO_ABOUT_VERSION"
+      - name: Write the licence notice
+        run: |
+          cargo about generate --fail -c crates/toa-cli/about.toml -m crates/toa-cli/Cargo.toml \
+            crates/toa-cli/about.hbs -o THIRD-PARTY-LICENSES.txt
+          grep -A40 '^Licences used:' THIRD-PARTY-LICENSES.txt | sed '/^=====/q' >> "$GITHUB_STEP_SUMMARY"
+      - name: A draft release with the notice
+        if: steps.tag.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          gh release create "$TAG" --draft --verify-tag --title "toa $TAG" \
+            --notes "Draft: read the packages and the notes, then publish by hand." THIRD-PARTY-LICENSES.txt
+
+  build:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: x86_64-unknown-linux-musl, os: ubuntu-24.04, run: true }
+          - { target: aarch64-unknown-linux-musl, os: ubuntu-24.04-arm, run: true }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest, run: true }
+          - { target: aarch64-apple-darwin, os: macos-latest, run: true }
+          - { target: x86_64-apple-darwin, os: macos-latest, run: false }
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    env:
+      TARGET: ${{ matrix.target }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --target "$TARGET" && rustup default stable
+          if [ "${TARGET#*-linux-}" = musl ]; then sudo apt-get update && sudo apt-get install -y --no-install-recommends musl-tools; fi
+      - name: Build
+        env:
+          # MSVC: the C runtime linked in, so that no Visual C++ redistributable is needed
+          RUSTFLAGS: ${{ contains(matrix.target, 'windows-msvc') && '-C target-feature=+crt-static' || '' }}
+        run: cargo build --release --locked -p toa-cli --target "$TARGET"
+      - name: It runs
+        if: matrix.run
+        run: |
+          exe=target/$TARGET/release/toa; [ -f "$exe.exe" ] && exe=$exe.exe
+          "$exe" --version
+          "$exe" verify examples/official/ifc/*/ifc_*[0-9a-f]/
+      - name: Size
+        run: |
+          exe=target/$TARGET/release/toa; [ -f "$exe.exe" ] && exe=$exe.exe
+          bytes=$(wc -c < "$exe" | tr -d ' ')
+          echo "| $TARGET | $bytes bytes ($(awk "BEGIN {printf \"%.1f\", $bytes / 1000000}") MB) |" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Package and upload to the draft release
+        if: env.TAG != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          name="toa-$TAG-$TARGET"
+          mkdir -p "dist/$name"
+          exe=target/$TARGET/release/toa; [ -f "$exe.exe" ] && exe=$exe.exe
+          cp "$exe" LICENSE README.md "dist/$name/"
+          gh release download "$TAG" -p THIRD-PARTY-LICENSES.txt -D "dist/$name"
+          cd dist
+          case "$TARGET" in
+            *windows*) 7z a -tzip "$name.zip" "$name" >/dev/null; pkg="$name.zip" ;;
+            *) tar -czf "$name.tar.gz" "$name"; pkg="$name.tar.gz" ;;
+          esac
+          gh release upload "$TAG" "$pkg" --clobber
+
+  # SHA256SUMS over every package, once all are in the draft
+  checksums:
+    needs: [prepare, build]
+    if: needs.prepare.outputs.tag != ''
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+    steps:
+      - name: Write SHA256SUMS
+        run: |
+          mkdir dist && cd dist
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" -p 'toa-*'
+          sha256sum toa-* > SHA256SUMS
+          cat SHA256SUMS >> "$GITHUB_STEP_SUMMARY"
+          gh release upload "$TAG" SHA256SUMS -R "$GITHUB_REPOSITORY" --clobber

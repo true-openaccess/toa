@@ -1,0 +1,16 @@
+type: evd
+kind: sim
+license: CC0-1.0
+author: Alice Zhang
+dut: ckt_e9ae6546152d10f5ef21958edfa91b1e7c4faab7
+tbs: [tb_da7445c069776f4e59f7a9c0ca974ed421b4205e]
+conditions:
+  parameters: {vdd: 1.8}
+  options: {temp: 27}
+  models:
+  - {file: sky130.lib.spice, section: tt}
+environment:
+  simulator: {name: spectre, version: '23.1.0'}
+  analysis: {python: '3.11.9'}
+metrics:
+  tb_offset.offset: 1.7

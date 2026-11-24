@@ -1,0 +1,8 @@
+{
+  "TOA library format standard: objects, manifests, source lists, libraries, workspaces, and operations.": "TOA 库格式标准：对象、入口文件、来源表、库、工作区与操作。",
+  "TOA home": "TOA 首页",
+  "Pages": "页面",
+  "TOA · library format standard": "TOA · 库格式标准",
+  "Defines TOA objects, naming, manifests, source lists, libraries, workspaces, and operations—self-contained for any implementation.": "定义 TOA 对象、命名、入口文件、来源表、库、工作区及操作，任何工具均可据此独立实现。",
+  "Footer": "页脚"
+}

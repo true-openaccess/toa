@@ -1,0 +1,31 @@
+{
+  "toa": "lock/1",
+  "dut": "ckt_e9ae6546152d10f5ef21958edfa91b1e7c4faab7",
+  "tbs": [
+    {
+      "object": "tb_da7445c069776f4e59f7a9c0ca974ed421b4205e",
+      "files": {
+        "analyze.py": "e71c2dee2242150320f408297bf273a2fcefb35a820254c66f2c0dbe7cfe8079",
+        "tb.scs": "f6fbca7aecad6d5e22813f649dd77a898aa9cbab586e990a31097f026ed1f5bc"
+      }
+    }
+  ],
+  "tree": [
+    {
+      "path": "",
+      "object": "ckt_e9ae6546152d10f5ef21958edfa91b1e7c4faab7",
+      "ifc": "ifc_12ad57c51e8f36cac47a4b8a53f2949315f190f5",
+      "files": {
+        "strongarm_comp.scs": "00eb6ff40503198719d4007cdb98250c77dbf1aac08c514a0a43739c0b1482ff"
+      }
+    },
+    {
+      "path": "dyn_latch_cmp",
+      "object": "ckt_4fc19b9fa24339682172aa51ef465bdaff46fe34",
+      "ifc": "ifc_4915f191ad95b57dd34a628ab49030a457d91398",
+      "files": {
+        "dyn_latch_cmp.scs": "812409ff99b943d6e7ccaa7cfa8864821d56c51717b9caf4dd8da0eb2e14186d"
+      }
+    }
+  ]
+}

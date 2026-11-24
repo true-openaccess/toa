@@ -1,0 +1,13 @@
+type: ifc
+license: CC0-1.0
+name: dyn-latch-cmp
+title: Dynamic latch comparator
+description: A comparator of one dynamic latch stage.
+pins:
+- {name: inp, kind: analog, direction: in}
+- {name: inn, kind: analog, direction: in}
+- {name: clk, kind: digital, direction: in}
+- {name: outp, kind: digital, direction: out}
+- {name: outn, kind: digital, direction: out}
+- {name: vdd, kind: supply}
+- {name: vss, kind: ground}

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<!-- The plain page of build.py, used only when the site's template, site/src/spec-page.html, is missing. -->
+<style>
+:root { --bg: #f4f5f7; --card: #fff; --ink: #1d2330; --muted: #5b6472; --line: #d5d9e0; --link: #0b57d0; --code: #eef0f3; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #14171c; --card: #1c2027; --ink: #e3e6eb; --muted: #9aa3b0; --line: #343a45; --link: #8ab4f8; --code: #262b33; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.65 system-ui, "Segoe UI", "Microsoft YaHei", sans-serif; }
+a { color: var(--link); }
+header { padding: 16px; border-bottom: 1px solid var(--line); background: var(--card); }
+header .rev { color: var(--muted); font-size: 14px; }
+.wrap { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 16px; max-width: 1240px; margin: 16px auto; padding: 0 16px; }
+nav, article { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; }
+nav { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; font-size: 14px; }
+nav ol { list-style: none; padding-left: 0; margin: 0; }
+nav ol ol { padding-left: 1em; }
+nav .n { display: inline-block; min-width: 3em; color: var(--muted); }
+h2 { margin-top: 2em; border-bottom: 1px solid var(--line); }
+.sec { margin-right: .6em; color: var(--muted); }
+.anchor { margin-left: .4em; text-decoration: none; opacity: .3; }
+code { background: var(--code); padding: 0 3px; border-radius: 3px; font-size: .92em; }
+pre { background: var(--code); padding: 10px; border-radius: 6px; overflow: auto; }
+pre code { padding: 0; }
+table { border-collapse: collapse; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--line); padding: 4px 8px; vertical-align: top; text-align: left; }
+@media (max-width: 860px) { .wrap { grid-template-columns: 1fr; } nav { position: static; max-height: none; } }
+</style>
+</head>
+<body>
+<header>
+  <strong>{{title}}</strong> <span class="rev">{{revision}}</span>
+  · <a href="../../../{{other_lang}}/spec/{{version}}/">{{other_lang}}</a>
+  <ul>{{downloads}}</ul>
+</header>
+<div class="wrap">
+<nav><ol>
+{{toc}}
+</ol></nav>
+<article>
+{{body}}
+</article>
+</div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+Third-party software in toa
+
+The executable `toa` is under the MIT licence (LICENSE). It is built from the Rust packages
+listed below, each under the licence given with it: its own (toa-cli, toa-core, toa-repo, under
+MIT) and those of others. This file was written by cargo-about from Cargo.lock
+(crates/toa-cli/about.toml).
+
+Licences used:
+{{#each overview}}
+  {{{name}}} ({{{id}}}): {{count}} package(s)
+{{/each}}
+{{#each licenses}}
+
+================================================================================
+{{{name}}} ({{{id}}})
+
+Used by:
+{{#each used_by}}
+  {{{crate.name}}} {{{crate.version}}}{{#if crate.repository}} <{{{crate.repository}}}>{{/if}}
+{{/each}}
+
+{{{text}}}
+{{/each}}

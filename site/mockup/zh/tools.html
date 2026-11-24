@@ -1,0 +1,203 @@
+<!doctype html>
+<!-- The page of the reference tool, toa. The commands, their options and the exit codes follow the
+     output of toa --help (toa 0.1.0); commands not in the tool yet are listed apart as planned.
+     Section numbers link to the standard. The same conventions as index.html. -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>toa 工具 · True-OpenAccess</title>
+<meta name="description" content="TOA 0.1 参考工具 toa 的编译与命令说明。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&amp;display=swap">
+<style>:root{--sans:"IBM Plex Sans", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;--mono:"IBM Plex Mono", "Cascadia Mono", Consolas, "Noto Sans SC", monospace;}</style>
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+<div class="preview-bar"><div class="wrap">Mockup of the site, phase 2: the home page, the standard, the tool, agents, translation status. The standard&#x27;s downloads are left out of the mockup. Preview of Chinese (Simplified), a language not yet published: the published site offers it in no menu.</div></div>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="TOA 首页">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="8" width="12" height="12" rx="2" fill="var(--accent)"/></svg>
+      TOA <small>True-OpenAccess</small>
+    </a>
+    <nav class="nav" aria-label="页面">
+      <a href="index.html">概览</a>
+      <a href="spec/0.1/">标准</a>
+      <a class="on" href="tools.html" aria-current="page">工具</a>
+      <a href="agents.html">Agent</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+    <div class="top-tools">
+      <details class="lang">
+        <summary class="btn small" aria-label="选择语言">
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 8h13M8 1.5c2 2 2.8 4.2 2.8 6.5S10 12.5 8 14.5C6 12.5 5.2 10.3 5.2 8S6 3.5 8 1.5z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+          中文
+        </summary>
+        <div class="lang-list">
+          <a href="../en/tools.html" lang="en">English <span class="code">EN</span></a>
+          <a href="../zh/tools.html" lang="zh-CN" aria-current="true">简体中文 <span class="code">ZH · preview</span></a>
+        </div>
+      </details>
+      <button id="theme-btn" class="btn small" type="button" aria-label="切换到暗色" data-dark="切换到暗色" data-light="切换到亮色">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13z" fill="currentColor"/><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        主题
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap doc">
+    <nav class="toc card" aria-label="本页内容">
+      <div class="card-head"><h3>本页内容</h3></div>
+      <div class="card-body">
+        <ol>
+          <li><a href="#build"><span class="n">1</span>从源码编译</a></li>
+          <li><a href="#git"><span class="n">2</span>Git 使用方式</a></li>
+          <li><a href="#library"><span class="n">3</span>发布库</a></li>
+          <li><a href="#commands"><span class="n">4</span>命令</a></li>
+          <li><a href="#options"><span class="n">5</span>选项和退出码</a></li>
+          <li><a href="#planned"><span class="n">6</span>计划中的命令</a></li>
+        </ol>
+      </div>
+    </nav>
+
+    <div class="doc-main">
+      <div class="card doc-head">
+        <div class="card-body">
+          <div class="kicker" style="margin:0">参考工具</div>
+          <h1>参考工具 <code>toa</code></h1>
+          <p>跨平台单文件工具（Windows / Linux / macOS），实现 TOA 0.1 哈希、核对、定稿、发布与取对象（MIT 许可）。</p>
+          <div class="rev">
+            <span class="pill draft">尚未发布</span>
+            <span class="mono">toa 0.1.0 (TOA 0.1)</span>
+          </div>
+          <div class="notice">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5l6.8 12H1.2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6.2v3.6M8 11.6v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <p>暂未发布预编译包，请按以下步骤从源码编译（需数分钟）。</p>
+          </div>
+        </div>
+      </div>
+
+      <article class="card prose">
+        <h2 id="build"><span class="sec">1</span>从源码编译</h2>
+        <p>需 Rust 1.85+ 与 cargo（可通过 <a href="https://rustup.rs">rustup</a> 安装）：</p>
+<pre><code>git clone https://github.com/true-openaccess/toa.git
+cd toa
+cargo build --release -p toa-cli</code></pre>
+        <p>产物为单文件 <code>target/release/toa</code>（Windows 为 <code>toa.exe</code>），或用 cargo 安装至 PATH：</p>
+<pre><code>cargo install --path crates/toa-cli</code></pre>
+        <p>验证安装：</p>
+<pre><code>$ toa --version
+toa 0.1.0 (TOA 0.1)</code></pre>
+
+        <h2 id="git"><span class="sec">2</span>Git 使用方式</h2>
+        <p>TOA 不依赖 git：<code>toa</code> 自己计算兼容 git 的树哈希。本地库可以是任意目录；公开分享时用 git 仓库最方便。</p>
+        <table>
+          <thead><tr><th><code>--git=</code></th><th>行为</th></tr></thead>
+          <tbody>
+            <tr><td><code>auto</code></td><td>默认：优先用系统 git（2.25+），否则用内置 git。</td></tr>
+            <tr><td><code>system</code></td><td>PATH 中的系统 git。</td></tr>
+            <tr><td><code>builtin</code></td><td><code>toa</code> 内置 git，支持读库与取对象；定稿仅算文件哈希，提交需系统 git。</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="library"><span class="sec">3</span>发布库</h2>
+        <p>公开库为 git 仓库，发布分支（默认 <code>main</code>）存对象与库的清单。根目录须置 <code>.gitattributes</code> 按字节原样存储，否则报 <code>E_LIB_ATTRIBUTES</code>：</p>
+<pre><code>* -text</code></pre>
+        <p>含草稿与 <code>.gitattributes</code> 的目录首次发布：</p>
+<pre><code>git init -b main
+toa seal             # 将草稿定稿为哈希命名对象
+toa publish --commit  # 整理清单、提交并做库的检查
+git push              # 手动推送（toa 不推送）</code></pre>
+        <p><code>toa seal</code> 前可用 <code>toa status</code> 查草稿，<code>--dry-run</code> 预览变更。</p>
+
+        <h2 id="commands"><span class="sec">4</span>命令</h2>
+        <p>同 <code>toa --help</code>；编号对应<a href="spec/0.1/">标准</a>章节。</p>
+
+        <h3>对象</h3>
+        <table class="cmds">
+          <tbody>
+            <tr><td><code>toa hash <span class="nw">[--sha256]</span> DIR...</code></td><td>输出目录树哈希（非合法的对象树无哈希）。 <a class="ref" href="spec/0.1/#2.2">2.2</a></td></tr>
+            <tr><td><code>toa verify <span class="nw">[--types]</span> DIR...</code></td><td>读文件核对对象树、入口文件、类型前缀与哈希；<code>--types</code> 附加单对象类型规格检查。 <a class="ref" href="spec/0.1/#7.4">7.4</a></td></tr>
+            <tr><td><code>toa seal <span class="nw">[DIR]</span> <span class="nw">[--dry-run]</span> <span class="nw">[--workspace FILE]</span></code></td><td>原子定稿 DIR 下全部草稿：按内容命名，写好来历和来源表；失败则不改文件。 <a class="ref" href="spec/0.1/#7.1">7.1</a></td></tr>
+            <tr><td><code>toa derive NAME|DIR <span class="nw">[--tag TAG]</span> <span class="nw">[--into DIR]</span> <span class="nw">[--dry-run]</span> <span class="nw">[--workspace FILE]</span> <span class="nw">[--offline]</span> <span class="nw">[--allow-host HOST]...</span> <span class="nw">[--yes]</span></code></td><td>把对象复制成新草稿，<code>base</code> 指回它。对象按 <code>toa fetch</code> 的方式查找并核对，或直接取自对象目录；除 <code>history.json</code> 外的文件都复制。草稿名为 <code>&lt;prefix&gt;_draft-&lt;tag&gt;</code>，标签取 <code>--tag</code>，否则取入口文件的 name。不需要 git。 <a class="ref" href="spec/0.1/#3.4">3.4</a></td></tr>
+            <tr><td><code>toa unseal NAME <span class="nw">[--branch B]</span></code></td><td>将未发布对象及其未发布引用方还原为草稿。 <a class="ref" href="spec/0.1/#7.1">7.1</a></td></tr>
+            <tr><td><code>toa status <span class="nw">[--branch B]</span></code></td><td>只读列出草稿、哈希错配、未发布及缺失对象。 <a class="ref" href="spec/0.1/#7.1">7.1</a></td></tr>
+          </tbody>
+        </table>
+
+        <h3>库</h3>
+        <table class="cmds">
+          <tbody>
+            <tr><td><code>toa publish <span class="nw">[--to ADDRESS]</span> <span class="nw">[--branch B]</span> <span class="nw">[--commit [--sign] | --dry-run]</span> <span class="nw">[--workspace FILE]</span> <span class="nw">[--volumes]</span> <span class="nw">[--keep-latest]</span></code></td><td>核对新对象、整理来源表并重建库的清单（无草稿）；<code>--commit</code> 提交并做库的检查（不推送）。最新标记移到新的一代，新的一支也标上；<code>--keep-latest</code> 则保持不变。 <a class="ref" href="spec/0.1/#7.2">7.2</a></td></tr>
+            <tr><td><code>toa latest <span class="nw">NAME|PATH... | --all</span> <span class="nw">[--off]</span> <span class="nw">[--branch B]</span> <span class="nw">[--commit [--sign] | --dry-run]</span></code></td><td>在库的清单里把对象标为最新，同一来历中同一支其他代的标记随之去掉；<code>--off</code> 清除标记。<code>--all</code> 给每个还没有标记的一支标上最新的一代，用于 <code>toa publish</code> 开始给标记之前发布的对象。 <a class="ref" href="spec/0.1/#5.2">5.2</a></td></tr>
+            <tr><td><code>toa check <span class="nw">[--rev R]</span> <span class="nw">[--base B | --no-base]</span> <span class="nw">[--branch NAME]</span> <span class="nw">[--workspace FILE]</span></code></td><td>以发布分支最新提交为基准，对提交（默认 HEAD）做库的检查。 <a class="ref" href="spec/0.1/#6.4">6.4</a></td></tr>
+            <tr><td><code>toa remove NAME|PATH <span class="nw">[--record]</span> <span class="nw">[--reason TEXT]</span> <span class="nw">[--to ADDRESS]</span> <span class="nw">[--keep-notes]</span> <span class="nw">[--branch B]</span> <span class="nw">[--dry-run]</span></code></td><td>删除对象副本及旁挂文件；<code>--record</code> 留删除记录，指明其他来源。 <a class="ref" href="spec/0.1/#6.5">6.5</a></td></tr>
+            <tr><td><code>toa source check FILE...</code></td><td>按发布分支严格规则检查来源表。 <a class="ref" href="spec/0.1/#5.1">5.1</a></td></tr>
+          </tbody>
+        </table>
+
+        <h3>获取与索引</h3>
+        <table class="cmds">
+          <tbody>
+            <tr><td><code>toa fetch NAME... <span class="nw">[--into DIR]</span> <span class="nw">[--workspace FILE]</span> <span class="nw">[--offline]</span> <span class="nw">[--allow-host HOST]...</span> <span class="nw">[--yes]</span></code></td><td>依次从本机与工作区清单按名取对象，核对后落盘；清单外主机需确认或 <code>--allow-host</code>。 <a class="ref" href="spec/0.1/#7.3">7.3</a></td></tr>
+            <tr><td><code>toa cat NAME PATH <span class="nw">[--workspace FILE]</span> <span class="nw">[--offline]</span> <span class="nw">[--allow-host HOST]...</span></code></td><td>同 <code>toa fetch</code> 定位核对后，输出指定文件至标准输出。</td></tr>
+            <tr><td><code>toa index <span class="nw">[--workspace FILE]</span> <span class="nw">[--out DIR]</span> <span class="nw">[--full]</span> <span class="nw">[--follow-includes]</span> <span class="nw">[--offline]</span> <span class="nw">[--allow-host HOST]...</span></code></td><td>扫描工作区清单所含库并建索引（非交互）。 <a class="ref" href="spec/0.1/#8.2">8.2</a></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="options"><span class="sec">5</span>选项和退出码</h2>
+        <table>
+          <tbody>
+            <tr><td><code>--json</code></td><td>标准输出打印 JSON Lines，供脚本与 Agent 用。</td></tr>
+            <tr><td><code>-C DIR</code></td><td>以 DIR 为工作目录运行。</td></tr>
+            <tr><td><code>--git=auto|system|builtin</code></td><td>选择 git 实现，见<a href="#git">上文</a>。</td></tr>
+            <tr><td><code>--version</code>, <code>--help</code></td><td>输出版本或帮助。</td></tr>
+          </tbody>
+        </table>
+        <table>
+          <thead><tr><th>退出码</th><th>含义</th></tr></thead>
+          <tbody>
+            <tr><td><code>0</code></td><td>成功。</td></tr>
+            <tr><td><code>1</code></td><td>发现问题。</td></tr>
+            <tr><td><code>2</code></td><td>用法错误。</td></tr>
+            <tr><td><code>3</code></td><td>运行失败（缺 git 或文件不可读）。</td></tr>
+            <tr><td><code>4</code></td><td>取对象失败（未找到、离线或主机未授权）。</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="planned"><span class="sec">6</span>计划中的命令</h2>
+        <p>尚未实现。<code>toa new</code> 实现之前，新草稿目录手工编写；要从已有对象出发，用 <code>toa derive</code>。</p>
+        <table class="cmds">
+          <tbody>
+            <tr><td><code>toa new</code> <span class="pill plain">计划中</span></td><td>按类型生成含入口文件模板的草稿。</td></tr>
+            <tr><td><code>toa show</code>, <code>toa tree</code> <span class="pill plain">计划中</span></td><td>查看字段、引用与旁挂文件；显示依赖展开树。</td></tr>
+            <tr><td><code>toa where</code>, <code>toa used-by</code>, <code>toa updates</code> <span class="pill plain">计划中</span></td><td>查找来源；反查引用方；检查新版。</td></tr>
+            <tr><td><code>toa catalog</code>, <code>toa note</code>, <code>toa source expand</code> <span class="pill plain">计划中</span></td><td>单独重建库的清单；添加说明；展开来源表包含行。</td></tr>
+            <tr><td><code>toa hook install</code> <span class="pill plain">计划中</span></td><td>安装可选的只读检查提交钩子。</td></tr>
+          </tbody>
+        </table>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>TOA（True-OpenAccess）· 代码 MIT · 文本 CC-BY-4.0 · 数据 CC0-1.0 · 标准以英文为准。</div>
+    <nav aria-label="页脚">
+      <a href="spec/0.1/">标准</a>
+      <a href="tools.html">工具</a>
+      <a href="agents.html">Agent</a>
+      <a href="../llms.txt">llms.txt</a>
+      <a href="translation.html">翻译进度</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,32 @@
+version = 1
+
+# Default for everything not matched below: code, configuration, and the
+# repository README files.
+[[annotations]]
+path = "**"
+SPDX-FileCopyrightText = "2026 many-question"
+SPDX-License-Identifier = "MIT"
+
+# Specification text and project documentation.
+[[annotations]]
+path = ["spec/**", "docs/**"]
+SPDX-FileCopyrightText = "2026 many-question"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# Data: test vectors, test corpora and examples.
+[[annotations]]
+path = ["spec/vectors/**", "tests/**", "examples/**"]
+SPDX-FileCopyrightText = "2026 many-question"
+SPDX-License-Identifier = "CC0-1.0"
+
+# The conformance test runner is code; its test data stays CC0-1.0 above.
+[[annotations]]
+path = ["tests/Cargo.toml", "tests/**/*.rs", "tests/**/*.sh", "tests/**/*.py"]
+SPDX-FileCopyrightText = "2026 many-question"
+SPDX-License-Identifier = "MIT"
+
+# Documentation kept beside the code, such as the index format of toa.
+[[annotations]]
+path = "crates/**/doc/**"
+SPDX-FileCopyrightText = "2026 many-question"
+SPDX-License-Identifier = "CC-BY-4.0"

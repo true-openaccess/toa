@@ -1,0 +1,144 @@
+<!doctype html>
+<!-- How far each language is, and the glossaries. The build fills the tables from
+     scripts/i18n/status.py and i18n/<lang>/glossary.json when it builds the site: status_langs gives
+     a column for each language besides English, status_<surface> the row of one surface of
+     i18n/surfaces.json (a surface with no row here, or a row with no surface, stops the build), and
+     glossary_head and glossary_rows the terms of TOA (kind toa) with each language's rendering.
+     The same conventions as index.html. -->
+<html lang="{{html_lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{translation}} · {{full_name}}</title>
+<meta name="description" content="<en>TOA translation progress, publication criteria, and terminology glossaries.</en>">
+{{fonts}}
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+{{preview_bar}}
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="<en>TOA home</en>">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="8" width="12" height="12" rx="2" fill="var(--accent)"/></svg>
+      TOA <small>{{full_name}}</small>
+    </a>
+    <nav class="nav" aria-label="<en>Pages</en>">
+      <a href="index.html">{{intro}}</a>
+      <a href="{{href_spec}}">{{spec}}</a>
+      <a href="tools.html">{{tools}}</a>
+      <a href="agents.html">{{agents}}</a>
+      <a href="https://github.com/true-openaccess/toa">{{github}}</a>
+    </nav>
+    <div class="top-tools">
+      {{lang_menu}}
+      <button id="theme-btn" class="btn small" type="button" aria-label="{{theme_dark}}" data-dark="{{theme_dark}}" data-light="{{theme_light}}">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13z" fill="currentColor"/><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        {{theme}}
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap doc">
+    <nav class="toc card" aria-label="{{on_this_page}}">
+      <div class="card-head"><h3>{{on_this_page}}</h3></div>
+      <div class="card-body">
+        <ol>
+          <li><a href="#status"><span class="n">1</span><en>Progress</en></a></li>
+          <li><a href="#published"><span class="n">2</span><en>Publication criteria</en></a></li>
+          <li><a href="#help"><span class="n">3</span><en>Help translate</en></a></li>
+          <li><a href="#glossary"><span class="n">4</span>{{glossary}}</a></li>
+          <li><a href="#not"><span class="n">5</span><en>Untranslated content</en></a></li>
+        </ol>
+      </div>
+    </nav>
+
+    <div class="doc-main">
+      <div class="card doc-head">
+        <div class="card-body">
+          <div class="kicker" style="margin:0"><en>Languages</en></div>
+          <h1>{{translation}}</h1>
+          <p><en>English is TOA's sole normative language for text and terminology. Other languages track English and fall back to it where untranslated.</en></p>
+        </div>
+      </div>
+
+      <article class="card prose">
+        <h2 id="status"><span class="sec">1</span><en>Progress</en></h2>
+        <p><en>Generated at build time by <code>scripts/i18n/status.py</code>. Entries are stale if English changed after translation.</en></p>
+        <div class="scroll">
+        <table class="progress">
+          <thead><tr><th scope="col"><en>Scope</en></th>{{status_langs}}</tr></thead>
+          <tbody>
+            <tr><td><en>TOA 0.1 chapters &amp; annexes</en></td>{{status_spec}}</tr>
+            <tr><td><en>Type specifications</en></td>{{status_spec_types}}</tr>
+            <tr><td>{{glossary}}</td>{{status_glossary}}</tr>
+            <tr><td><en>Site pages</en></td>{{status_site_pages}}</tr>
+            <tr><td><en>Shared UI strings</en></td>{{status_site_messages}}</tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2 id="published"><span class="sec">2</span><en>Publication criteria</en></h2>
+        <ul>
+          <li><en>New languages start as <b>incubating</b>: built for preview only, hidden from menus.</en></li>
+          <li><en>A language is <b>published</b> once navigation, home, and agent pages reach 100%, other pages reach ≥80%, and a reviewer approves.</en></li>
+          <li><en>Pages under 80% fall back to English; 80%–99% show English for missing strings. Both display an English notice.</en></li>
+        </ul>
+
+        <h2 id="help"><span class="sec">3</span><en>Help translate</en></h2>
+        <p><en>Translations live alongside their sources; see the <a href="https://github.com/true-openaccess/toa/tree/main/i18n">i18n directory</a> for formats and checks.</en></p>
+        <table>
+          <thead><tr><th><en>Target</en></th><th><en>Path</en></th></tr></thead>
+          <tbody>
+            <tr><td><en>Standard chapters &amp; type specifications</en></td><td><code>spec/0.1/&lt;lang&gt;/</code>, <code>spec/types/&lt;lang&gt;/</code></td></tr>
+            <tr><td>{{glossary}}</td><td><code>i18n/&lt;lang&gt;/glossary.json</code></td></tr>
+            <tr><td><en>Site pages</en></td><td><code>i18n/&lt;lang&gt;/site/&lt;page&gt;.json</code></td></tr>
+            <tr><td><en>Shared UI strings</en></td><td><code>i18n/&lt;lang&gt;/site/messages.json</code></td></tr>
+          </tbody>
+        </table>
+<pre><code>python scripts/i18n/status.py            <en># translation progress</en>
+python scripts/i18n/status.py files zh   <en># files for one language</en>
+python scripts/i18n/status.py check      <en># validate formats</en></code></pre>
+
+        <h2 id="glossary"><span class="sec">4</span>{{glossary}}</h2>
+        <p><en>Localized TOA terminology—a translation convention, not part of the standard. Only English terms are normative.</en></p>
+        <div class="scroll">
+        <table class="glossary">
+          <thead><tr><th scope="col"><en>English</en></th>{{glossary_head}}</tr></thead>
+          <tbody>
+{{glossary_rows}}
+          </tbody>
+        </table>
+        </div>
+
+        <h2 id="not"><span class="sec">5</span><en>Untranslated content</en></h2>
+        <table>
+          <tbody>
+            <tr><td><en><code>toa</code> CLI messages</en></td><td><en>Tool-defined wording; outside the standard.</en></td></tr>
+            <tr><td><a href="../llms.txt">llms.txt</a></td><td><en>Maintained in English only for agents.</en></td></tr>
+            <tr><td><en>Repository docs</en></td><td><en>Developer-facing, English only.</en></td></tr>
+            <tr><td><en>Data &amp; type schemas</en></td><td><en>Machine-read; explanations live in type specifications.</en></td></tr>
+          </tbody>
+        </table>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>{{foot}}</div>
+    <nav aria-label="<en>Footer</en>">
+      <a href="{{href_spec}}">{{spec}}</a>
+      <a href="tools.html">{{tools}}</a>
+      <a href="agents.html">{{agents}}</a>
+      <a href="../llms.txt">llms.txt</a>
+      <a class="on" href="translation.html" aria-current="page">{{translation}}</a>
+      <a href="https://github.com/true-openaccess/toa">{{github}}</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

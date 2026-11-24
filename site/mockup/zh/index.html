@@ -1,0 +1,946 @@
+<!doctype html>
+<!-- The home page, in English only. Each text stands in an en element, which site/build.py replaces
+     with its translation from i18n/<lang>/site/index.html.json. The names in double braces are filled
+     by the build: the shared messages of i18n/languages.json, among them full_name, the project's
+     full name; and the parts the build makes (fonts, language menu, links).
+
+     The tour (section 01) shows five properties of an object one step at a time. In a step, an
+     element with data-at="n" gets the class "on" at beat n, and one with data-off="n" the class "off";
+     what they do is up to its other classes: fade appears, move slides from (--dx, --dy) to its place,
+     draw draws a line, dim greys out. assets/tour.js runs the beats; without scripts, or with reduced
+     motion, every step is shown complete. Each step has two drawings: fig-w for wide screens and
+     fig-n, drawn upright, for phones. The panel on the left shows only the one or two commands that
+     matter, large, each with a line or two of what it returns: not a whole terminal.
+
+     Object names: ifc_12ad57c5... and ckt_876f99c0... are real, the interface and circuit of the
+     official example rebuilt with the 0.1 type names and hashed by toa; so is 6d99388d..., the same
+     circuit with w=4u changed to w=5u. The other names in the tour are made up. -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TOA · True-OpenAccess</title>
+<meta name="description" content="TOA 是真正开放的电路设计对象标准：Agent 原生可读，且可安全、不被篡改地公开分享的设计对象。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&amp;display=swap">
+<style>:root{--sans:"IBM Plex Sans", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;--mono:"IBM Plex Mono", "Cascadia Mono", Consolas, "Noto Sans SC", monospace;}</style>
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+<script src="../assets/tour.js" defer></script>
+</head>
+<body>
+<svg class="defs" aria-hidden="true">
+  <defs>
+    <marker id="ah-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-a" d="M0 0L10 5L0 10z"/></marker>
+    <marker id="ah-n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-n" d="M0 0L10 5L0 10z"/></marker>
+    <marker id="ah-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-b" d="M0 0L10 5L0 10z"/></marker>
+    <marker id="ah-w" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-w" d="M0 0L10 5L0 10z"/></marker>
+  </defs>
+</svg>
+<div class="preview-bar"><div class="wrap">Mockup of the site, phase 2: the home page, the standard, the tool, agents, translation status. The standard&#x27;s downloads are left out of the mockup. Preview of Chinese (Simplified), a language not yet published: the published site offers it in no menu.</div></div>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="TOA 首页">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="8" width="12" height="12" rx="2" fill="var(--accent)"/></svg>
+      TOA <small>True-OpenAccess</small>
+    </a>
+    <nav class="nav" aria-label="页面">
+      <a class="on" href="index.html" aria-current="page">概览</a>
+      <a href="spec/0.1/">标准</a>
+      <a href="tools.html">工具</a>
+      <a href="agents.html">Agent</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+    <div class="top-tools">
+      <details class="lang">
+        <summary class="btn small" aria-label="选择语言">
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 8h13M8 1.5c2 2 2.8 4.2 2.8 6.5S10 12.5 8 14.5C6 12.5 5.2 10.3 5.2 8S6 3.5 8 1.5z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+          中文
+        </summary>
+        <div class="lang-list">
+          <a href="../en/index.html" lang="en">English <span class="code">EN</span></a>
+          <a href="../zh/index.html" lang="zh-CN" aria-current="true">简体中文 <span class="code">ZH · preview</span></a>
+        </div>
+      </details>
+      <button id="theme-btn" class="btn small" type="button" aria-label="切换到暗色" data-dark="切换到暗色" data-light="切换到亮色">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13z" fill="currentColor"/><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        主题
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap" style="display:block">
+      <div class="hero-top">
+        <div class="hero-lead">
+          <div class="kicker">True-OpenAccess<span class="chip warn">TOA 0.1 · 草稿</span></div>
+          <h1>TOA：真正开放的电路设计对象标准</h1>
+          <p class="def">Agent 原生可读，且可安全、不被篡改地公开分享的设计对象。</p>
+          <div class="actions">
+            <a class="btn primary" href="#tour">工作原理</a>
+            <a class="btn" href="spec/0.1/">阅读标准</a>
+            <a class="btn" href="https://github.com/true-openaccess/toa">查看源码</a>
+          </div>
+        </div>
+
+        <dl class="plate" aria-label="项目状态">
+          <div class="main"><dt>项目</dt><dd>TOA <small>True-OpenAccess</small></dd></div>
+          <div><dt>定位</dt><dd>电路设计对象标准</dd></div>
+          <div><dt>标准</dt><dd>TOA 0.1 <span class="pill draft">草稿</span></dd></div>
+          <div><dt>工具</dt><dd><code>toa</code>，开发中</dd></div>
+          <div><dt>发布</dt><dd>暂无</dd></div>
+          <div><dt>许可证</dt><dd>代码 MIT · 文本 CC-BY-4.0 · 数据 CC0-1.0</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 01 How it works ===================== -->
+  <section class="band tour" id="tour">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="no" aria-hidden="true">01</span>
+        <span class="kick">工作原理</span>
+        <h2>五大核心特性</h2>
+      </header>
+
+      <div class="card tour-box">
+        <div class="tour-tabs" role="tablist" aria-label="特性">
+          <button type="button" role="tab" id="tt-1" aria-controls="ts-1" aria-selected="true"><span class="n">1</span><b>不可变</b></button>
+          <button type="button" role="tab" id="tt-2" aria-controls="ts-2" aria-selected="false" tabindex="-1"><span class="n">2</span><b>自组织</b></button>
+          <button type="button" role="tab" id="tt-3" aria-controls="ts-3" aria-selected="false" tabindex="-1"><span class="n">3</span><b>防篡改</b></button>
+          <button type="button" role="tab" id="tt-4" aria-controls="ts-4" aria-selected="false" tabindex="-1"><span class="n">4</span><b>Agent 原生</b></button>
+          <button type="button" role="tab" id="tt-5" aria-controls="ts-5" aria-selected="false" tabindex="-1"><span class="n">5</span><b>可扩展</b></button>
+        </div>
+
+        <!-- ============ 1 Immutable ============ -->
+        <article class="tstep cur" id="ts-1" role="tabpanel" aria-labelledby="tt-1">
+          <header class="tstep-head">
+            <h3>对象不可变</h3>
+            <p>对象是以内容哈希命名的目录：改动一字节即成新对象，原对象不变。</p>
+          </header>
+          <div class="tstep-body">
+            <div class="tpanel">
+              <div class="ph"><span>关键命令</span><span class="faint">名称已缩写</span></div>
+              <div class="keys">
+                <div class="key">
+                  <p class="when">将草稿定稿：</p>
+                  <code class="cmd fade" data-at="1">toa seal</code>
+                  <p class="out fade" data-at="2">ckt_draft-razavi → <b class="h">ckt_876f99c0…</b></p>
+                </div>
+                <div class="key">
+                  <p class="when fade" data-at="4">复制后将 w=4u 改为 w=5u 并重算哈希：</p>
+                  <code class="cmd fade" data-at="5">toa hash copy/</code>
+                  <p class="out fade" data-at="5"><b class="h">6d99388d…</b> <span class="note">新对象，新名称</span></p>
+                </div>
+              </div>
+            </div>
+            <div class="tpanel tfig">
+              <div class="ph"><span>示意图</span></div>
+              <svg class="dg fig-w" viewBox="0 0 600 350" role="img" aria-labelledby="ts1-t">
+                <title id="ts1-t">目录内容哈希生成对象名；副本改一字节即得新名，原对象不变。</title>
+                <g>
+                  <rect class="box" x="16" y="30" width="190" height="96" rx="8"/>
+                  <text class="sm mu" x="28" y="51">对象目录</text>
+                  <rect class="file" x="28" y="62" width="166" height="22" rx="4"/><text class="mono" x="38" y="78">toa.yaml</text>
+                  <rect class="file" x="28" y="90" width="166" height="22" rx="4"/><text class="mono" x="38" y="106">strongarm_comp.scs</text>
+                </g>
+                <path class="la fade draw" data-at="1" pathLength="100" d="M210 78H247" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="1">
+                  <rect class="abox" x="252" y="49" width="140" height="58" rx="8"/>
+                  <text class="sm b" x="322" y="73" text-anchor="middle">目录树哈希</text>
+                  <text class="xs mu" x="322" y="92" text-anchor="middle">算法同 git</text>
+                </g>
+                <path class="la fade draw" data-at="2" pathLength="100" d="M396 78H419" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="2">
+                  <rect class="box" x="424" y="57" width="164" height="42" rx="21"/>
+                  <rect class="ico" x="439" y="76" width="12" height="10" rx="2"/><path class="ico" d="M441 76v-3a4 4 0 0 1 8 0v3"/>
+                  <text class="mono hs b" x="459" y="83">ckt_876f99c0…</text>
+                  <text class="sm mu" x="506" y="121" text-anchor="middle">对象名</text>
+                </g>
+                <g class="fade move" data-at="3" style="--dy:-170px">
+                  <rect class="box" x="16" y="200" width="190" height="96" rx="8"/>
+                  <text class="sm mu" x="28" y="221">编辑副本</text>
+                  <rect class="file" x="28" y="232" width="166" height="22" rx="4"/><text class="mono" x="38" y="248">toa.yaml</text>
+                  <rect class="file" x="28" y="260" width="166" height="22" rx="4"/>
+                  <rect class="chg fade" data-at="4" x="28" y="260" width="166" height="22" rx="4"/>
+                  <text class="mono" x="38" y="276">strongarm_comp.scs</text>
+                </g>
+                <text class="sm wt b fade" data-at="4" x="111" y="320" text-anchor="middle">改动 1 字节</text>
+                <path class="la fade draw" data-at="5" pathLength="100" d="M210 248H247" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="5">
+                  <rect class="abox" x="252" y="219" width="140" height="58" rx="8"/>
+                  <text class="sm b" x="322" y="243" text-anchor="middle">目录树哈希</text>
+                  <text class="xs mu" x="322" y="262" text-anchor="middle">算法同 git</text>
+                </g>
+                <path class="la fade draw" data-at="5" pathLength="100" d="M396 248H419" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="5">
+                  <rect class="box" x="424" y="227" width="164" height="42" rx="21"/>
+                  <rect class="ico" x="439" y="246" width="12" height="10" rx="2"/><path class="ico" d="M441 246v-3a4 4 0 0 1 8 0v3"/>
+                  <text class="mono hs b" x="459" y="253">ckt_6d99388d…</text>
+                  <text class="sm mu" x="506" y="291" text-anchor="middle">新对象，新名称</text>
+                </g>
+                <g class="fade" data-at="6">
+                  <circle class="okc" cx="583" cy="59" r="11"/><path class="mk" d="M578 59l4 4 7-8"/>
+                  <text class="sm okt b" x="506" y="141" text-anchor="middle">保持不变</text>
+                </g>
+              </svg>
+              <svg class="dg fig-n" viewBox="0 0 340 360" role="img" aria-labelledby="ts1-n">
+                <title id="ts1-n">目录内容哈希生成对象名；副本改一字节即得新名，原对象不变。</title>
+                <g>
+                  <rect class="box" x="6" y="10" width="160" height="92" rx="8"/>
+                  <text class="xs mu" x="16" y="29">对象目录</text>
+                  <rect class="file" x="16" y="40" width="140" height="22" rx="4"/><text class="mono xs" x="24" y="55">toa.yaml</text>
+                  <rect class="file" x="16" y="68" width="140" height="22" rx="4"/><text class="mono xs" x="24" y="83">strongarm_comp.scs</text>
+                </g>
+                <path class="la fade draw" data-at="1" pathLength="100" d="M170 56H186" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="1">
+                  <rect class="abox" x="190" y="30" width="144" height="52" rx="8"/>
+                  <text class="sm b" x="262" y="52" text-anchor="middle">目录树哈希</text>
+                  <text class="xs mu" x="262" y="70" text-anchor="middle">算法同 git</text>
+                </g>
+                <path class="la fade draw" data-at="2" pathLength="100" d="M262 84V104" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="2">
+                  <rect class="box" x="190" y="108" width="144" height="36" rx="18"/>
+                  <text class="mono hs b sm" x="262" y="131" text-anchor="middle">ckt_876f99c0…</text>
+                </g>
+                <g class="fade" data-at="6">
+                  <circle class="okc" cx="330" cy="110" r="10"/><path class="mk" d="M325 110l4 4 7-8"/>
+                  <text class="xs okt b" x="262" y="162" text-anchor="middle">保持不变</text>
+                </g>
+                <g class="fade move" data-at="3" style="--dy:-180px">
+                  <rect class="box" x="6" y="190" width="160" height="92" rx="8"/>
+                  <text class="xs mu" x="16" y="209">编辑副本</text>
+                  <rect class="file" x="16" y="220" width="140" height="22" rx="4"/><text class="mono xs" x="24" y="235">toa.yaml</text>
+                  <rect class="file" x="16" y="248" width="140" height="22" rx="4"/>
+                  <rect class="chg fade" data-at="4" x="16" y="248" width="140" height="22" rx="4"/>
+                  <text class="mono xs" x="24" y="263">strongarm_comp.scs</text>
+                </g>
+                <text class="xs wt b fade" data-at="4" x="86" y="302" text-anchor="middle">改动 1 字节</text>
+                <path class="la fade draw" data-at="5" pathLength="100" d="M170 236H186" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="5">
+                  <rect class="abox" x="190" y="210" width="144" height="52" rx="8"/>
+                  <text class="sm b" x="262" y="232" text-anchor="middle">目录树哈希</text>
+                  <text class="xs mu" x="262" y="250" text-anchor="middle">算法同 git</text>
+                </g>
+                <path class="la fade draw" data-at="5" pathLength="100" d="M262 264V284" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="5">
+                  <rect class="box" x="190" y="288" width="144" height="36" rx="18"/>
+                  <text class="mono hs b sm" x="262" y="311" text-anchor="middle">ckt_6d99388d…</text>
+                  <text class="xs mu" x="262" y="342" text-anchor="middle">新对象，新名称</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <ul class="tlist">
+            <li class="fade" data-at="6"><span class="i ok">✓</span><span>同一对象名在任何时间均指向逐字节相同的内容。</span></li>
+            <li class="fade" data-at="1"><span class="i info">i</span><span>哈希算法同 git，但计算不需要 git：本地对象可放在任意目录，公开分享时用 git 仓库最方便。</span></li>
+          </ul>
+        </article>
+
+        <!-- ============ 2 Self-organizing ============ -->
+        <article class="tstep" id="ts-2" role="tabpanel" aria-labelledby="tt-2">
+          <header class="tstep-head">
+            <h3>对象自组织</h3>
+            <p>对象按名字引用它用到的对象，完整设计可以跨库组装，不需要集中的库表。</p>
+          </header>
+          <div class="tstep-body">
+            <div class="tpanel">
+              <div class="ph"><span>toa.yaml</span><span class="faint">节选</span></div>
+              <div class="tcode big">
+                <span class="l"><i class="k">type:</i> ckt</span>
+                <span class="l lit" data-at="2"><i class="k">ifc:</i> <i class="h">ifc_12ad57c5…</i></span>
+                <span class="l"><i class="k">uses:</i></span>
+                <span class="l">  <i class="k">latch:</i></span>
+                <span class="l lit" data-at="2">    <i class="k">ifc:</i> <i class="h">ifc_1f0c663d…</i></span>
+                <span class="l lit" data-at="2">    <i class="k">ckt:</i> <i class="h">ckt_01a3e82c…</i></span>
+              </div>
+              <p class="keynote fade" data-at="2">高亮行按哈希引用其他对象。</p>
+            </div>
+            <div class="tpanel tfig">
+              <div class="ph"><span>示意图</span></div>
+              <svg class="dg fig-w" viewBox="0 0 600 370" role="img" aria-labelledby="ts2-t">
+                <title id="ts2-t">六个对象沿引用组装：验证记录连向电路网表与测试用例，电路网表连向模块定义与锁存器的电路网表。</title>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M300 150V80" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M500 150V80" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M375 176H421" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M362 150L438 80" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M100 150V50H221" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M240 280L284 206" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M160 280L116 206" marker-end="url(#ah-n)"/>
+                <g class="fade" data-at="2">
+                  <text class="mono xs acc" x="306" y="120">ifc</text>
+                  <text class="mono xs acc" x="506" y="120">ifc</text>
+                  <text class="mono xs acc" x="398" y="194" text-anchor="middle">uses</text>
+                  <text class="mono xs acc" x="106" y="104">ifc</text>
+                  <text class="mono xs acc" x="272" y="252">dut</text>
+                  <text class="mono xs acc" x="128" y="252" text-anchor="end">tbs</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:155px;--dy:236px;--r:-6deg">
+                  <rect class="box" x="225" y="24" width="150" height="52" rx="8"/>
+                  <text class="sm b" x="300" y="45" text-anchor="middle">模块定义</text>
+                  <text class="mono xs hs" x="300" y="64" text-anchor="middle">ifc_12ad57c5…</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:-385px;--dy:16px;--r:5deg">
+                  <rect class="box" x="425" y="24" width="150" height="52" rx="8"/>
+                  <text class="sm b" x="500" y="45" text-anchor="middle">锁存器模块定义</text>
+                  <text class="mono xs hs" x="500" y="64" text-anchor="middle">ifc_1f0c663d…</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:405px;--dy:-30px;--r:4deg">
+                  <rect class="box" x="25" y="150" width="150" height="52" rx="8"/>
+                  <text class="sm b" x="100" y="171" text-anchor="middle">测试用例</text>
+                  <text class="mono xs hs" x="100" y="190" text-anchor="middle">tb_4b65fa3e…</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:-195px;--dy:100px;--r:-4deg">
+                  <rect class="abox" x="225" y="150" width="150" height="52" rx="8"/>
+                  <text class="sm b" x="300" y="171" text-anchor="middle">电路网表</text>
+                  <text class="mono xs hs" x="300" y="190" text-anchor="middle">ckt_1ec6249c…</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:-205px;--dy:0px;--r:6deg">
+                  <rect class="box" x="425" y="150" width="150" height="52" rx="8"/>
+                  <text class="sm b" x="500" y="171" text-anchor="middle">锁存器电路网表</text>
+                  <text class="mono xs hs" x="500" y="190" text-anchor="middle">ckt_01a3e82c…</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:105px;--dy:-250px;--r:-5deg">
+                  <rect class="box" x="125" y="280" width="150" height="52" rx="8"/>
+                  <text class="sm b" x="200" y="301" text-anchor="middle">验证记录</text>
+                  <text class="mono xs hs" x="200" y="320" text-anchor="middle">evd_a6e7fa34…</text>
+                </g>
+                <g class="fade" data-at="3">
+                  <rect class="ld" x="10" y="10" width="580" height="334" rx="12"/>
+                  <text class="sm acc b" x="586" y="362" text-anchor="end">顺着引用找齐每个部分</text>
+                </g>
+              </svg>
+              <svg class="dg fig-n" viewBox="0 0 340 330" role="img" aria-labelledby="ts2-n">
+                <title id="ts2-n">六个对象沿引用组装：验证记录连向电路网表与测试用例，电路网表连向模块定义与锁存器的电路网表。</title>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M170 120V66" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M284 120V66" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M222 145H228" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M56 120V37H114" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M138 230L160 174" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="2" pathLength="100" d="M92 230L68 174" marker-end="url(#ah-n)"/>
+                <g class="fade" data-at="2">
+                  <text class="mono xs acc" x="175" y="98">ifc</text>
+                  <text class="mono xs acc" x="289" y="98">ifc</text>
+                  <text class="mono xs acc" x="61" y="82">ifc</text>
+                  <text class="mono xs acc" x="156" y="212">dut</text>
+                  <text class="mono xs acc" x="74" y="212" text-anchor="end">tbs</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:-60px;--dy:220px;--r:-6deg">
+                  <rect class="box" x="118" y="12" width="104" height="50" rx="7"/>
+                  <text class="xs b" x="170" y="32" text-anchor="middle">模块定义</text>
+                  <text class="mono xs hs" x="170" y="50" text-anchor="middle">ifc_12ad…</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:-226px;--dy:110px;--r:5deg">
+                  <rect class="box" x="232" y="12" width="104" height="50" rx="7"/>
+                  <text class="xs b" x="284" y="32" text-anchor="middle">锁存器模块定义</text>
+                  <text class="mono xs hs" x="284" y="50" text-anchor="middle">ifc_1f0c…</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:230px;--dy:-100px;--r:4deg">
+                  <rect class="box" x="4" y="120" width="104" height="50" rx="7"/>
+                  <text class="xs b" x="56" y="140" text-anchor="middle">测试用例</text>
+                  <text class="mono xs hs" x="56" y="158" text-anchor="middle">tb_4b65…</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:-110px;--dy:-100px;--r:-4deg">
+                  <rect class="abox" x="118" y="120" width="104" height="50" rx="7"/>
+                  <text class="xs b" x="170" y="140" text-anchor="middle">电路网表</text>
+                  <text class="mono xs hs" x="170" y="158" text-anchor="middle">ckt_1ec6…</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:-110px;--dy:110px;--r:6deg">
+                  <rect class="box" x="232" y="120" width="104" height="50" rx="7"/>
+                  <text class="xs b" x="284" y="140" text-anchor="middle">锁存器电路网表</text>
+                  <text class="mono xs hs" x="284" y="158" text-anchor="middle">ckt_01a3…</text>
+                </g>
+                <g class="move" data-at="1" style="--dx:170px;--dy:0px;--r:-5deg">
+                  <rect class="box" x="61" y="230" width="104" height="50" rx="7"/>
+                  <text class="xs b" x="113" y="250" text-anchor="middle">验证记录</text>
+                  <text class="mono xs hs" x="113" y="268" text-anchor="middle">evd_a6e7…</text>
+                </g>
+                <g class="fade" data-at="3">
+                  <rect class="ld" x="1" y="4" width="338" height="290" rx="10"/>
+                  <text class="xs acc b" x="336" y="314" text-anchor="end">顺着引用找齐每个部分</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <ul class="tlist">
+            <li class="fade" data-at="3"><span class="i ok">✓</span><span>引用写明设计需要的每个部分，不论存在哪个库。<code>toa fetch</code> 按名字逐个取回；自动顺着引用取齐还在计划中。</span></li>
+            <li class="fade" data-at="1"><span class="i info">i</span><span>旁挂来源表只提示去哪里取，取到的内容由对象名核对。</span></li>
+          </ul>
+        </article>
+
+        <!-- ============ 3 Tamper-evident ============ -->
+        <article class="tstep" id="ts-3" role="tabpanel" aria-labelledby="tt-3">
+          <header class="tstep-head">
+            <h3>防篡改、防丢失</h3>
+            <p>对象以哈希成链：改写历史会改变后续所有对象名，任意核对过的副本与原件等价。</p>
+          </header>
+          <div class="tstep-body">
+            <div class="tpanel">
+              <div class="ph"><span>关键命令</span><span class="faint">名称已缩写</span></div>
+              <div class="keys">
+                <div class="key">
+                  <p class="when">核对对象完整性：</p>
+                  <code class="cmd">toa verify ckt_876f99c0…/</code>
+                  <p class="out fade" data-at="1"><span class="tag ok">ok</span></p>
+                </div>
+                <div class="key">
+                  <p class="when fade" data-at="2">镜像被篡改 1 字节：</p>
+                  <code class="cmd fade" data-at="2">toa verify mirror/ckt_876f99c0…/</code>
+                  <p class="out fade" data-at="2"><span class="tag bad">error</span> E_NAME_MISMATCH<span class="sub">the files hash to <b class="h">6d99388d…</b></span></p>
+                </div>
+              </div>
+            </div>
+            <div class="tpanel tfig">
+              <div class="ph"><span>示意图</span></div>
+              <svg class="dg fig-w" viewBox="0 0 600 400" role="img" aria-labelledby="ts3-t">
+                <title id="ts3-t">三个对象由 base 与 dut 成链。篡改副本核对失败；修改派生新链，原链不变；多副本防丢失。</title>
+                <g>
+                  <rect class="box" x="20" y="36" width="150" height="56" rx="8"/>
+                  <text class="sm b" x="95" y="58" text-anchor="middle">sky130-razavi.g1</text>
+                  <text class="mono xs hs" x="95" y="78" text-anchor="middle">ckt_876f99c0…</text>
+                  <rect class="box" x="225" y="36" width="150" height="56" rx="8"/>
+                  <text class="sm b" x="300" y="58" text-anchor="middle">sky130-razavi.g2</text>
+                  <text class="mono xs hs" x="300" y="78" text-anchor="middle">ckt_1ec6249c…</text>
+                  <rect class="box" x="430" y="36" width="150" height="56" rx="8"/>
+                  <text class="sm b" x="505" y="58" text-anchor="middle">验证记录</text>
+                  <text class="mono xs hs" x="505" y="78" text-anchor="middle">evd_a6e7fa34…</text>
+                  <path class="la" d="M225 64H175" marker-end="url(#ah-a)"/>
+                  <path class="la" d="M430 64H380" marker-end="url(#ah-a)"/>
+                  <text class="mono xs acc" x="200" y="57" text-anchor="middle">base</text>
+                  <text class="mono xs acc" x="405" y="57" text-anchor="middle">dut</text>
+                </g>
+                <text class="sm mu fade" data-at="1" x="300" y="116" text-anchor="middle">每个箭头均为内容哈希</text>
+                <g class="fade" data-at="2" data-off="3">
+                  <path class="lb" d="M95 92V134" marker-end="url(#ah-b)"/>
+                  <rect class="tbox" x="20" y="140" width="150" height="56" rx="8"/>
+                  <text class="sm b" x="95" y="162" text-anchor="middle">篡改副本</text>
+                  <text class="mono xs hs" x="95" y="182" text-anchor="middle">ckt_876f99c0…</text>
+                  <circle class="badc" cx="168" cy="142" r="10"/><path class="mk" d="M164 138l8 8M172 138l-8 8"/>
+                  <text class="sm badt b" x="190" y="164">哈希不匹配：</text>
+                  <text class="sm badt b" x="190" y="184">工具一律拒收</text>
+                </g>
+                <g class="fade" data-at="3">
+                  <rect class="ghost" x="20" y="140" width="150" height="56" rx="8"/>
+                  <text class="sm b" x="95" y="162" text-anchor="middle">g1（已改）</text>
+                  <text class="mono xs hs" x="95" y="182" text-anchor="middle">ckt_6d99388d…</text>
+                  <rect class="ghost" x="225" y="140" width="150" height="56" rx="8"/>
+                  <text class="sm b" x="300" y="162" text-anchor="middle">g2（重定稿）</text>
+                  <text class="mono xs hs" x="300" y="182" text-anchor="middle">ckt_c41d8a09…</text>
+                  <rect class="ghost" x="430" y="140" width="150" height="56" rx="8"/>
+                  <text class="sm b" x="505" y="162" text-anchor="middle">验证记录（重定稿）</text>
+                  <text class="mono xs hs" x="505" y="182" text-anchor="middle">evd_2e9b6f15…</text>
+                  <path class="lw" d="M225 168H175" marker-end="url(#ah-w)"/>
+                  <path class="lw" d="M430 168H380" marker-end="url(#ah-w)"/>
+                  <text class="sm wt b" x="300" y="220" text-anchor="middle">改动 1 字节：后续哈希全变，原链不变</text>
+                </g>
+                <text class="sm mu fade" data-at="4" x="300" y="256" text-anchor="middle">同一对象，多处留存</text>
+                <g class="fade dim" data-at="4" data-off="5">
+                  <rect class="soft" x="20" y="268" width="170" height="74" rx="8"/>
+                  <text class="sm b" x="105" y="290" text-anchor="middle">官方库</text>
+                  <rect class="file" x="34" y="304" width="44" height="22" rx="4"/><text class="mono xs" x="56" y="319" text-anchor="middle">g1</text>
+                  <rect class="file" x="83" y="304" width="44" height="22" rx="4"/><text class="mono xs" x="105" y="319" text-anchor="middle">g2</text>
+                  <rect class="file" x="132" y="304" width="44" height="22" rx="4"/><text class="mono xs" x="154" y="319" text-anchor="middle">evd</text>
+                </g>
+                <g class="fade" data-at="4">
+                  <rect class="soft" x="215" y="268" width="170" height="74" rx="8"/>
+                  <text class="sm b" x="300" y="290" text-anchor="middle">Alice 的 fork</text>
+                  <rect class="file" x="229" y="304" width="44" height="22" rx="4"/><text class="mono xs" x="251" y="319" text-anchor="middle">g1</text>
+                  <rect class="file" x="278" y="304" width="44" height="22" rx="4"/><text class="mono xs" x="300" y="319" text-anchor="middle">g2</text>
+                  <rect class="file" x="327" y="304" width="44" height="22" rx="4"/><text class="mono xs" x="349" y="319" text-anchor="middle">evd</text>
+                  <rect class="soft" x="410" y="268" width="170" height="74" rx="8"/>
+                  <text class="sm b" x="495" y="290" text-anchor="middle">公共存档</text>
+                  <rect class="file" x="424" y="304" width="44" height="22" rx="4"/><text class="mono xs" x="446" y="319" text-anchor="middle">g1</text>
+                  <rect class="file" x="473" y="304" width="44" height="22" rx="4"/><text class="mono xs" x="495" y="319" text-anchor="middle">g2</text>
+                  <rect class="file" x="522" y="304" width="44" height="22" rx="4"/><text class="mono xs" x="544" y="319" text-anchor="middle">evd</text>
+                </g>
+                <g class="fade" data-at="5">
+                  <path class="lb" d="M30 278L180 334M180 278L30 334"/>
+                  <text class="sm badt b" x="105" y="364" text-anchor="middle">已下线</text>
+                  <circle class="okc" cx="383" cy="270" r="11"/><path class="mk" d="M378 270l4 4 7-8"/>
+                  <text class="sm okt b" x="300" y="364" text-anchor="middle">从此处取回并核对</text>
+                </g>
+                <g class="fade" data-at="6">
+                  <text class="sm acc b" x="495" y="364" text-anchor="middle">存档记录时间</text>
+                </g>
+              </svg>
+              <svg class="dg fig-n" viewBox="0 0 340 330" role="img" aria-labelledby="ts3-n">
+                <title id="ts3-n">三个对象由 base 与 dut 成链。篡改副本核对失败；修改派生新链，原链不变；多副本防丢失。</title>
+                <g>
+                  <rect class="box" x="4" y="10" width="100" height="50" rx="7"/>
+                  <text class="xs b" x="54" y="30" text-anchor="middle">g1</text>
+                  <text class="mono xs hs" x="54" y="48" text-anchor="middle">ckt_876f…</text>
+                  <rect class="box" x="120" y="10" width="100" height="50" rx="7"/>
+                  <text class="xs b" x="170" y="30" text-anchor="middle">g2</text>
+                  <text class="mono xs hs" x="170" y="48" text-anchor="middle">ckt_1ec6…</text>
+                  <rect class="box" x="236" y="10" width="100" height="50" rx="7"/>
+                  <text class="xs b" x="286" y="30" text-anchor="middle">验证记录</text>
+                  <text class="mono xs hs" x="286" y="48" text-anchor="middle">evd_a6e7…</text>
+                  <path class="la" d="M120 35H108" marker-end="url(#ah-a)"/>
+                  <path class="la" d="M236 35H224" marker-end="url(#ah-a)"/>
+                </g>
+                <g class="fade" data-at="2" data-off="3">
+                  <path class="lb" d="M54 60V86" marker-end="url(#ah-b)"/>
+                  <rect class="tbox" x="4" y="90" width="100" height="50" rx="7"/>
+                  <text class="xs b" x="54" y="110" text-anchor="middle">篡改副本</text>
+                  <text class="mono xs hs" x="54" y="128" text-anchor="middle">ckt_876f…</text>
+                  <circle class="badc" cx="102" cy="92" r="9"/><path class="mk" d="M98 88l8 8M106 88l-8 8"/>
+                  <text class="xs badt b" x="120" y="112">哈希不匹配：</text>
+                  <text class="xs badt b" x="120" y="128">工具一律拒收</text>
+                </g>
+                <g class="fade" data-at="3">
+                  <rect class="ghost" x="4" y="90" width="100" height="50" rx="7"/>
+                  <text class="xs b" x="54" y="110" text-anchor="middle">g1（已改）</text>
+                  <text class="mono xs hs" x="54" y="128" text-anchor="middle">ckt_6d99…</text>
+                  <rect class="ghost" x="120" y="90" width="100" height="50" rx="7"/>
+                  <text class="xs b" x="170" y="110" text-anchor="middle">g2（重定稿）</text>
+                  <text class="mono xs hs" x="170" y="128" text-anchor="middle">ckt_c41d…</text>
+                  <rect class="ghost" x="236" y="90" width="100" height="50" rx="7"/>
+                  <text class="xs b" x="286" y="110" text-anchor="middle">验证记录（重定稿）</text>
+                  <text class="mono xs hs" x="286" y="128" text-anchor="middle">evd_2e9b…</text>
+                  <path class="lw" d="M120 115H108" marker-end="url(#ah-w)"/>
+                  <path class="lw" d="M236 115H224" marker-end="url(#ah-w)"/>
+                  <text class="xs wt b" x="170" y="160" text-anchor="middle">改动 1 字节：后续哈希全变</text>
+                </g>
+                <text class="xs mu fade" data-at="4" x="170" y="196" text-anchor="middle">同一对象，多处留存</text>
+                <g class="fade dim" data-at="4" data-off="5">
+                  <rect class="soft" x="4" y="206" width="104" height="60" rx="7"/>
+                  <text class="xs b" x="56" y="226" text-anchor="middle">官方库</text>
+                  <rect class="file" x="12" y="236" width="28" height="20" rx="4"/><text class="mono xs" x="26" y="250" text-anchor="middle">g1</text>
+                  <rect class="file" x="42" y="236" width="28" height="20" rx="4"/><text class="mono xs" x="56" y="250" text-anchor="middle">g2</text>
+                  <rect class="file" x="72" y="236" width="28" height="20" rx="4"/><text class="mono xs" x="86" y="250" text-anchor="middle">e</text>
+                </g>
+                <g class="fade" data-at="4">
+                  <rect class="soft" x="118" y="206" width="104" height="60" rx="7"/>
+                  <text class="xs b" x="170" y="226" text-anchor="middle">Alice 的 fork</text>
+                  <rect class="file" x="126" y="236" width="28" height="20" rx="4"/><text class="mono xs" x="140" y="250" text-anchor="middle">g1</text>
+                  <rect class="file" x="156" y="236" width="28" height="20" rx="4"/><text class="mono xs" x="170" y="250" text-anchor="middle">g2</text>
+                  <rect class="file" x="186" y="236" width="28" height="20" rx="4"/><text class="mono xs" x="200" y="250" text-anchor="middle">e</text>
+                  <rect class="soft" x="232" y="206" width="104" height="60" rx="7"/>
+                  <text class="xs b" x="284" y="226" text-anchor="middle">公共存档</text>
+                  <rect class="file" x="240" y="236" width="28" height="20" rx="4"/><text class="mono xs" x="254" y="250" text-anchor="middle">g1</text>
+                  <rect class="file" x="270" y="236" width="28" height="20" rx="4"/><text class="mono xs" x="284" y="250" text-anchor="middle">g2</text>
+                  <rect class="file" x="300" y="236" width="28" height="20" rx="4"/><text class="mono xs" x="314" y="250" text-anchor="middle">e</text>
+                </g>
+                <g class="fade" data-at="5">
+                  <path class="lb" d="M10 212L102 260M102 212L10 260"/>
+                  <text class="xs badt b" x="56" y="286" text-anchor="middle">已下线</text>
+                  <circle class="okc" cx="220" cy="208" r="9"/><path class="mk" d="M216 208l3 3 6-7"/>
+                  <text class="xs okt b" x="170" y="312" text-anchor="middle">从此处取回并核对</text>
+                </g>
+                <g class="fade" data-at="6">
+                  <text class="xs acc b" x="284" y="286" text-anchor="middle">存档记录时间</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <ul class="tlist">
+            <li class="fade" data-at="6"><span class="i plus">+</span><span>发布提交应当签名，以记下发布者。Software Heritage 等存档的目录标识就是同一个哈希，可证明对象不晚于存档当日已经存在。</span></li>
+            <li class="fade" data-at="1"><span class="i info">i</span><span>无需账本、共识或代币，仅凭哈希链即可实现类区块链防篡改。</span></li>
+          </ul>
+        </article>
+
+        <!-- ============ 4 Agent-native ============ -->
+        <article class="tstep" id="ts-4" role="tabpanel" aria-labelledby="tt-4">
+          <header class="tstep-head">
+            <h3>Agent 原生</h3>
+            <p>纯文本文件、单一 CLI 与精确对象名，让 Agent 直接读写、定稿并引用设计。</p>
+          </header>
+          <div class="tstep-body">
+            <div class="tpanel">
+              <div class="ph"><span>Agent 工作流</span><span class="faint">节选</span></div>
+              <div class="keys">
+                <p class="say"><b class="who">你 ›</b> 把 StrongARM 比较器移植到 gf180。</p>
+                <div class="key">
+                  <p class="when fade" data-at="2">从电路网表派生草稿：</p>
+                  <code class="cmd fade" data-at="2">toa derive ckt_876f99c0… <span class="nw">--tag gf180</span></code>
+                  <p class="out fade" data-at="2">ckt_876f99c0… → <b>ckt_draft-gf180</b></p>
+                </div>
+                <div class="key">
+                  <p class="when fade" data-at="3">修改草稿后定稿：</p>
+                  <code class="cmd fade" data-at="3">toa seal</code>
+                  <p class="out fade" data-at="4">ckt_draft-gf180 → <b class="h">ckt_3f8e21aa…</b></p>
+                </div>
+                <p class="say fade" data-at="5"><b class="who">Agent ›</b> 完成：ckt_3f8e21aa…，基于 ckt_876f99c0…</p>
+              </div>
+            </div>
+            <div class="tpanel tfig">
+              <div class="ph"><span>示意图</span></div>
+              <svg class="dg fig-w" viewBox="0 0 600 370" role="img" aria-labelledby="ts4-t">
+                <title id="ts4-t">Agent 读明文，用 toa derive 派生草稿并修改，检查定稿后引用新对象名，交由人工审阅。</title>
+                <g class="fade" data-at="1">
+                  <text class="sm mu" x="20" y="28">明文</text>
+                  <rect class="file" x="20" y="40" width="186" height="34" rx="5"/><text class="mono sm" x="32" y="62">toa.yaml</text><text class="xs fa" x="196" y="62" text-anchor="end">YAML</text>
+                  <rect class="file" x="20" y="84" width="186" height="34" rx="5"/><text class="mono sm" x="32" y="106">*.scs</text><text class="xs fa" x="196" y="106" text-anchor="end">Spectre, RNL</text>
+                  <rect class="file" x="20" y="128" width="186" height="34" rx="5"/><text class="mono sm" x="32" y="150">README.md</text><text class="xs fa" x="196" y="150" text-anchor="end">Markdown</text>
+                  <rect class="file" x="20" y="172" width="186" height="34" rx="5"/><text class="mono sm" x="32" y="194">llms.txt</text><text class="xs fa" x="196" y="194" text-anchor="end">规则</text>
+                </g>
+                <path class="ln fade draw" data-at="1" pathLength="100" d="M210 57L260 112" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="1" pathLength="100" d="M210 101L260 122" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="1" pathLength="100" d="M210 145L260 132" marker-end="url(#ah-n)"/>
+                <path class="ln fade draw" data-at="1" pathLength="100" d="M210 189L260 142" marker-end="url(#ah-n)"/>
+                <g>
+                  <rect class="ico" x="272" y="104" width="56" height="44" rx="12"/>
+                  <circle class="icof" cx="291" cy="126" r="4.5"/><circle class="icof" cx="309" cy="126" r="4.5"/>
+                  <path class="ico" d="M300 104v-12"/><circle class="icof" cx="300" cy="88" r="4.5"/>
+                  <text class="sm b" x="300" y="172" text-anchor="middle">Agent</text>
+                </g>
+                <path class="la fade draw" data-at="2" pathLength="100" d="M334 116L404 84" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="2">
+                  <text class="mono xs acc" x="358" y="78" text-anchor="middle">toa derive</text>
+                  <rect class="ghost" x="410" y="40" width="172" height="70" rx="8"/>
+                  <text class="sm b" x="496" y="60" text-anchor="middle">草稿</text>
+                  <text class="mono xs" x="496" y="79" text-anchor="middle">name: gf180-razavi</text>
+                  <text class="mono xs hs" x="496" y="98" text-anchor="middle">base: ckt_876f99c0…</text>
+                </g>
+                <path class="la fade draw" data-at="3" pathLength="100" d="M496 112V138" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="3">
+                  <rect class="box" x="410" y="142" width="172" height="44" rx="8"/>
+                  <text class="mono xs" x="424" y="169">toa seal --dry-run</text>
+                  <circle class="okc" cx="562" cy="164" r="10"/><path class="mk" d="M557 164l4 4 7-8"/>
+                </g>
+                <path class="la fade draw" data-at="4" pathLength="100" d="M496 188V214" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="4">
+                  <text class="mono xs acc" x="504" y="206">toa seal</text>
+                  <rect class="abox" x="410" y="218" width="172" height="42" rx="21"/>
+                  <rect class="ico" x="426" y="237" width="12" height="10" rx="2"/><path class="ico" d="M428 237v-3a4 4 0 0 1 8 0v3"/>
+                  <text class="mono hs b" x="446" y="244">ckt_3f8e21aa…</text>
+                  <text class="sm mu" x="496" y="282" text-anchor="middle">可引用对象名</text>
+                </g>
+                <g class="fade" data-at="5">
+                  <path class="ld" d="M408 248L336 300" marker-end="url(#ah-a)"/>
+                  <circle class="ico" cx="300" cy="300" r="10"/><path class="ico" d="M282 334q18-24 36 0"/>
+                  <text class="sm b" x="300" y="356" text-anchor="middle">人工审阅</text>
+                </g>
+              </svg>
+              <svg class="dg fig-n" viewBox="0 0 340 425" role="img" aria-labelledby="ts4-n">
+                <title id="ts4-n">Agent 读明文，用 toa derive 派生草稿并修改，检查定稿后引用新对象名，交由人工审阅。</title>
+                <g class="fade" data-at="1">
+                  <rect class="file" x="4" y="8" width="164" height="30" rx="5"/><text class="mono xs" x="14" y="27">toa.yaml</text><text class="xs fa" x="160" y="27" text-anchor="end">YAML</text>
+                  <rect class="file" x="172" y="8" width="164" height="30" rx="5"/><text class="mono xs" x="182" y="27">*.scs</text><text class="xs fa" x="328" y="27" text-anchor="end">Spectre, RNL</text>
+                  <rect class="file" x="4" y="44" width="164" height="30" rx="5"/><text class="mono xs" x="14" y="63">README.md</text><text class="xs fa" x="160" y="63" text-anchor="end">Markdown</text>
+                  <rect class="file" x="172" y="44" width="164" height="30" rx="5"/><text class="mono xs" x="182" y="63">llms.txt</text><text class="xs fa" x="328" y="63" text-anchor="end">规则</text>
+                </g>
+                <path class="ln fade draw" data-at="1" pathLength="100" d="M170 78V92" marker-end="url(#ah-n)"/>
+                <g>
+                  <rect class="ico" x="146" y="104" width="48" height="38" rx="10"/>
+                  <circle class="icof" cx="162" cy="123" r="4"/><circle class="icof" cx="178" cy="123" r="4"/>
+                  <path class="ico" d="M170 104v-8"/>
+                  <text class="xs b" x="206" y="128">Agent</text>
+                </g>
+                <path class="la fade draw" data-at="2" pathLength="100" d="M170 146V164" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="2">
+                  <rect class="ghost" x="70" y="168" width="200" height="62" rx="8"/>
+                  <text class="xs b" x="170" y="186" text-anchor="middle">草稿</text>
+                  <text class="mono xs" x="170" y="203" text-anchor="middle">name: gf180-razavi</text>
+                  <text class="mono xs hs" x="170" y="220" text-anchor="middle">base: ckt_876f99c0…</text>
+                </g>
+                <path class="la fade draw" data-at="3" pathLength="100" d="M170 232V248" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="3">
+                  <rect class="box" x="70" y="252" width="200" height="38" rx="8"/>
+                  <text class="mono xs" x="84" y="275">toa seal --dry-run</text>
+                  <circle class="okc" cx="252" cy="271" r="9"/><path class="mk" d="M248 271l3 3 6-7"/>
+                </g>
+                <path class="la fade draw" data-at="4" pathLength="100" d="M170 292V308" marker-end="url(#ah-a)"/>
+                <g class="fade" data-at="4">
+                  <rect class="abox" x="70" y="312" width="200" height="36" rx="18"/>
+                  <text class="mono hs b sm" x="170" y="335" text-anchor="middle">ckt_3f8e21aa…</text>
+                  <text class="xs mu" x="170" y="366" text-anchor="middle">可引用对象名</text>
+                </g>
+                <g class="fade" data-at="5">
+                  <path class="ld" d="M272 330H288"/>
+                  <circle class="ico" cx="304" cy="322" r="8"/><path class="ico" d="M290 350q14-18 28 0"/>
+                  <text class="xs b" x="170" y="406" text-anchor="middle">人工审阅</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <ul class="tlist">
+            <li class="fade" data-at="1"><span class="i ok">✓</span><span>YAML 入口文件、SPICE/Spectre 网表（含 RNL 原理图）与 Markdown 说明，无二进制库与私有 API。</span></li>
+            <li class="fade" data-at="5"><span class="i info">i</span><span>工程师以明文 diff 审阅 Agent 改动，或在 <a href="https://true-openaccess.github.io/gazettoa/">Gazettoa</a> 中浏览。</span></li>
+          </ul>
+        </article>
+
+        <!-- ============ 5 Extensible ============ -->
+        <article class="tstep" id="ts-5" role="tabpanel" aria-labelledby="tt-5">
+          <header class="tstep-head">
+            <h3>按类型扩展</h3>
+            <p>类型由前缀与类型规格定义，新增数据类型不改命名、核对与传输规则。</p>
+          </header>
+          <div class="tstep-body">
+            <div class="tpanel">
+              <div class="ph"><span>对象名</span></div>
+              <div class="keys">
+                <div class="key">
+                  <code class="cmd name"><i class="k">&lt;prefix&gt;</i>_<wbr><i class="h">&lt;40&nbsp;hex&nbsp;digits&gt;</i></code>
+                  <p class="part k">类型前缀</p>
+                  <p class="part h">所有类型通用哈希规则</p>
+                </div>
+                <div class="key">
+                  <p class="when">TOA 0.1</p>
+                  <p class="types"><code>ifc</code> <code>ckt</code> <code>tb</code> <code>evd</code> <code>doc</code> <code>lib</code> <code class="later fade" data-at="1">lay</code></p>
+                  <p class="when fade" data-at="1">lay: 版图（已预留），更多规划中</p>
+                </div>
+              </div>
+            </div>
+            <div class="tpanel tfig">
+              <div class="ph"><span>示意图</span></div>
+              <svg class="dg fig-w" viewBox="0 0 600 360" role="img" aria-labelledby="ts5-t">
+                <title id="ts5-t">TOA 0.1 六种类型、规划中新类型、可扩展的验证记录种类及透传处理的未知私有类型。</title>
+                <text class="sm b" x="20" y="26">TOA 0.1</text>
+                <g>
+                  <rect class="abox" x="20" y="38" width="88" height="58" rx="8"/><text class="mono b" x="64" y="63" text-anchor="middle">ifc</text><text class="xs mu" x="64" y="84" text-anchor="middle">模块定义</text>
+                  <rect class="abox" x="116" y="38" width="88" height="58" rx="8"/><text class="mono b" x="160" y="63" text-anchor="middle">ckt</text><text class="xs mu" x="160" y="84" text-anchor="middle">电路网表</text>
+                  <rect class="abox" x="212" y="38" width="88" height="58" rx="8"/><text class="mono b" x="256" y="63" text-anchor="middle">tb</text><text class="xs mu" x="256" y="84" text-anchor="middle">测试用例</text>
+                  <rect class="abox" x="308" y="38" width="88" height="58" rx="8"/><text class="mono b" x="352" y="63" text-anchor="middle">evd</text><text class="xs mu" x="352" y="84" text-anchor="middle">验证记录</text>
+                  <rect class="abox" x="404" y="38" width="88" height="58" rx="8"/><text class="mono b" x="448" y="63" text-anchor="middle">doc</text><text class="xs mu" x="448" y="84" text-anchor="middle">文档</text>
+                  <rect class="abox" x="500" y="38" width="88" height="58" rx="8"/><text class="mono b" x="544" y="63" text-anchor="middle">lib</text><text class="xs mu" x="544" y="84" text-anchor="middle">冻结库</text>
+                </g>
+                <g class="fade move" data-at="1" style="--dy:-40px">
+                  <text class="sm wt b" x="20" y="130">规划中的类型（前缀待定）</text>
+                  <rect class="ghost" x="20" y="142" width="184" height="32" rx="8"/><text class="sm" x="112" y="163" text-anchor="middle">版图 <tspan class="mono b">lay</tspan></text>
+                  <rect class="ghost" x="212" y="142" width="184" height="32" rx="8"/><text class="sm" x="304" y="163" text-anchor="middle">后仿网表</text>
+                  <rect class="ghost" x="404" y="142" width="184" height="32" rx="8"/><text class="sm" x="496" y="163" text-anchor="middle">表征模型</text>
+                  <rect class="ghost" x="20" y="180" width="184" height="32" rx="8"/><text class="sm" x="112" y="201" text-anchor="middle">后端接口</text>
+                  <rect class="ghost" x="212" y="180" width="184" height="32" rx="8"/><text class="sm" x="304" y="201" text-anchor="middle">生成器</text>
+                  <rect class="ghost" x="404" y="180" width="184" height="32" rx="8"/><text class="sm" x="496" y="201" text-anchor="middle">等等</text>
+                </g>
+                <g class="fade" data-at="2">
+                  <text class="sm mu" x="20" y="250">验证记录种类</text>
+                  <rect class="abox" x="20" y="262" width="58" height="28" rx="14"/><text class="mono xs" x="49" y="281" text-anchor="middle">sim</text>
+                  <rect class="ghost" x="86" y="262" width="78" height="28" rx="14"/><text class="xs" x="125" y="281" text-anchor="middle">签核</text>
+                  <rect class="ghost" x="172" y="262" width="78" height="28" rx="14"/><text class="xs" x="211" y="281" text-anchor="middle">硅片实测</text>
+                  <rect class="ghost" x="258" y="262" width="40" height="28" rx="14"/><text class="xs" x="278" y="281" text-anchor="middle">…</text>
+                  <text class="xs mu" x="20" y="314">新增种类而非类型</text>
+                </g>
+                <g class="fade" data-at="3">
+                  <rect class="box" x="318" y="244" width="270" height="100" rx="8"/>
+                  <text class="mono hs b" x="334" y="270">xrf_8a1c07e2…</text>
+                  <text class="xs mu" x="334" y="290">未知私有类型</text>
+                  <circle class="okc" cx="344" cy="318" r="10"/><path class="mk" d="M339 318l4 4 7-8"/>
+                  <text class="sm okt b" x="362" y="323">照常取回、核对、保留</text>
+                </g>
+              </svg>
+              <svg class="dg fig-n" viewBox="0 0 340 440" role="img" aria-labelledby="ts5-n">
+                <title id="ts5-n">TOA 0.1 六种类型、规划中新类型、可扩展的验证记录种类及透传处理的未知私有类型。</title>
+                <text class="xs b" x="4" y="14">TOA 0.1</text>
+                <g>
+                  <rect class="abox" x="4" y="22" width="104" height="44" rx="7"/><text class="mono b sm" x="56" y="40" text-anchor="middle">ifc</text><text class="xs mu" x="56" y="58" text-anchor="middle">模块定义</text>
+                  <rect class="abox" x="118" y="22" width="104" height="44" rx="7"/><text class="mono b sm" x="170" y="40" text-anchor="middle">ckt</text><text class="xs mu" x="170" y="58" text-anchor="middle">电路网表</text>
+                  <rect class="abox" x="232" y="22" width="104" height="44" rx="7"/><text class="mono b sm" x="284" y="40" text-anchor="middle">tb</text><text class="xs mu" x="284" y="58" text-anchor="middle">测试用例</text>
+                  <rect class="abox" x="4" y="72" width="104" height="44" rx="7"/><text class="mono b sm" x="56" y="90" text-anchor="middle">evd</text><text class="xs mu" x="56" y="108" text-anchor="middle">验证记录</text>
+                  <rect class="abox" x="118" y="72" width="104" height="44" rx="7"/><text class="mono b sm" x="170" y="90" text-anchor="middle">doc</text><text class="xs mu" x="170" y="108" text-anchor="middle">文档</text>
+                  <rect class="abox" x="232" y="72" width="104" height="44" rx="7"/><text class="mono b sm" x="284" y="90" text-anchor="middle">lib</text><text class="xs mu" x="284" y="108" text-anchor="middle">冻结库</text>
+                </g>
+                <g class="fade move" data-at="1" style="--dy:-30px">
+                  <text class="xs wt b" x="4" y="144">规划中的类型（前缀待定）</text>
+                  <rect class="ghost" x="4" y="152" width="164" height="28" rx="7"/><text class="xs" x="86" y="171" text-anchor="middle">版图 <tspan class="mono b">lay</tspan></text>
+                  <rect class="ghost" x="172" y="152" width="164" height="28" rx="7"/><text class="xs" x="254" y="171" text-anchor="middle">后仿网表</text>
+                  <rect class="ghost" x="4" y="184" width="164" height="28" rx="7"/><text class="xs" x="86" y="203" text-anchor="middle">表征模型</text>
+                  <rect class="ghost" x="172" y="184" width="164" height="28" rx="7"/><text class="xs" x="254" y="203" text-anchor="middle">后端接口</text>
+                  <rect class="ghost" x="4" y="216" width="164" height="28" rx="7"/><text class="xs" x="86" y="235" text-anchor="middle">生成器</text>
+                  <rect class="ghost" x="172" y="216" width="164" height="28" rx="7"/><text class="xs" x="254" y="235" text-anchor="middle">等等</text>
+                </g>
+                <g class="fade" data-at="2">
+                  <text class="xs mu" x="4" y="276">验证记录种类</text>
+                  <rect class="abox" x="4" y="284" width="52" height="26" rx="13"/><text class="mono xs" x="30" y="301" text-anchor="middle">sim</text>
+                  <rect class="ghost" x="62" y="284" width="74" height="26" rx="13"/><text class="xs" x="99" y="301" text-anchor="middle">签核</text>
+                  <rect class="ghost" x="142" y="284" width="74" height="26" rx="13"/><text class="xs" x="179" y="301" text-anchor="middle">硅片实测</text>
+                  <rect class="ghost" x="222" y="284" width="36" height="26" rx="13"/><text class="xs" x="240" y="301" text-anchor="middle">…</text>
+                </g>
+                <g class="fade" data-at="3">
+                  <rect class="box" x="4" y="330" width="332" height="96" rx="8"/>
+                  <text class="mono hs b sm" x="18" y="354">xrf_8a1c07e2…</text>
+                  <text class="xs mu" x="18" y="374">未知私有类型</text>
+                  <circle class="okc" cx="28" cy="402" r="9"/><path class="mk" d="M24 402l3 3 6-7"/>
+                  <text class="xs okt b" x="44" y="406">照常取回、核对、保留</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <ul class="tlist">
+            <li class="fade" data-at="2"><span class="i plus">+</span><span>签核、硅片实测与表征作为 evd 新种类扩展，不增新类型。</span></li>
+            <li class="fade" data-at="3"><span class="i ok">✓</span><span>未知类型照常取回、核对、保留；x 开头前缀供私有与实验类型用。</span></li>
+          </ul>
+        </article>
+
+        <div class="tour-nav">
+          <button type="button" class="btn small" data-go="prev">上一步</button>
+          <button type="button" class="btn small" data-go="replay">重播</button>
+          <span class="sp"></span>
+          <label class="auto"><input type="checkbox" data-go="auto"> 自动播放</label>
+          <span class="count" aria-live="polite"><span data-n>1</span> / 5</span>
+          <button type="button" class="btn small primary" data-go="next">下一步</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 02 Get started ===================== -->
+  <section class="band alt" id="start">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="no" aria-hidden="true">02</span>
+        <span class="kick">快速上手</span>
+        <h2>一个入口文件，几条命令</h2>
+        <p>以 StrongARM 比较器展示入口文件与核心命令。</p>
+      </header>
+      <div class="grid c2 start">
+        <div class="card">
+          <div class="card-head"><h3>入口文件</h3><span class="tag mono">ckt_876f99c0…/toa.yaml</span></div>
+          <div class="tcode">
+            <span class="l"><i class="k">type:</i> ckt</span>
+            <span class="l"><i class="k">license:</i> CC0-1.0</span>
+            <span class="l"><i class="k">ifc:</i> <i class="h">ifc_12ad57c51e8f36cac47a4b8a53f2949315f190f5</i></span>
+            <span class="l"><i class="k">name:</i> sky130-razavi</span>
+            <span class="l"><i class="k">form:</i> transistor</span>
+            <span class="l"><i class="k">specifications:</i> {process: sky130}</span>
+            <span class="l"><i class="k">description:</i> The classic StrongARM latch.</span>
+            <span class="l"><i class="k">files:</i></span>
+            <span class="l">  <i class="k">netlist:</i></span>
+            <span class="l">  - strongarm_comp.scs</span>
+          </div>
+          <table class="data notes">
+            <tbody>
+              <tr><td><code>type</code></td><td>对象类型，与对象名前缀一致。</td></tr>
+              <tr><td><code>ifc</code></td><td>实现的模块定义（必填引用）。</td></tr>
+              <tr><td><code>name</code></td><td>设计名称，各代沿用（记为 sky130-razavi.g1、.g2 等）。</td></tr>
+              <tr><td><code>files</code></td><td>同目录网表文件。</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>命令</h3><span class="tag">输出示例，名称已缩写</span></div>
+          <div class="tcode">
+            <span class="l"><i class="c"># 将草稿定稿为哈希命名对象</i></span>
+            <span class="l"><i class="p">$</i> toa seal</span>
+            <span class="l">ifc_draft-sac -&gt; <i class="h">ifc_12ad57c5…</i></span>
+            <span class="l">ckt_draft-razavi -&gt; <i class="h">ckt_876f99c0…</i></span>
+            <span class="l sep"></span>
+            <span class="l"><i class="c"># 读文件核对对象</i></span>
+            <span class="l"><i class="p">$</i> toa verify ckt/strongarm-comp/sky130-razavi/ckt_876f99c0…</span>
+            <span class="l"><i class="ok">ok</i>   ckt/strongarm-comp/sky130-razavi/ckt_876f99c0…</span>
+            <span class="l sep"></span>
+            <span class="l"><i class="c"># 整理清单并提交（不推送）</i></span>
+            <span class="l"><i class="p">$</i> toa publish --commit</span>
+            <span class="l">2 object(s) published this time; … nothing was pushed</span>
+            <span class="l sep"></span>
+            <span class="l"><i class="c"># 执行库的检查</i></span>
+            <span class="l"><i class="p">$</i> toa check</span>
+            <span class="l"><i class="ok">ok</i>   HEAD: …</span>
+            <span class="l sep"></span>
+            <span class="l"><i class="c"># 按名取对象，核对后落盘</i></span>
+            <span class="l"><i class="p">$</i> toa fetch ckt_876f99c0… --into objs</span>
+            <span class="l">ckt_876f99c0…  objs/ckt_876f99c0…  (from …)</span>
+          </div>
+          <div class="card-body">
+            <p class="muted"><code>toa</code> 尚未发布，请<a href="tools.html">从源码编译</a>；支持系统或内置 git，本地无需 git。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 03 Libraries ===================== -->
+  <section class="band" id="libraries">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="no" aria-hidden="true">03</span>
+        <span class="kick">库</span>
+        <h2>库：对象目录加一份清单</h2>
+        <p>本地可用任意目录；发布为 git 仓库后即可按名公开取对象。</p>
+      </header>
+      <div class="grid c3">
+        <div class="card">
+          <div class="card-head"><h3>目录结构</h3></div>
+          <div class="tree"><span class="dir">my-library/</span>
+  library.source.jsonl  <span class="c">库的清单</span>
+  <span class="dir">ifc/</span>strongarm-comp/<span class="hash">ifc_12ad…</span>/
+  <span class="dir">ckt/</span>strongarm-comp/sky130-razavi.g1/
+      <span class="hash">ckt_876f…</span>/
+      <span class="hash">ckt_876f…</span>.source.jsonl
+  <span class="dir">lib/</span>my-library.g1/<span class="hash">lib_…</span>/</div>
+          <div class="card-body"><p>每个对象以哈希独立成目录，旁挂来源表指明依赖来源。</p></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>最新标记</h3><span class="tag mono">latest</span></div>
+          <div class="tcode">
+            <span class="l">{"object": "<i class="h">ckt_1ec6…</i>",</span>
+            <span class="l"> "label": "strongarm-comp/sky130-razavi.g2",</span>
+            <span class="l"> <i class="k">"latest": true</i>, …}</span>
+          </div>
+          <div class="card-body"><p>对象不可变，“最新”标在库的清单中：各库指定推荐一代，可随时迁移或撤回。</p></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>冻结库</h3><span class="tag mono">lib</span></div>
+          <div class="tcode">
+            <span class="l"><i class="k">type:</i> lib</span>
+            <span class="l"><i class="k">name:</i> toa-official</span>
+            <span class="l"><i class="k">base:</i> [<i class="h">lib_…</i>]  <i class="c"># 上一版本</i></span>
+            <span class="l"><i class="c"># 附成员表 members.source.jsonl</i></span>
+          </div>
+          <div class="card-body"><p>定稿含成员表的 lib 对象即可冻结发布；新版用 base 衔接并标 latest。</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 04 Status ===================== -->
+  <section class="band alt" id="status">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="no" aria-hidden="true">04</span>
+        <span class="kick">状态</span>
+        <h2>开发中，尚未发布</h2>
+      </header>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>组件</th><th>状态</th><th>入口</th></tr></thead>
+          <tbody>
+            <tr><td>TOA 0.1 标准</td><td><span class="pill draft">起草中</span></td><td><a href="spec/0.1/">阅读草稿</a></td></tr>
+            <tr><td>参考工具 <code>toa</code>（Windows / Linux / macOS）</td><td><span class="pill draft">开发中</span></td><td><a href="tools.html">从源码编译</a></td></tr>
+            <tr><td>测试向量和一致性测试</td><td><span class="pill draft">开发中</span></td><td><a href="https://github.com/true-openaccess/toa">源码仓库</a></td></tr>
+            <tr><td>Gazettoa（在线库浏览器）</td><td><span class="pill plain">预览</span></td><td><a href="https://true-openaccess.github.io/gazettoa/">浏览库</a></td></tr>
+            <tr><td>中文译本（网站与标准）</td><td><span class="pill plain">预览</span></td><td><a href="translation.html">翻译进度</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 05 Next ===================== -->
+  <section class="band" id="next">
+    <div class="wrap">
+      <header class="sec-head">
+        <span class="no" aria-hidden="true">05</span>
+        <span class="kick">延伸阅读</span>
+        <h2>文档与资源</h2>
+      </header>
+      <div class="grid c4">
+        <a class="card" href="spec/0.1/"><div class="card-head"><h3>标准</h3></div><div class="card-body"><p>TOA 0.1 正文与类型规格。</p><span class="go">阅读 →</span></div></a>
+        <a class="card" href="tools.html"><div class="card-head"><h3>工具</h3></div><div class="card-body"><p><code>toa</code> 命令与编译指南。</p><span class="go">打开 →</span></div></a>
+        <a class="card" href="agents.html"><div class="card-head"><h3>面向 Agent</h3></div><div class="card-body"><p>AI Agent 指南、规范与 <code>llms.txt</code>。</p><span class="go">打开 →</span></div></a>
+        <a class="card" href="https://github.com/true-openaccess/toa"><div class="card-head"><h3>源码</h3></div><div class="card-body"><p>标准、工具与本站源码。</p><span class="go">GitHub →</span></div></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>TOA（True-OpenAccess）· 代码 MIT · 文本 CC-BY-4.0 · 数据 CC0-1.0 · 标准以英文为准。</div>
+    <nav aria-label="页脚">
+      <a href="spec/0.1/">标准</a>
+      <a href="tools.html">工具</a>
+      <a href="agents.html">Agent</a>
+      <a href="../llms.txt">llms.txt</a>
+      <a href="translation.html">翻译进度</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

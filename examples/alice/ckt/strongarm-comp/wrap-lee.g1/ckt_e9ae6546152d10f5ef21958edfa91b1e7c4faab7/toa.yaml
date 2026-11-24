@@ -1,0 +1,14 @@
+type: ckt
+license: CC0-1.0
+author: Alice Zhang
+ifc: ifc_12ad57c51e8f36cac47a4b8a53f2949315f190f5
+name: wrap-lee
+form: composition
+description: StrongARM comparator built from Lee's dynamic latch.
+uses:
+  dyn_latch_cmp:
+    ifc: ifc_4915f191ad95b57dd34a628ab49030a457d91398
+    ckt: ckt_4fc19b9fa24339682172aa51ef465bdaff46fe34
+files:
+  netlist:
+  - strongarm_comp.scs

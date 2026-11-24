@@ -1,0 +1,145 @@
+# The root workflow .github/workflows/dev-tools.yml of toa-dev runs the same jobs while the tool is
+# developed there; keep the two alike.
+#
+# Builds and tests the tool `toa`: formatting, lints and tests on three platforms, each test that
+# touches git once with the system git and once with the built-in one (docs/lines/tools.md 9.5);
+# toa without git, with a git too old, and fetching over https (proxy, self-signed certificate)
+# and ssh; and the pure core for WebAssembly, which the online browser is to use.
+name: Tools CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "crates/**"
+      - "tests/**"
+      - "examples/**"
+      - "spec/vectors/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/tools-ci.yml"
+  pull_request:
+    paths:
+      - "crates/**"
+      - "tests/**"
+      - "examples/**"
+      - "spec/vectors/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/tools-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-latest]
+        git: [system, builtin]
+    runs-on: ${{ matrix.os }}
+    env:
+      # which git the tests read libraries and fetch with (tests/support.rs)
+      TOA_TEST_GIT: ${{ matrix.git }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy && rustup default stable
+      - name: Formatting
+        if: matrix.os == 'ubuntu-24.04' && matrix.git == 'system'
+        run: cargo fmt --all --check
+      - name: Lints
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Tests
+        run: cargo test --workspace --locked
+      - name: Without the built-in git (approach A) it still builds
+        if: matrix.git == 'system'
+        run: cargo clippy -p toa-cli --no-default-features --locked -- -D warnings
+      # spec/vectors/ and tests/ are stored byte for byte (`* -text`); a checkout that converted
+      # line ends would make the vectors fail, so say so plainly.
+      - name: The vectors are checked out byte for byte
+        shell: bash
+        run: test "$(od -An -c spec/vectors/hash/bytes/crlf.txt | tr -d ' ')" = 'x\r\n'
+
+  # git made unavailable after the example libraries are built: the built-in git stands in
+  no-git:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal && rustup default stable
+      - name: Build toa and the example libraries
+        run: |
+          cargo build --locked -p toa-cli
+          TOA_EXAMPLES_OUT="$RUNNER_TEMP/libs" cargo test --locked --test examples
+      - name: Make git unavailable
+        run: |
+          # /bin is a link to /usr/bin, so `which -a` lists the same git twice: move each file once
+          for g in $(which -a git | xargs -n1 realpath | sort -u); do sudo mv "$g" "$g.off"; done
+          sudo mv /usr/lib/git-core /usr/lib/git-core.off
+          ! command -v git
+      - name: toa without git
+        run: bash tests/net/no-git.sh target/debug/toa "$RUNNER_TEMP/libs"
+
+  # a git older than toa accepts (2.30): the built-in git stands in, --git=system says why not
+  old-git:
+    runs-on: ubuntu-24.04
+    container: ubuntu:20.04
+    steps:
+      - name: Install git 2.25 and a compiler
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: apt-get update && apt-get install -y --no-install-recommends git ca-certificates curl build-essential
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      - name: Build toa
+        run: cargo build --locked -p toa-cli
+      - name: toa with a git too old
+        run: |
+          git --version
+          toa="$PWD/target/debug/toa"
+          d=$(mktemp -d) && cd "$d" && git init -q && echo '* -text' > .gitattributes
+          # git 2.25 names the first branch master and has no `init -b`; toa looks for main (6.3)
+          git symbolic-ref HEAD refs/heads/main
+          git -c user.name=T -c user.email=t@example.org add -A
+          git -c user.name=T -c user.email=t@example.org commit -qm one
+          # print what toa said whatever its exit code
+          set +e; "$toa" check 2> err.txt; code=$?; set -e; cat err.txt
+          test "$code" = 0
+          grep -q "using the built-in git" err.txt
+          set +e; "$toa" --git=system check 2> err.txt; code=$?; set -e; cat err.txt
+          test "$code" = 3
+          grep -q "too old" err.txt
+
+  # fetching over the network, both gits: https through a proxy with a certificate of a test CA
+  # from the user's git configuration, and ssh with ssh-agent (tests/net/fetch.sh)
+  network:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Rust and sshd
+        run: |
+          rustup toolchain install stable --profile minimal && rustup default stable
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends openssh-server
+          sudo mkdir -p /run/sshd
+      - name: Build toa
+        run: cargo build --locked -p toa-cli
+      - name: Fetch over https and ssh with both gits
+        run: bash tests/net/fetch.sh target/debug/toa all
+
+  wasm:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown && rustup default stable
+      - name: Build the pure core for WebAssembly
+        run: cargo build --locked --target wasm32-unknown-unknown -p toa-core -p toa-types

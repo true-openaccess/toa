@@ -1,0 +1,418 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TOA type ckt: circuit",
+  "description": "The fields of the manifest toa.yaml of an object of type ckt, checked when it is sealed. Readers ignore fields they do not know (3.2.4). Text: types/en/ckt.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "license",
+    "ifc",
+    "name",
+    "form",
+    "files"
+  ],
+  "properties": {
+    "type": {
+      "const": "ckt",
+      "description": "The type: the prefix of the object name (3.2.1)."
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "description": "SPDX licence expression of the whole object (3.2.2)."
+    },
+    "author": {
+      "type": "string",
+      "description": "A credit in free text; no proof of identity."
+    },
+    "base": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^ckt_[0-9a-f]{40}$"
+      },
+      "description": "The objects of the same type this object was directly derived from (3.4)."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "A title of one line."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What the object is, in a paragraph or a few."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words to find the object by."
+    },
+    "ifc": {
+      "type": "string",
+      "pattern": "^ifc_[0-9a-f]{40}$"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,39}$"
+    },
+    "form": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,31}$",
+      "description": "ideal, va, rtl, transistor, passive, gates, composition, mixed, or another word."
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "netlist"
+      ],
+      "properties": {
+        "netlist": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+            "maxLength": 80
+          }
+        },
+        "va": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+            "maxLength": 80
+          }
+        },
+        "rtl": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+            "maxLength": 80
+          }
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+            "maxLength": 80
+          }
+        },
+        "extras": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+            "maxLength": 80
+          }
+        }
+      }
+    },
+    "uses": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ifc",
+          "ckt"
+        ],
+        "properties": {
+          "ifc": {
+            "type": "string",
+            "pattern": "^ifc_[0-9a-f]{40}$"
+          },
+          "ckt": {
+            "type": "string",
+            "pattern": "^ckt_[0-9a-f]{40}$"
+          },
+          "requirements": {
+            "type": "object",
+            "propertyNames": {
+              "pattern": "^tb_[a-z0-9_]{1,36}\\.[a-zA-Z][a-zA-Z0-9_]{0,31}$"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "number",
+          "string",
+          "boolean"
+        ]
+      }
+    },
+    "external": {
+      "type": "array",
+      "description": "External files the object needs but does not carry (3.5).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "role"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{0,31}$",
+            "description": "modelfile, techfile, other, or another word: an open list (3.5)."
+          },
+          "process": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{0,39}$"
+          },
+          "file": {
+            "type": "string",
+            "pattern": "^[^/\\\\]+$",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string"
+          },
+          "match": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "specifications": {
+      "type": "object",
+      "properties": {
+        "process": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,39}$",
+          "description": "The process whose models its devices come from (3.5)."
+        },
+        "vdd": {
+          "$ref": "#/$defs/numeric"
+        },
+        "temp": {
+          "$ref": "#/$defs/numeric"
+        },
+        "pins": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/entry"
+          }
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/entry"
+      }
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "commit",
+        "path",
+        "license",
+        "authors"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "license": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "spdx",
+            "file"
+          ],
+          "properties": {
+            "spdx": {
+              "type": "string",
+              "minLength": 1
+            },
+            "file": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sha256",
+              "size"
+            ],
+            "properties": {
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "numeric": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "nom": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "unit": {
+              "type": "string",
+              "maxLength": 24
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 200
+            }
+          }
+        }
+      ]
+    },
+    "entry": {
+      "oneOf": [
+        {
+          "type": [
+            "number",
+            "string",
+            "boolean"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "nom": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "value": {
+              "type": [
+                "number",
+                "string",
+                "boolean"
+              ]
+            },
+            "unit": {
+              "type": "string",
+              "maxLength": 24
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 200
+            }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "form": {
+            "enum": [
+              "transistor",
+              "passive",
+              "gates"
+            ]
+          }
+        },
+        "required": [
+          "form"
+        ]
+      },
+      "then": {
+        "required": [
+          "specifications"
+        ],
+        "properties": {
+          "specifications": {
+            "required": [
+              "process"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

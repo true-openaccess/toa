@@ -1,0 +1,10 @@
+type: ckt
+license: CC0-1.0
+ifc: ifc_12ad57c51e8f36cac47a4b8a53f2949315f190f5
+name: sky130-razavi
+form: transistor
+specifications: {process: sky130}
+description: The classic StrongARM latch.
+files:
+  netlist:
+  - strongarm_comp.scs

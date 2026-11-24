@@ -1,0 +1,241 @@
+<!doctype html>
+<!-- How far each language is, and the glossaries. The build fills the tables from
+     scripts/i18n/status.py and i18n/<lang>/glossary.json when it builds the site: status_langs gives
+     a column for each language besides English, status_<surface> the row of one surface of
+     i18n/surfaces.json (a surface with no row here, or a row with no surface, stops the build), and
+     glossary_head and glossary_rows the terms of TOA (kind toa) with each language's rendering.
+     The same conventions as index.html. -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>翻译进度 · True-OpenAccess</title>
+<meta name="description" content="TOA 多语言翻译进度、发布条件与术语表。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&amp;display=swap">
+<style>:root{--sans:"IBM Plex Sans", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;--mono:"IBM Plex Mono", "Cascadia Mono", Consolas, "Noto Sans SC", monospace;}</style>
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+<div class="preview-bar"><div class="wrap">Mockup of the site, phase 2: the home page, the standard, the tool, agents, translation status. The standard&#x27;s downloads are left out of the mockup. Preview of Chinese (Simplified), a language not yet published: the published site offers it in no menu.</div></div>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="TOA 首页">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="8" width="12" height="12" rx="2" fill="var(--accent)"/></svg>
+      TOA <small>True-OpenAccess</small>
+    </a>
+    <nav class="nav" aria-label="页面">
+      <a href="index.html">概览</a>
+      <a href="spec/0.1/">标准</a>
+      <a href="tools.html">工具</a>
+      <a href="agents.html">Agent</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+    <div class="top-tools">
+      <details class="lang">
+        <summary class="btn small" aria-label="选择语言">
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 8h13M8 1.5c2 2 2.8 4.2 2.8 6.5S10 12.5 8 14.5C6 12.5 5.2 10.3 5.2 8S6 3.5 8 1.5z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+          中文
+        </summary>
+        <div class="lang-list">
+          <a href="../en/translation.html" lang="en">English <span class="code">EN</span></a>
+          <a href="../zh/translation.html" lang="zh-CN" aria-current="true">简体中文 <span class="code">ZH · preview</span></a>
+        </div>
+      </details>
+      <button id="theme-btn" class="btn small" type="button" aria-label="切换到暗色" data-dark="切换到暗色" data-light="切换到亮色">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13z" fill="currentColor"/><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        主题
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap doc">
+    <nav class="toc card" aria-label="本页内容">
+      <div class="card-head"><h3>本页内容</h3></div>
+      <div class="card-body">
+        <ol>
+          <li><a href="#status"><span class="n">1</span>翻译进度</a></li>
+          <li><a href="#published"><span class="n">2</span>发布条件</a></li>
+          <li><a href="#help"><span class="n">3</span>参与翻译</a></li>
+          <li><a href="#glossary"><span class="n">4</span>术语表</a></li>
+          <li><a href="#not"><span class="n">5</span>不翻译项</a></li>
+        </ol>
+      </div>
+    </nav>
+
+    <div class="doc-main">
+      <div class="card doc-head">
+        <div class="card-body">
+          <div class="kicker" style="margin:0">语言</div>
+          <h1>翻译进度</h1>
+          <p>正文与术语均以英文为准；其他语言跟踪翻译，缺译处回退英文。</p>
+        </div>
+      </div>
+
+      <article class="card prose">
+        <h2 id="status"><span class="sec">1</span>翻译进度</h2>
+        <p>构建时由 <code>scripts/i18n/status.py</code> 统计；英文更新后未同步即过时。</p>
+        <div class="scroll">
+        <table class="progress">
+          <thead><tr><th scope="col">范围</th><th scope="col" lang="zh-CN">简体中文 <span class="code">ZH</span> <span class="pill plain">incubating</span></th></tr></thead>
+          <tbody>
+            <tr><td>TOA 0.1 正文与附录</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">14/14</span></td></tr>
+            <tr><td>类型规格</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">6/6</span></td></tr>
+            <tr><td>术语表</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">100/100</span></td></tr>
+            <tr><td>网站页面</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">326/326</span></td></tr>
+            <tr><td>共用文案</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">24/24</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2 id="published"><span class="sec">2</span>发布条件</h2>
+        <ul>
+          <li>新语言初始为<b>孵化中</b>，仅建预览页，不进菜单。</li>
+          <li>导航、首页、Agent 页全译完，其余 ≥ 80% 且经审阅后<b>发布</b>。</li>
+          <li>不足 80% 显示英文；80%–99% 缺译处回退英文；均以英文提示。</li>
+        </ul>
+
+        <h2 id="help"><span class="sec">3</span>参与翻译</h2>
+        <p>译文与源码同库，格式与检查见 <a href="https://github.com/true-openaccess/toa/tree/main/i18n">i18n 目录</a>。</p>
+        <table>
+          <thead><tr><th>内容</th><th>路径</th></tr></thead>
+          <tbody>
+            <tr><td>标准正文与类型规格</td><td><code>spec/0.1/&lt;lang&gt;/</code>, <code>spec/types/&lt;lang&gt;/</code></td></tr>
+            <tr><td>术语表</td><td><code>i18n/&lt;lang&gt;/glossary.json</code></td></tr>
+            <tr><td>网站页面</td><td><code>i18n/&lt;lang&gt;/site/&lt;page&gt;.json</code></td></tr>
+            <tr><td>共用文案</td><td><code>i18n/&lt;lang&gt;/site/messages.json</code></td></tr>
+          </tbody>
+        </table>
+<pre><code>python scripts/i18n/status.py            # 查看进度
+python scripts/i18n/status.py files zh   # 单语种文件
+python scripts/i18n/status.py check      # 检查格式</code></pre>
+
+        <h2 id="glossary"><span class="sec">4</span>术语表</h2>
+        <p>各语言术语译法约定，非标准正文；仅英文术语规范。</p>
+        <div class="scroll">
+        <table class="glossary">
+          <thead><tr><th scope="col">英文</th><th scope="col" lang="zh-CN">简体中文</th></tr></thead>
+          <tbody>
+<tr><td lang="en"><b>ancestor</b></td><td lang="zh-CN">祖先</td></tr>
+<tr><td lang="en"><b>arrangement</b></td><td lang="zh-CN">摆法<div class="faint" lang="en">How objects are placed in a library (6.2). Not &#x27;layout&#x27; in English, which is reserved for IC layouts (prefix lay).</div></td></tr>
+<tr><td lang="en"><b>assemble</b></td><td lang="zh-CN">组装</td></tr>
+<tr><td lang="en"><b>base</b><div class="faint">the field <code>base</code></div></td><td lang="zh-CN">base<div class="faint" lang="en">Written as the field name; 改自 in running text. Not the previous head of the library check (基准).</div></td></tr>
+<tr><td lang="en"><b>canonical tree hash</b></td><td lang="zh-CN">规范的 tree 号</td></tr>
+<tr><td lang="en"><b>check</b></td><td lang="zh-CN">检查<div class="faint" lang="en">Whether rules are kept. Not to be confused with verify (核对).</div></td></tr>
+<tr><td lang="en"><b>common fields</b></td><td lang="zh-CN">公共字段</td></tr>
+<tr><td lang="en"><b>cross-check hash</b></td><td lang="zh-CN">对照值</td></tr>
+<tr><td lang="en"><b>dangling reference</b></td><td lang="zh-CN">悬空的引用</td></tr>
+<tr><td lang="en"><b>declared</b><div class="faint">the part of a history that cannot be verified</div></td><td lang="zh-CN">只是声明的</td></tr>
+<tr><td lang="en"><b>deployment</b></td><td lang="zh-CN">部署</td></tr>
+<tr><td lang="en"><b>descendant</b></td><td lang="zh-CN">后代</td></tr>
+<tr><td lang="en"><b>document</b><div class="faint">the type doc</div></td><td lang="zh-CN">文档</td></tr>
+<tr><td lang="en"><b>draft</b></td><td lang="zh-CN">草稿</td></tr>
+<tr><td lang="en"><b>draft name</b></td><td lang="zh-CN">草稿名</td></tr>
+<tr><td lang="en"><b>evidence</b></td><td lang="zh-CN">关键数据<div class="faint" lang="en">Key data kept in an evidence record (验证记录), under evidence/; not raw simulation data.</div></td></tr>
+<tr><td lang="en"><b>evidence record</b><div class="faint">the type evd</div></td><td lang="zh-CN">验证记录<div class="faint" lang="en">条 for counting: 一条验证记录. Its files under evidence/ are 关键数据. 证据 stays for evidence in the general sense, such as 时间的证据.</div></td></tr>
+<tr><td lang="en"><b>expanded tree</b></td><td lang="zh-CN">展开树</td></tr>
+<tr><td lang="en"><b>external dependency</b></td><td lang="zh-CN">外部依赖</td></tr>
+<tr><td lang="en"><b>external file</b></td><td lang="zh-CN">外部文件</td></tr>
+<tr><td lang="en"><b>fetch</b></td><td lang="zh-CN">取对象<div class="faint" lang="en">Also 取 for short.</div></td></tr>
+<tr><td lang="en"><b>follow</b><div class="faint">a reference following a newer version</div></td><td lang="zh-CN">跟进</td></tr>
+<tr><td lang="en"><b>form</b><div class="faint">of a circuit (<code>form</code>)</div></td><td lang="zh-CN">形态<div class="faint" lang="en">How the circuit itself is written: ideal, va, rtl, transistor, composition, mixed.</div></td></tr>
+<tr><td lang="en"><b>frozen library</b><div class="faint">the type lib</div></td><td lang="zh-CN">冻结库<div class="faint" lang="en">Not to be confused with library (库), the git repository.</div></td></tr>
+<tr><td lang="en"><b>generation</b></td><td lang="zh-CN">代<div class="faint" lang="en">How far an object is down its series: 1 for the first, one more than its parent for each next one. Sealing writes it in history.json; for people only (3.4).</div></td></tr>
+<tr><td lang="en"><b>group</b><div class="faint">the group path of a source list</div></td><td lang="zh-CN">分组<div class="faint" lang="en">A series of generations is 一支, not 分组.</div></td></tr>
+<tr><td lang="en"><b>header</b><div class="faint">the first line of a source list</div></td><td lang="zh-CN">头</td></tr>
+<tr><td lang="en"><b>history</b></td><td lang="zh-CN">来历名单<div class="faint" lang="en">The file history.json; 来历 alone is lineage.</div></td></tr>
+<tr><td lang="en"><b>include line</b></td><td lang="zh-CN">包含行</td></tr>
+<tr><td lang="en"><b>index</b></td><td lang="zh-CN">索引</td></tr>
+<tr><td lang="en"><b>invalid</b></td><td lang="zh-CN">不合格</td></tr>
+<tr><td lang="en"><b>latest mark</b></td><td lang="zh-CN">最新标记<div class="faint" lang="en">&quot;latest&quot;: true on a line of a library list (5.2).</div></td></tr>
+<tr><td lang="en"><b>lenient reading</b></td><td lang="zh-CN">容错的读法</td></tr>
+<tr><td lang="en"><b>library</b></td><td lang="zh-CN">库</td></tr>
+<tr><td lang="en"><b>library check</b></td><td lang="zh-CN">库的检查</td></tr>
+<tr><td lang="en"><b>library list</b></td><td lang="zh-CN">库的清单<div class="faint" lang="en">The file library.source.jsonl. 库顶层的清单 in earlier drafts.</div></td></tr>
+<tr><td lang="en"><b>lineage</b></td><td lang="zh-CN">来历<div class="faint" lang="en">Which objects an object was derived from. 来源 is source, a place to fetch from.</div></td></tr>
+<tr><td lang="en"><b>list of members</b><div class="faint">members.source.jsonl of a frozen library</div></td><td lang="zh-CN">成员表</td></tr>
+<tr><td lang="en"><b>listing</b><div class="faint">git&#x27;s list of the entries of a tree</div></td><td lang="zh-CN">目录列表</td></tr>
+<tr><td lang="en"><b>local file map</b></td><td lang="zh-CN">本机映射表</td></tr>
+<tr><td lang="en"><b>local path</b></td><td lang="zh-CN">本机路径</td></tr>
+<tr><td lang="en"><b>local source</b></td><td lang="zh-CN">本机来源</td></tr>
+<tr><td lang="en"><b>manifest</b></td><td lang="zh-CN">入口文件<div class="faint" lang="en">The file toa.yaml.</div></td></tr>
+<tr><td lang="en"><b>newer version</b></td><td lang="zh-CN">新版</td></tr>
+<tr><td lang="en"><b>note</b><div class="faint">one file of a notes directory</div></td><td lang="zh-CN">说明</td></tr>
+<tr><td lang="en"><b>notes directory</b></td><td lang="zh-CN">说明目录</td></tr>
+<tr><td lang="en"><b>object</b></td><td lang="zh-CN">对象</td></tr>
+<tr><td lang="en"><b>object line</b></td><td lang="zh-CN">对象行</td></tr>
+<tr><td lang="en"><b>object name</b></td><td lang="zh-CN">对象名</td></tr>
+<tr><td lang="en"><b>prefix</b></td><td lang="zh-CN">前缀</td></tr>
+<tr><td lang="en"><b>previous head</b><div class="faint">the commit the library check compares with</div></td><td lang="zh-CN">基准</td></tr>
+<tr><td lang="en"><b>publication branch</b></td><td lang="zh-CN">发布分支</td></tr>
+<tr><td lang="en"><b>publish</b></td><td lang="zh-CN">发布</td></tr>
+<tr><td lang="en"><b>published</b></td><td lang="zh-CN">已发布</td></tr>
+<tr><td lang="en"><b>readable name</b></td><td lang="zh-CN">可读名</td></tr>
+<tr><td lang="en"><b>reference</b></td><td lang="zh-CN">引用</td></tr>
+<tr><td lang="en"><b>removal</b></td><td lang="zh-CN">删除<div class="faint" lang="en">Verb remove (删除、删掉); not delete.</div></td></tr>
+<tr><td lang="en"><b>removal record</b></td><td lang="zh-CN">删除记录</td></tr>
+<tr><td lang="en"><b>reserved form</b></td><td lang="zh-CN">保留的形式</td></tr>
+<tr><td lang="en"><b>reverse lookup</b></td><td lang="zh-CN">反查</td></tr>
+<tr><td lang="en"><b>seal</b></td><td lang="zh-CN">定稿</td></tr>
+<tr><td lang="en"><b>series</b><div class="faint">the generations of one design</div></td><td lang="zh-CN">一支<div class="faint" lang="en">分支 is a git branch.</div></td></tr>
+<tr><td lang="en"><b>sidecar file</b></td><td lang="zh-CN">旁挂文件</td></tr>
+<tr><td lang="en"><b>signed commit</b></td><td lang="zh-CN">签名的提交<div class="faint" lang="en">A commit signed with git&#x27;s SSH or GPG signing; it shows who put an object into a library (6.3).</div></td></tr>
+<tr><td lang="en"><b>source</b></td><td lang="zh-CN">来源<div class="faint" lang="en">Where an object can be fetched. 来历 is lineage.</div></td></tr>
+<tr><td lang="en"><b>source list</b></td><td lang="zh-CN">来源表<div class="faint" lang="en">Any file ending in .source.jsonl.</div></td></tr>
+<tr><td lang="en"><b>stamps directory</b></td><td lang="zh-CN">时间戳目录<div class="faint" lang="en">The sidecar &lt;object name&gt;.stamps/ (4.3).</div></td></tr>
+<tr><td lang="en"><b>standard</b><div class="faint">this standard</div></td><td lang="zh-CN">标准<div class="faint" lang="en">本标准. The draft called it 规范; the folder stays spec/.</div></td></tr>
+<tr><td lang="en"><b>strict reading</b></td><td lang="zh-CN">严格的读法</td></tr>
+<tr><td lang="en"><b>subscribe</b></td><td lang="zh-CN">订阅</td></tr>
+<tr><td lang="en"><b>superseded</b></td><td lang="zh-CN">被取代</td></tr>
+<tr><td lang="en"><b>tag</b><div class="faint">the part of a draft name after draft-</div></td><td lang="zh-CN">标签</td></tr>
+<tr><td lang="en"><b>timestamp proof</b></td><td lang="zh-CN">时间戳证明<div class="faint" lang="en">A proof by a third party that an object name existed at a time, such as an OpenTimestamps .ots file (4.3).</div></td></tr>
+<tr><td lang="en"><b>type</b><div class="faint">of an object, named by its prefix</div></td><td lang="zh-CN">类型</td></tr>
+<tr><td lang="en"><b>type directory</b></td><td lang="zh-CN">类型目录</td></tr>
+<tr><td lang="en"><b>type specification</b></td><td lang="zh-CN">类型规格</td></tr>
+<tr><td lang="en"><b>unseal</b></td><td lang="zh-CN">取消定稿</td></tr>
+<tr><td lang="en"><b>valid</b></td><td lang="zh-CN">合格</td></tr>
+<tr><td lang="en"><b>verified</b><div class="faint">the part of a history verified link by link</div></td><td lang="zh-CN">核对过的</td></tr>
+<tr><td lang="en"><b>verify</b></td><td lang="zh-CN">核对<div class="faint" lang="en">Recompute a hash and compare it with the name. Not to be confused with check (检查).</div></td></tr>
+<tr><td lang="en"><b>verify from the files</b></td><td lang="zh-CN">读文件核对</td></tr>
+<tr><td lang="en"><b>verify from the listing</b></td><td lang="zh-CN">读目录列表核对</td></tr>
+<tr><td lang="en"><b>volume</b><div class="faint">a part of a large library list</div></td><td lang="zh-CN">分卷</td></tr>
+<tr><td lang="en"><b>well-formed object tree</b></td><td lang="zh-CN">合法的对象树</td></tr>
+<tr><td lang="en"><b>withdrawn</b></td><td lang="zh-CN">撤回</td></tr>
+<tr><td lang="en"><b>workspace list</b></td><td lang="zh-CN">工作区清单<div class="faint" lang="en">The file workspace.source.jsonl. 库表 in earlier drafts.</div></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2 id="not"><span class="sec">5</span>不翻译项</h2>
+        <table>
+          <tbody>
+            <tr><td><code>toa</code> 命令行输出</td><td>工具自定义，非标准规定。</td></tr>
+            <tr><td><a href="../llms.txt">llms.txt</a></td><td>Agent 读英文，单份维护。</td></tr>
+            <tr><td>仓库文档</td><td>面向开发者，仅英文。</td></tr>
+            <tr><td>数据与字段定义</td><td>供工具解析，说明见类型规格。</td></tr>
+          </tbody>
+        </table>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>TOA（True-OpenAccess）· 代码 MIT · 文本 CC-BY-4.0 · 数据 CC0-1.0 · 标准以英文为准。</div>
+    <nav aria-label="页脚">
+      <a href="spec/0.1/">标准</a>
+      <a href="tools.html">工具</a>
+      <a href="agents.html">Agent</a>
+      <a href="../llms.txt">llms.txt</a>
+      <a class="on" href="translation.html" aria-current="page">翻译进度</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

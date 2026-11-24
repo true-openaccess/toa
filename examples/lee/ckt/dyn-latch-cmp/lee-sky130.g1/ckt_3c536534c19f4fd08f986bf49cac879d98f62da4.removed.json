@@ -1,0 +1,9 @@
+{
+  "toa": "removed/1",
+  "object": "ckt_3c536534c19f4fd08f986bf49cac879d98f62da4",
+  "commit": "c3053a3bfd0d5bec8d53215c841d7c3102255c8b",
+  "path": "ckt/dyn-latch-cmp/lee-sky130.g1/ckt_3c536534c19f4fd08f986bf49cac879d98f62da4",
+  "license": "CC0-1.0",
+  "label": "dyn-latch-cmp/lee-sky130.g1",
+  "reason": "Superseded by lee-sky130.g2."
+}

@@ -1,0 +1,54 @@
+[package]
+name = "toa-conformance"
+description = "Conformance tests of the reference tool against the test vectors of the standard."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+autotests = false
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "vectors"
+path = "vectors.rs"
+
+[[test]]
+name = "git_trees"
+path = "git_trees.rs"
+
+[[test]]
+name = "sealing"
+path = "sealing.rs"
+
+[[test]]
+name = "indexing"
+path = "indexing.rs"
+
+[[test]]
+name = "publishing"
+path = "publishing.rs"
+
+[[test]]
+name = "examples"
+path = "examples.rs"
+
+[[test]]
+name = "backends"
+path = "backends.rs"
+
+[[test]]
+name = "removing"
+path = "removing.rs"
+
+[[test]]
+name = "deriving"
+path = "deriving.rs"
+
+[dev-dependencies]
+toa-core.workspace = true
+toa-repo = { workspace = true, features = ["builtin-git"] }
+serde_json.workspace = true

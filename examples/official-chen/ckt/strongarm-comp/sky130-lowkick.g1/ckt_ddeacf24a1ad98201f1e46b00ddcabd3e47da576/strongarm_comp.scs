@@ -1,0 +1,15 @@
+// StrongARM latched comparator with less kickback: the input pair is isolated
+// from the latch by two switches while the latch regenerates; devices of sky130
+subckt strongarm_comp inp inn clk outp outn vdd vss
+  m0 (tail clk vss vss) nfet_01v8 w=4u l=0.15u
+  m1 (y1 inp tail vss) nfet_01v8 w=2u l=0.15u
+  m2 (y2 inn tail vss) nfet_01v8 w=2u l=0.15u
+  m9 (x1 clk y1 vss) nfet_01v8 w=2u l=0.15u
+  m10 (x2 clk y2 vss) nfet_01v8 w=2u l=0.15u
+  m3 (outn outp x1 vss) nfet_01v8 w=1u l=0.15u
+  m4 (outp outn x2 vss) nfet_01v8 w=1u l=0.15u
+  m5 (outn outp vdd vdd) pfet_01v8 w=1u l=0.15u
+  m6 (outp outn vdd vdd) pfet_01v8 w=1u l=0.15u
+  m7 (outn clk vdd vdd) pfet_01v8 w=1u l=0.15u
+  m8 (outp clk vdd vdd) pfet_01v8 w=1u l=0.15u
+ends strongarm_comp

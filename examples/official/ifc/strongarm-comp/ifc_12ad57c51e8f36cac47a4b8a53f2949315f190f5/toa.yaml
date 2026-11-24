@@ -1,0 +1,13 @@
+type: ifc
+license: CC0-1.0
+name: strongarm-comp
+title: StrongARM latched comparator
+description: Clocked comparator with a regenerative latch; the outputs are valid while clk is high.
+pins:
+- {name: inp, kind: analog, direction: in}
+- {name: inn, kind: analog, direction: in}
+- {name: clk, kind: digital, direction: in}
+- {name: outp, kind: digital, direction: out}
+- {name: outn, kind: digital, direction: out}
+- {name: vdd, kind: supply}
+- {name: vss, kind: ground}

@@ -1,0 +1,78 @@
+{
+  "about": "Hashes of sets of files (2.2, 2.3). See README.md.",
+  "vectors": [
+    {
+      "id": "object",
+      "dir": "hash/object",
+      "files": {
+        "README.md": "hello\n",
+        "toa.yaml": "type: doc\nlicense: MIT\n"
+      },
+      "hash": "ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "sha256": "e282624f05b86cc1bae3ef0abf32ad2540fb72fc15d309cea0988289b9ee2bd9",
+      "valid_object": true,
+      "section": "2.2, 2.3",
+      "note": "A whole object: a manifest and one more file."
+    },
+    {
+      "id": "order",
+      "dir": "hash/order",
+      "files": {
+        "a-b": "3\n",
+        "a.txt": "1\n",
+        "a/z": "2\n",
+        "a0": "4\n"
+      },
+      "hash": "497bcf8f72cdfb77f6ab7d4e0ac6cfeaafa81c8c",
+      "sha256": "6405c1e3597fbe6fd1f4f30a3f99bed0edb1858cb9d72e829ee1116ce4012b7d",
+      "valid_object": false,
+      "section": "2.2, 2.3",
+      "note": "Order of entries: a-b, a.txt, the directory a, a0. A directory sorts as if its name ended in '/'."
+    },
+    {
+      "id": "bytes",
+      "dir": "hash/bytes",
+      "files": {
+        "crlf.txt": "x\r\n",
+        "empty": ""
+      },
+      "hash": "372f060b024c23ddf17d022472fff124c6d37efb",
+      "sha256": "cd440b4b25949dc63433404279def2ffcb0ff07a3a3ad3c3b0177b1078df2d4c",
+      "valid_object": false,
+      "section": "2.2, 2.3",
+      "note": "Bytes as they are: an empty file, and a CR LF line end that is not converted."
+    }
+  ],
+  "noncanonical_trees": [
+    {
+      "id": "canonical",
+      "files_of": "object",
+      "tree_body_hex": "31303036343420524541444d452e6d6400ce013625030ba8dba906f756967f9e9ca394464a31303036343420746f612e79616d6c00f9b38a623985f913965ff87e8aff6c452bf4ee54",
+      "git_tree_id": "ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "hash": "ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "valid": true,
+      "section": "2.2, 7.4",
+      "note": "The canonical tree: its id is the hash of the files."
+    },
+    {
+      "id": "mode-leading-zero",
+      "files_of": "object",
+      "tree_body_hex": "31303036343420524541444d452e6d6400ce013625030ba8dba906f756967f9e9ca394464a3031303036343420746f612e79616d6c00f9b38a623985f913965ff87e8aff6c452bf4ee54",
+      "git_tree_id": "88877fcc08dc665dc776a5f121bebfd1bc99469e",
+      "hash": "ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "valid": false,
+      "section": "2.2, 7.4",
+      "note": "The mode of toa.yaml written 0100644. Git gives the tree another id; a directory named after that id is not a valid object."
+    },
+    {
+      "id": "order-swapped",
+      "files_of": "object",
+      "tree_body_hex": "31303036343420746f612e79616d6c00f9b38a623985f913965ff87e8aff6c452bf4ee5431303036343420524541444d452e6d6400ce013625030ba8dba906f756967f9e9ca394464a",
+      "git_tree_id": "ac31b57cf9c3bd3ff8bd22112d2b5e480e6ffad1",
+      "hash": "ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "valid": false,
+      "section": "2.2, 7.4",
+      "note": "The two entries in the wrong order. Git gives the tree another id; a directory named after that id is not a valid object."
+    }
+  ]
+}

@@ -1,0 +1,3089 @@
+<!doctype html>
+<!-- The page of one version of the standard in one language, <lang>/spec/<version>/index.html.
+
+     Filled in two passes. First scripts/spec/build.py --site DIR fills the standard's parts by plain
+     replacement: lang, title, version, revision, other_lang, downloads, toc, chapters and body. Then
+     site/build.py --out DIR, in the same DIR, translates the en groups from
+     i18n/<lang>/site/spec-page.html.json and fills the site's parts as on every page; home is the
+     way from here to the language's pages. The text between the two body marks is the standard's own
+     and is left as it is. The mark site:spec-page tells the site build a page it has not done yet. -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TOA 0.1（中文版） · True-OpenAccess</title>
+<meta name="description" content="TOA 库格式标准：对象、入口文件、来源表、库、工作区与操作。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&amp;display=swap">
+<style>:root{--sans:"IBM Plex Sans", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;--mono:"IBM Plex Mono", "Cascadia Mono", Consolas, "Noto Sans SC", monospace;}</style>
+<link rel="stylesheet" href="../../../assets/site.css">
+<script src="../../../assets/site.js"></script>
+</head>
+<body>
+<div class="preview-bar"><div class="wrap">Mockup of the site, phase 2: the home page, the standard, the tool, agents, translation status. The standard&#x27;s downloads are left out of the mockup. Preview of Chinese (Simplified), a language not yet published: the published site offers it in no menu.</div></div>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="../../index.html" aria-label="TOA 首页">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="8" width="12" height="12" rx="2" fill="var(--accent)"/></svg>
+      TOA <small>True-OpenAccess</small>
+    </a>
+    <nav class="nav" aria-label="页面">
+      <a href="../../index.html">概览</a>
+      <a class="on" href="../../spec/0.1/" aria-current="page">标准</a>
+      <a href="../../tools.html">工具</a>
+      <a href="../../agents.html">Agent</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+    <div class="top-tools">
+      <details class="lang">
+        <summary class="btn small" aria-label="选择语言">
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 8h13M8 1.5c2 2 2.8 4.2 2.8 6.5S10 12.5 8 14.5C6 12.5 5.2 10.3 5.2 8S6 3.5 8 1.5z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+          中文
+        </summary>
+        <div class="lang-list">
+          <a href="../../../en/spec/0.1/" lang="en">English <span class="code">EN</span></a>
+          <a href="../../../zh/spec/0.1/" lang="zh-CN" aria-current="true">简体中文 <span class="code">ZH · preview</span></a>
+        </div>
+      </details>
+      <button id="theme-btn" class="btn small" type="button" aria-label="切换到暗色" data-dark="切换到暗色" data-light="切换到亮色">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13z" fill="currentColor"/><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        主题
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap doc">
+    <nav class="toc card" aria-label="目录">
+      <div class="card-head"><h3>目录</h3></div>
+      <div class="card-body">
+        <ol>
+<li><a href="#1"><span class="n">1</span>概述</a>
+<ol>
+<li><a href="#1.1"><span class="n">1.1</span>范围</a></li>
+<li><a href="#1.2"><span class="n">1.2</span>本标准的结构</a></li>
+<li><a href="#1.3"><span class="n">1.3</span>要求用词</a></li>
+<li><a href="#1.4"><span class="n">1.4</span>术语</a></li>
+<li><a href="#1.5"><span class="n">1.5</span>原则</a></li>
+<li><a href="#1.6"><span class="n">1.6</span>一致性</a></li>
+</ol></li>
+<li><a href="#2"><span class="n">2</span>对象名</a>
+<ol>
+<li><a href="#2.1"><span class="n">2.1</span>写法</a></li>
+<li><a href="#2.2"><span class="n">2.2</span>哈希怎么算</a></li>
+<li><a href="#2.3"><span class="n">2.3</span>测试向量</a></li>
+<li><a href="#2.4"><span class="n">2.4</span>草稿名</a></li>
+</ol></li>
+<li><a href="#3"><span class="n">3</span>对象目录</a>
+<ol>
+<li><a href="#3.1"><span class="n">3.1</span>合法的对象树</a></li>
+<li><a href="#3.2"><span class="n">3.2</span>入口文件 toa.yaml</a></li>
+<li><a href="#3.3"><span class="n">3.3</span>引用</a></li>
+<li><a href="#3.4"><span class="n">3.4</span>来历：base 和 history.json</a></li>
+<li><a href="#3.5"><span class="n">3.5</span>外部依赖：对象需要、但不随它发布的文件</a></li>
+<li><a href="#3.6"><span class="n">3.6</span>不可变</a></li>
+</ol></li>
+<li><a href="#4"><span class="n">4</span>旁挂文件</a>
+<ol>
+<li><a href="#4.1"><span class="n">4.1</span>说明</a></li>
+<li><a href="#4.2"><span class="n">4.2</span>删除记录</a></li>
+<li><a href="#4.3"><span class="n">4.3</span>时间戳证明</a></li>
+</ol></li>
+<li><a href="#5"><span class="n">5</span>来源表</a>
+<ol>
+<li><a href="#5.1"><span class="n">5.1</span>格式</a></li>
+<li><a href="#5.2"><span class="n">5.2</span>用在哪</a></li>
+<li><a href="#5.3"><span class="n">5.3</span>本机路径和发布</a></li>
+<li><a href="#5.4"><span class="n">5.4</span>它是缓存</a></li>
+</ol></li>
+<li><a href="#6"><span class="n">6</span>库</a>
+<ol>
+<li><a href="#6.1"><span class="n">6.1</span>库是什么</a></li>
+<li><a href="#6.2"><span class="n">6.2</span>摆法</a></li>
+<li><a href="#6.3"><span class="n">6.3</span>发布分支和”已发布”</a></li>
+<li><a href="#6.4"><span class="n">6.4</span>库的检查</a></li>
+<li><a href="#6.5"><span class="n">6.5</span>删除</a></li>
+<li><a href="#6.6"><span class="n">6.6</span>库里其他会变的文件</a></li>
+</ol></li>
+<li><a href="#7"><span class="n">7</span>操作</a>
+<ol>
+<li><a href="#7.1"><span class="n">7.1</span>定稿和取消定稿</a></li>
+<li><a href="#7.2"><span class="n">7.2</span>发布</a></li>
+<li><a href="#7.3"><span class="n">7.3</span>取对象</a></li>
+<li><a href="#7.4"><span class="n">7.4</span>核对</a></li>
+<li><a href="#7.5"><span class="n">7.5</span>更新和订阅</a></li>
+<li><a href="#7.6"><span class="n">7.6</span>组装</a></li>
+</ol></li>
+<li><a href="#8"><span class="n">8</span>工作区清单和索引</a>
+<ol>
+<li><a href="#8.1"><span class="n">8.1</span>工作区清单</a></li>
+<li><a href="#8.2"><span class="n">8.2</span>索引是什么</a></li>
+<li><a href="#8.3"><span class="n">8.3</span>索引的要求</a></li>
+</ol></li>
+<li><a href="#9"><span class="n">9</span>类型</a>
+</li>
+<li><a href="#10"><span class="n">10</span>版本和演进</a>
+</li>
+<li><a href="#11"><span class="n">11</span>安全上必须写明的事</a>
+</li>
+<li><a href="#annex-a"><span class="n">附录 A</span>（说明性）上限</a>
+</li>
+<li><a href="#annex-b"><span class="n">附录 B</span>（说明性）留给以后版本的</a>
+</li>
+        </ol>
+      </div>
+    </nav>
+
+    <div class="doc-main">
+      <div class="card doc-head">
+        <div class="card-body">
+          <div class="kicker" style="margin:0">TOA · 库格式标准</div>
+          <h1>TOA 0.1（中文版）</h1>
+          <p>定义 TOA 对象、命名、入口文件、来源表、库、工作区及操作，任何工具均可据此独立实现。</p>
+          <div class="rev">
+            <span>尚未发布 · 2026-11-24 · 1102dc1</span>
+            <span class="faint">版本：<a href="../0.1/">0.1</a></span>
+          </div>
+          <ul class="downloads">
+
+
+
+
+          </ul>
+          <div class="notice info"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4.2M8 4.6v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><p>Translation of the standard; where it differs from the English, the English prevails. <a href="../../../en/spec/0.1/" lang="en">Read English version</a></p></div>
+        </div>
+      </div>
+
+      <details class="toc-mobile card">
+        <summary>目录</summary>
+        <ol>
+<li><a href="#1">1 概述</a></li>
+<li><a href="#2">2 对象名</a></li>
+<li><a href="#3">3 对象目录</a></li>
+<li><a href="#4">4 旁挂文件</a></li>
+<li><a href="#5">5 来源表</a></li>
+<li><a href="#6">6 库</a></li>
+<li><a href="#7">7 操作</a></li>
+<li><a href="#8">8 工作区清单和索引</a></li>
+<li><a href="#9">9 类型</a></li>
+<li><a href="#10">10 版本和演进</a></li>
+<li><a href="#11">11 安全上必须写明的事</a></li>
+<li><a href="#annex-a">附录 A （说明性）上限</a></li>
+<li><a href="#annex-b">附录 B （说明性）留给以后版本的</a></li>
+        </ol>
+      </details>
+
+      <article class="card prose" lang="zh-CN">
+<!--spec-body-->
+<p>TOA（true open access）是一套设计库的格式标准。对象和引用都是普通的文件：对象名和 git 的 tree 哈希算出来相同，但算的时候不需要 git。<code>0.1</code> 版用 git 仓库发布和共享对象，所以同一个库线上线下、公开私有都能用。每个对象按它内容的哈希命名，所以一个名字永远指同一份内容。本文是 <code>0.1</code> 版的标准。</p>
+<ul>
+<li>英文版是正式文本。本文是它的中文译本，即 <code>toa-0.1.zh.md</code>；两者不一致时，以英文版为准。只有英文术语是规范的术语；每种译本各有自己的术语表。</li>
+<li><code>types/</code> 里的类型规格是本标准的一部分：每份规定一种对象（第 9 章）。</li>
+<li><code>vectors/</code> 里的测试向量是说明性的。它和正文不一致时，以正文为准（<a href="#1.6" class="ref">1.6</a>）。</li>
+<li><code>0.x</code> 各版本之间不承诺兼容（第 10 章）。</li>
+<li>任何工具、网站、EDA 集成都可以照本标准实现。配套的参考工具 <code>toa</code> 和本标准一起发布。</li>
+</ul>
+<h2 id="1"><span class="sec">1</span>概述<a href="#1" class="anchor" aria-label="Link to 1">#</a></h2>
+<h3 id="1.1"><span class="sec">1.1</span>范围<a href="#1.1" class="anchor" aria-label="Link to 1.1">#</a></h3>
+<p>TOA 是设计库的一种格式：一个模块定义、它的各个电路网表、电路网表的测试用例和验证记录、关于它们的文档，以及把其中一组冻结下来的冻结库，都按它存放。其中每一样是一个对象，也就是一个按内容的哈希命名的目录。对象本身不依赖 git：对象名里的哈希就是 git 算出的 tree 哈希，但算它不需要 git（<a href="#2.2" class="ref">2.2</a>）。<code>0.1</code> 版通过库发布和共享对象，库是 git 仓库；在一台机器上，对象也可以放在普通目录里，由来源表的 <code>local</code> 来源指过去（<a href="#5.1" class="ref">5.1</a>）。对象之间按名字引用，所以一个设计不管它的对象放在哪里，都是同一个设计。</p>
+<p>本标准规定：</p>
+<ul>
+<li>对象怎样命名，名字怎样从文件算出（第 2 章）；</li>
+<li>对象目录里可以有什么，它的入口文件、引用和来历（第 3 章）；</li>
+<li>对象旁边的文件：说明、来源表和删除记录（第 4 章）；</li>
+<li>来源表：说明到哪里能找到对象（第 5 章）；</li>
+<li>库：库是什么，对象在库里怎样摆，库必须过哪些检查（第 6 章）；</li>
+<li>对对象的操作：定稿、发布、取对象、核对、跟进更新、组装（第 7 章）；</li>
+<li>工作区清单和索引（第 8 章）；</li>
+<li>对象的类型怎样登记、怎样规定（第 9 章），标准怎样演进（第 10 章）；</li>
+<li>安全上必须写明的事（第 11 章）。</li>
+</ul>
+<p>TOA 不规定：哪个库收哪些许可证，谁能往库里写，投稿怎么审，账号从哪来，网站长什么样。这些由每个部署自己定。</p>
+<h3 id="1.2"><span class="sec">1.2</span>本标准的结构<a href="#1.2" class="anchor" aria-label="Link to 1.2">#</a></h3>
+<p>第 2 到 4 章规定对象，第 5、6 章规定对象放在哪，第 7、8 章规定工具拿对象做什么。第 9 章登记对象的类型；每种类型另有自己的类型规格，在 <code>types/</code> 里。附录 A 列出正文各处定的上限，附录 B 列出留给以后版本的内容。两个附录都是说明性的，注和例子也是。其余都是规范性的。</p>
+<h3 id="1.3"><span class="sec">1.3</span>要求用词<a href="#1.3" class="anchor" aria-label="Link to 1.3">#</a></h3>
+<ul>
+<li><strong>必须</strong>、<strong>不得</strong>：硬性要求。对象或库不满足，就不是合格的 TOA 对象或 TOA 库；工具不满足，就不符合本标准（<a href="#1.6" class="ref">1.6</a>）。</li>
+<li><strong>应当</strong>、<strong>不应当</strong>：建议。可以有理由不照做，但先要弄清楚那些理由。</li>
+<li><strong>可以</strong>：允许。</li>
+</ul>
+<h3 id="1.4"><span class="sec">1.4</span>术语<a href="#1.4" class="anchor" aria-label="Link to 1.4">#</a></h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>祖先（ancestor）</td>
+<td>另一个对象的来历名单里点到的对象（<a href="#3.4" class="ref">3.4</a>）</td>
+</tr>
+<tr>
+<td>摆法（arrangement）</td>
+<td>一个库里的对象怎样分目录放。只有对象目录的名字有意义（<a href="#6.2" class="ref">6.2</a>）</td>
+</tr>
+<tr>
+<td>组装（assemble）</td>
+<td>把一个电路网表连同它的展开树变成一组可以直接仿真的文件（<a href="#7.6" class="ref">7.6</a>）</td>
+</tr>
+<tr>
+<td>检查（check）</td>
+<td>看是否守本标准的规则，例如库的检查（<a href="#6.4" class="ref">6.4</a>）。不要和”核对”混淆</td>
+</tr>
+<tr>
+<td>对照值（cross-check hash）</td>
+<td>用 SHA-256 代替 SHA-1、按对象哈希的算法算出的值。不是名字的一部分，只用来做独立的核对（<a href="#2.2" class="ref">2.2</a>）</td>
+</tr>
+<tr>
+<td>部署（deployment）</td>
+<td>使用 TOA 的一方，例如一个库、一个平台、一个 CI 服务；本标准没有规定的事由它定</td>
+</tr>
+<tr>
+<td>草稿（draft）</td>
+<td>还没定稿的对象目录。它的名字是草稿名（<a href="#2.4" class="ref">2.4</a>）</td>
+</tr>
+<tr>
+<td>展开树（expanded tree）</td>
+<td>一个电路网表，加上它经 <code>uses</code> 采用的电路网表，一层层到底（<a href="#7.6" class="ref">7.6</a>）</td>
+</tr>
+<tr>
+<td>外部文件（external file）</td>
+<td>对象需要、但不随它发布的文件，例如 PDK 的模型文件（<a href="#3.5" class="ref">3.5</a>）</td>
+</tr>
+<tr>
+<td>取对象（fetch）</td>
+<td>按名字拿到一个对象的文件（<a href="#7.3" class="ref">7.3</a>）</td>
+</tr>
+<tr>
+<td>冻结库（frozen library）</td>
+<td>把一组对象冻结下来的对象，例如一个库的一次发布：一份来源表格式的成员表（类型 <code>lib</code>）。不要和”库”混淆</td>
+</tr>
+<tr>
+<td>代（generation）</td>
+<td>给人看的：一个对象在它那一支里是第几代：第一个是 1，往后每个比它的上一代多 1。定稿把它写进 <code>history.json</code>（<a href="#3.4" class="ref">3.4</a>）</td>
+</tr>
+<tr>
+<td>分组（group）</td>
+<td>来源表给对象标的 1 到 4 段的路径，例如库、设计。只给人看（<a href="#5.1" class="ref">5.1</a>）</td>
+</tr>
+<tr>
+<td>来历名单（history）</td>
+<td>一个对象沿 <code>base</code> 第一项往上的祖先名单，和它的代数一起在它的 <code>history.json</code> 里（<a href="#3.4" class="ref">3.4</a>）</td>
+</tr>
+<tr>
+<td>索引（index）</td>
+<td>读库得到的派生数据：谁引用了一个对象，它在哪、什么时候出现，各库对它说了什么（<a href="#8.2" class="ref">8.2</a>）</td>
+</tr>
+<tr>
+<td>库（library）</td>
+<td>一个放对象的 git 仓库，指整个仓库：<code>0.1</code> 版就用它发布和共享对象。只回答”对象放在哪”（<a href="#6.1" class="ref">6.1</a>）。放在本机普通目录里的对象不在任何库里</td>
+</tr>
+<tr>
+<td>库的检查（library check）</td>
+<td>库的维护者在移动发布分支之前，对每个新提交做的检查（<a href="#6.4" class="ref">6.4</a>）</td>
+</tr>
+<tr>
+<td>库的清单（library list）</td>
+<td>库顶层的来源表 <code>library.source.jsonl</code>，列出库里的全部对象（<a href="#5.2" class="ref">5.2</a>）</td>
+</tr>
+<tr>
+<td>最新标记（latest mark）</td>
+<td>库的清单里对象行上的 <code>"latest": true</code>：这个库推荐用这个对象，取代它那一支里之前的各代（<a href="#5.1" class="ref">5.1</a>、<a href="#7.5" class="ref">7.5</a>）</td>
+</tr>
+<tr>
+<td>来历（lineage）</td>
+<td>一个对象是从哪些对象改来的：<code>base</code> 和 <code>history.json</code>（<a href="#3.4" class="ref">3.4</a>）。不要和”来源”混淆</td>
+</tr>
+<tr>
+<td>本机映射表（local file map）</td>
+<td>使用者本机的一份文件，说明每个工艺和每个外部文件在本机对应哪个文件；不进任何公开的库（<a href="#3.5" class="ref">3.5</a>、<a href="#7.6" class="ref">7.6</a>）</td>
+</tr>
+<tr>
+<td>入口文件（manifest）</td>
+<td>每个对象顶层的 <code>toa.yaml</code>：写它的类型、许可证、引用和类型规格要的字段（<a href="#3.2" class="ref">3.2</a>）</td>
+</tr>
+<tr>
+<td>说明（note）</td>
+<td>对象的说明目录里的一份文件：一个库对它的补充，发布之后不再改（<a href="#4.1" class="ref">4.1</a>）</td>
+</tr>
+<tr>
+<td>对象（object）</td>
+<td>名字由内容算出的一个目录，顶层有一份入口文件。不可变（第 3 章）</td>
+</tr>
+<tr>
+<td>对象名（object name）</td>
+<td><code>&lt;prefix&gt;_&lt;hash&gt;</code>，即”前缀_哈希”，对象的名字（<a href="#2.1" class="ref">2.1</a>）</td>
+</tr>
+<tr>
+<td>前缀（prefix）</td>
+<td>对象名里下划线之前的部分，也是对象类型的名字（<a href="#2.1" class="ref">2.1</a>）</td>
+</tr>
+<tr>
+<td>发布分支（publication branch）</td>
+<td>库里别人该看的那个分支。是哪一个由用库的人说，默认 <code>main</code>（<a href="#6.3" class="ref">6.3</a>）</td>
+</tr>
+<tr>
+<td>已发布（published）</td>
+<td>在一个库发布分支最新的提交里（<a href="#6.3" class="ref">6.3</a>）</td>
+</tr>
+<tr>
+<td>可读名（readable name）</td>
+<td>推荐摆法里对象目录之前、给人看的那几级目录名，例如 <code>strongarm-comp/wrap-lee.g2</code>（<a href="#6.2" class="ref">6.2</a>）</td>
+</tr>
+<tr>
+<td>引用（reference）</td>
+<td>入口文件或 <code>lock.json</code> 里整串是对象名的值，或者 <code>members.source.jsonl</code> 里一行的对象（<a href="#3.3" class="ref">3.3</a>）</td>
+</tr>
+<tr>
+<td>删除记录（removal record）</td>
+<td>对象删掉之后可以留在原处的一份文件：删的是什么，从哪来，到哪还能找到（<a href="#4.2" class="ref">4.2</a>）</td>
+</tr>
+<tr>
+<td>一支（series）</td>
+<td>一个设计的各代：类型相同、<code>name</code> 相同，沿 <code>base</code> 第一项连起来的对象（<a href="#3.4" class="ref">3.4</a>）</td>
+</tr>
+<tr>
+<td>定稿（seal）、取消定稿（unseal）</td>
+<td>定稿把草稿变成对象：算出名字，改目录名，用名字换掉草稿名。取消定稿把还没发布的对象变回草稿（<a href="#7.1" class="ref">7.1</a>）</td>
+</tr>
+<tr>
+<td>旁挂文件（sidecar file）</td>
+<td>对象目录旁边、名字以对象名开头的文件或目录：说明目录、来源表、删除记录和时间戳目录。不属于对象（第 4 章）</td>
+</tr>
+<tr>
+<td>来源（source）</td>
+<td>到哪里能取到一个对象：一个 git 仓库或一个本机目录（<a href="#5.1" class="ref">5.1</a>）。不要和”来历”混淆</td>
+</tr>
+<tr>
+<td>来源表（source list）</td>
+<td>按第 5 章格式写的对象清单，每个对象带缓存的信息和已知的来源；可以包含别的来源表。库的清单和工作区清单都是来源表</td>
+</tr>
+<tr>
+<td>类型（type）、类型规格（type specification）</td>
+<td>对象的种类，由前缀命名；写明一种对象有哪些字段和文件的文档（第 9 章）</td>
+</tr>
+<tr>
+<td>合格（valid）</td>
+<td>满足本标准适用的每一条要求；反过来是不合格</td>
+</tr>
+<tr>
+<td>核对（verify）</td>
+<td>重算对象的哈希，和名字比较（<a href="#7.4" class="ref">7.4</a>）。不要和”检查”混淆</td>
+</tr>
+<tr>
+<td>合法的对象树（well-formed object tree）</td>
+<td>守 <a href="#3.1" class="ref">3.1</a> 规则的目录；这些规则只看名字、成员的种类和大小</td>
+</tr>
+<tr>
+<td>工作区清单（workspace list）</td>
+<td>使用者工作目录里的一份来源表，列出当前设计用到的全部对象，通常是包含几个库的清单（<a href="#8.1" class="ref">8.1</a>）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1.5"><span class="sec">1.5</span>原则<a href="#1.5" class="anchor" aria-label="Link to 1.5">#</a></h3>
+<ul>
+<li><strong>对象只靠名字认出。</strong> 名字相同就是同一个对象，不管它在哪个库、哪个镜像、哪个拷贝里。</li>
+<li><strong>引用只写名字，不写地址。</strong> 对象在哪，由来源表（包括工作区清单）和索引回答，它们都在对象之外。</li>
+<li><strong>对象不可变。</strong> 内容的任何改动都得到另一个名字，也就是另一个对象（<a href="#3.6" class="ref">3.6</a>）。</li>
+</ul>
+<p>从这几条原则可以得出 TOA 的两个特点。这里写出来是为了读者，不增加任何要求：</p>
+<ul>
+<li><strong>设计自己能拼起来。</strong> 只要每个对象旁边都带着它的来源表（第 4 章），这份表就说明了它和它引用的对象在哪里找得到（<a href="#5.2" class="ref">5.2</a>）。从一个对象出发，顺着引用走，工具就能收齐这个对象需要的一切：例如从一条验证记录出发，收齐被测的电路网表、它用到的整棵电路网表树、各个测试用例和模块定义。不需要任何人维护的目录或登记处（<a href="#7.3" class="ref">7.3</a>、<a href="#7.6" class="ref">7.6</a>）。</li>
+<li><strong>改动藏不住。</strong> 对象由名字固定，名字是内容的哈希，它引用的对象的名字又是内容的一部分。改动任何一个对象都会得到另一个名字：原来引用它的对象仍然引用原来那个，自己不变，也不会悄悄变成指别的东西。拿到对象的人都可以重算名字，看它是不是名字所指的那一份（<a href="#7.4" class="ref">7.4</a>）。<code>base</code> 和 <code>history.json</code>（<a href="#3.4" class="ref">3.4</a>）记下每个对象从哪里改来，所以一个设计的各代可以按名字一个个往回查。</li>
+</ul>
+<h3 id="1.6"><span class="sec">1.6</span>一致性<a href="#1.6" class="anchor" aria-label="Link to 1.6">#</a></h3>
+<p>本节把其他各章的要求按它们管的对象汇总在一起，不另加要求。</p>
+<ul>
+<li><strong>合格的对象</strong>有一个对象名（<a href="#2.1" class="ref">2.1</a>），是一棵合法的对象树（<a href="#3.1" class="ref">3.1</a>），它的哈希就是名字里的哈希（<a href="#2.2" class="ref">2.2</a>）。它的入口文件守 <a href="#3.2" class="ref">3.2</a>，<code>type</code> 就是它的前缀；有 <code>history.json</code>、<code>lock.json</code>、<code>members.source.jsonl</code> 的，分别守 <a href="#3.4" class="ref">3.4</a>、<a href="#3.3" class="ref">3.3</a>、<a href="#3.3" class="ref">3.3</a>。认识这种类型的工具再按它的类型规格检查（第 9 章）；不认识的做不了这一步，在它能查的范围内这个对象仍然合格。</li>
+<li><strong>合格的库</strong>守 <a href="#6.1" class="ref">6.1</a>，发布分支上的每个提交都过得了库的检查（<a href="#6.4" class="ref">6.4</a>）。</li>
+<li><strong>符合本标准的工具</strong>守它所做的事的要求：
+<ul>
+<li>读对象的工具都要把不认识的前缀当对象（<a href="#2.1" class="ref">2.1</a>），忽略不认识的字段（<a href="#3.2" class="ref">3.2</a>），按容错的读法读别人的来源表（<a href="#5.1" class="ref">5.1</a>）；</li>
+<li>定稿的工具守 <a href="#7.1" class="ref">7.1</a>，发布的工具守 <a href="#7.2" class="ref">7.2</a>；</li>
+<li>取对象的工具守 <a href="#7.3" class="ref">7.3</a> 的步骤；</li>
+<li>核对的工具守 <a href="#7.4" class="ref">7.4</a>，并在 <a href="#7.4" class="ref">7.4</a> 列的场合核对；</li>
+<li>删除对象的工具守 <a href="#6.5" class="ref">6.5</a>，写删除记录的工具守 <a href="#4.2" class="ref">4.2</a>；</li>
+<li>建索引的工具守 <a href="#8.3" class="ref">8.3</a>，组装的工具守 <a href="#7.6" class="ref">7.6</a>；</li>
+<li>所有工具都守第 11 章。</li>
+</ul></li>
+<li><strong>测试向量。</strong> <code>vectors/</code> 里的测试向量对每个输入给出它合不合格，以及它守或违反的是哪一节。工具对一个向量判出的合格与否和向量相同，就算通过；不要求报出节号。测试向量是说明性的：它和正文不一致时，以正文为准。</li>
+</ul>
+<h2 id="2"><span class="sec">2</span>对象名<a href="#2" class="anchor" aria-label="Link to 2">#</a></h2>
+<h3 id="2.1"><span class="sec">2.1</span>写法<a href="#2.1" class="anchor" aria-label="Link to 2.1">#</a></h3>
+<pre class="text"><code>对象名 = 前缀 &quot;_&quot; 哈希
+前缀   = 一个小写字母，后跟 1 到 7 个小写字母或数字     共 2 到 8 个字符
+哈希   = 40 个字符，每个是 0-9 或 a-f                   小写十六进制</code></pre>
+<ul>
+<li><strong>切分规则。</strong> 对象名里有且只有一个下划线。下划线之前是前缀，之后是哈希。前缀和哈希里都没有下划线。</li>
+<li><strong>哈希部分固定 40 位。</strong> 它是按 <a href="#2.2" class="ref">2.2</a> 节算出的值，写全，不截短，不用大写。</li>
+<li><strong>比较对象名时整串比较，</strong> 区分大小写。判断一个字符串是不是对象名时必须整串匹配，前后不得有多余字符，换行也算。</li>
+<li><strong>保留的形式。</strong> <code>prefix_</code> 后跟 64 位小写十六进制，留给以后换哈希算法时用。
+<ul>
+<li><code>0.1</code> 的库里不得出现这种名字。它本来也超过了名字 64 个字符的上限（<a href="#3.1" class="ref">3.1</a>）。</li>
+<li>工具在工作目录里遇到这种名字的目录，不得进入、改名或删除，应当报告。</li>
+<li>别的长度没有特殊含义：<code>tb_ac</code> 就是一个普通的字符串。</li>
+</ul></li>
+<li><strong>前缀就是类型的名字。</strong> 入口文件里的 <code>type</code> 必须和前缀一字不差（<a href="#3.2" class="ref">3.2</a>）。类型只有这一套名字。对象的身份由哈希决定。</li>
+<li><strong>一份内容只有一个前缀合格。</strong> 入口文件在哈希里，<code>type</code> 又必须等于前缀，所以同一份内容换一个前缀就不是合格的对象。任何工具都查得了这一条，不需要认识这个类型。不另外检查”一份内容一个名字”。
+<ul>
+<li>同一个对象在一个库里放几份不算错（<a href="#6.2" class="ref">6.2</a>）。</li>
+</ul></li>
+<li><strong>工具遇到不认识的前缀，</strong> 必须照样把这个目录当对象：能列出、核对名字和 <code>type</code>、拷贝、按名字取、带着旁挂文件走。可以不检查类型规格，不展示细节。</li>
+</ul>
+<h3 id="2.2"><span class="sec">2.2</span>哈希怎么算<a href="#2.2" class="anchor" aria-label="Link to 2.2">#</a></h3>
+<p>先定义一组文件的哈希。输入是若干路径，每条路径对应一个文件的字节；路径用 <code>/</code> 分成各级目录。</p>
+<ol type="1">
+<li><strong>文件的哈希：</strong> <code>SHA-1("blob " + 文件字节数的十进制写法 + 一个 0 字节 + 文件的全部字节)</code>。</li>
+<li><strong>目录的哈希：</strong> 列出这个目录的直接成员，每个成员一条：
+<ul>
+<li>文件：<code>"100644 " + 文件名 + 一个 0 字节 + 该文件的哈希（20 个原始字节）</code>；</li>
+<li>子目录：<code>"40000 " + 目录名 + 一个 0 字节 + 该子目录的哈希（20 个原始字节）</code>。</li>
+<li>各条按名字的字节序排序，子目录的名字排序时当作结尾多一个 <code>/</code>。</li>
+<li>把各条首尾相接得到正文。目录的哈希是 <code>SHA-1("tree " + 正文字节数的十进制写法 + 一个 0 字节 + 正文)</code>。</li>
+</ul></li>
+<li><strong>这组文件的哈希</strong>是最上面那个目录的哈希，写成 40 位小写十六进制。</li>
+</ol>
+<ul>
+<li><strong>对象的哈希</strong>是对象目录里全部文件按上面算出的值。<strong>只有合法的对象树（3.1）才有对象的哈希：</strong> 不合规的目录必须报不合格，不得跳过不合规的成员后照算。</li>
+<li><strong>文件按字节原样算：</strong> 不做换行转换，不做任何过滤。</li>
+<li><strong>哈希只取决于目录里的文件名和文件内容，</strong> 和目录叫什么、放在哪、在哪个提交里无关。</li>
+<li><strong>不经 git 算哈希时，</strong> 应当用带碰撞检测的 SHA-1 实现；检测到碰撞的对象必须判为不合格。</li>
+<li><strong>和 git 的关系。</strong> 在守 <a href="#3.1" class="ref">3.1</a> 节和 <a href="#6.1" class="ref">6.1</a> 节规则的库里，这个值等于 git 给该目录存的 tree 号。这是由规则推出的，不是定义。有两种情况两者不同，都以本节的算法为准：
+<ul>
+<li>仓库的设置不合规（换行转换、过滤器、忽略规则），git 存进去的不是工作目录里的字节。</li>
+<li>git 仓库里存的目录树不是规范写法：模式前面多写了 0、成员没按顺序、成员名里带 <code>/</code>。git 给这样的树另一个号。按目录列表核对时必须把它查出来（<a href="#7.4" class="ref">7.4</a>）。</li>
+</ul></li>
+<li><strong>对照值：</strong> 同样的三步，把 SHA-1 换成 SHA-256（文件和子目录的哈希是 32 个原始字节），得到一个 64 位十六进制的值。它不是名字的一部分，只用来做第 11 章说的独立核对。它等于 git 的 SHA-256 对象格式给同一个目录算的 tree 号。</li>
+</ul>
+<h3 id="2.3"><span class="sec">2.3</span>测试向量<a href="#2.3" class="anchor" aria-label="Link to 2.3">#</a></h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>目录内容（文件名：内容）</th>
+<th>哈希</th>
+<th>对照值（SHA-256）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>toa.yaml</code>：<code>type: doc\nlicense: MIT\n</code>；<code>README.md</code>：<code>hello\n</code></td>
+<td><code>ea44863a8d2f242bc651caf709d45a27e7531d9d</code></td>
+<td><code>e282624f05b86cc1bae3ef0abf32ad2540fb72fc15d309cea0988289b9ee2bd9</code></td>
+</tr>
+<tr>
+<td><code>a.txt</code>：<code>1\n</code>；<code>a/z</code>：<code>2\n</code>；<code>a-b</code>：<code>3\n</code>；<code>a0</code>：<code>4\n</code>（考排序：<code>a-b</code>、<code>a.txt</code>、目录 <code>a</code>、<code>a0</code>）</td>
+<td><code>497bcf8f72cdfb77f6ab7d4e0ac6cfeaafa81c8c</code></td>
+<td><code>6405c1e3597fbe6fd1f4f30a3f99bed0edb1858cb9d72e829ee1116ce4012b7d</code></td>
+</tr>
+<tr>
+<td><code>empty</code>：空文件；<code>crlf.txt</code>：<code>x\r\n</code>（考字节原样）</td>
+<td><code>372f060b024c23ddf17d022472fff124c6d37efb</code></td>
+<td><code>cd440b4b25949dc63433404279def2ffcb0ff07a3a3ad3c3b0177b1078df2d4c</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>\n</code> 是一个换行字节（0x0A），<code>\r</code> 是 0x0D。三行的两个值都用 git 核对过，SHA-1 格式和 SHA-256 格式的仓库各一次。</li>
+<li>后两行只用来考算法：它们没有 <code>toa.yaml</code>，不是合格的对象，有的只是”一组文件的哈希”。</li>
+<li><strong>不规范写法的树。</strong> 第一行的两个文件，如果 git 的目录树把 <code>toa.yaml</code> 的模式写成 <code>0100644</code>，号是 <code>88877fcc08dc665dc776a5f121bebfd1bc99469e</code>；两条的顺序写反，号是 <code>ac31b57cf9c3bd3ff8bd22112d2b5e480e6ffad1</code>。这两个都不是这组文件的哈希，名字取它们的目录不是合格的对象。</li>
+<li>这些向量、这两棵树，以及对象名和草稿名的更多向量，在 <code>vectors/</code> 里（<a href="#1.6" class="ref">1.6</a>）。</li>
+</ul>
+<h3 id="2.4"><span class="sec">2.4</span>草稿名<a href="#2.4" class="anchor" aria-label="Link to 2.4">#</a></h3>
+<ul>
+<li><strong>还没定稿的对象目录用草稿名：</strong> <code>&lt;prefix&gt;_draft-&lt;tag&gt;</code>，即”前缀_draft-标签”。标签是 1 到 40 个小写字母、数字或连字符，以字母或数字开头。</li>
+<li><strong>草稿名不可能是对象名，</strong> 因为它的下划线之后不是 40 位十六进制。</li>
+<li><strong>标签里没有点。</strong> 草稿的旁挂文件叫 <code>&lt;draft name&gt;.notes/</code> 和 <code>&lt;draft name&gt;.source.jsonl</code>，它们带点，所以不会被当成另一个草稿。</li>
+<li><strong>这个形式是保留的：</strong> 入口文件、<code>lock.json</code> 和 <code>members.source.jsonl</code> 里任何整串符合草稿名形式的值，都被当作对一个草稿的引用。任何类型规格都不得允许字段取这种形式的值。</li>
+<li><strong>草稿名不得出现在发布分支上。</strong> 这包括：
+<ul>
+<li>目录名和文件名，以及以”草稿名加点”开头的名字；</li>
+<li>每个对象的 <code>toa.yaml</code> 里任何位置的值；</li>
+<li>每个对象的 <code>lock.json</code> 里的值；</li>
+<li>每个对象的 <code>members.source.jsonl</code> 里的值。</li>
+</ul></li>
+<li>别的分支上可以有草稿。</li>
+</ul>
+<h2 id="3"><span class="sec">3</span>对象目录<a href="#3" class="anchor" aria-label="Link to 3">#</a></h2>
+<h3 id="3.1"><span class="sec">3.1</span>合法的对象树<a href="#3.1" class="anchor" aria-label="Link to 3.1">#</a></h3>
+<p>一个目录是合格的对象，必须同时满足：</p>
+<ol type="1">
+<li><strong>只有普通文件和目录：</strong> 没有符号链接、目录联接、子模块、设备文件，没有空目录。在 git 里，成员的模式只能是 <code>100644</code> 和 <code>40000</code>，所以文件不带可执行位。</li>
+<li><strong>顶层有一份 <code>toa.yaml</code>，是普通文件</strong>（<a href="#3.2" class="ref">3.2</a>）。顶层的 <code>history.json</code>（<a href="#3.4" class="ref">3.4</a>）、<code>lock.json</code> 和 <code>members.source.jsonl</code>（<a href="#3.3" class="ref">3.3</a>）不管什么类型都有固定含义，出现时必须是普通文件。</li>
+<li><strong>每一级的名字</strong>（文件名，和路径上每一级目录的名字）：
+<ul>
+<li>只用 <code>A-Z a-z 0-9 . _ -</code>，长度 1 到 64；</li>
+<li>第一个字符是字母、数字或下划线。所以没有以点开头的名字：<code>.git</code>、<code>.gitattributes</code>、<code>.gitignore</code>、<code>.gitmodules</code> 都不会出现在对象里；</li>
+<li>不以点结尾；</li>
+<li>第一个点之前的部分，不分大小写，不是 <code>con</code>、<code>prn</code>、<code>aux</code>、<code>nul</code>、<code>com0</code> 到 <code>com9</code>、<code>lpt0</code> 到 <code>lpt9</code>。</li>
+</ul></li>
+<li><strong>同一个目录下，没有两个名字只差大小写。</strong></li>
+<li><strong>对象里任何一级的名字都不是对象名或草稿名。</strong> 对象互不嵌套。</li>
+<li><strong>上限：</strong>
+<ul>
+<li>对象目录之下最多再套 6 层目录：文件的相对路径里最多 6 个 <code>/</code>；</li>
+<li>对象内任何文件的相对路径不超过 80 个字符；</li>
+<li>文件总数不超过 2,000；</li>
+<li>单个文件不超过 10 MiB，整个对象不超过 50 MiB。库可以定得更严。</li>
+</ul></li>
+</ol>
+<ul>
+<li><strong>这些规则只看名字、成员的种类和大小，</strong> 不读文件内容。</li>
+<li><strong>在 git 的目录列表上查时，</strong> 还要查两件事：同一条路径不重复出现；每条路径经过的每一级目录，都作为目录列在列表里。git 的目录树里可以有一个名字带 <code>/</code> 的成员，它在列表里看起来像一条普通的路径，查这一条才认得出来。</li>
+<li><strong>在没有权限位的文件系统上（Windows），</strong> 读文件核对时不查可执行位。定稿时的第二遍计算（<a href="#7.1" class="ref">7.1</a>）和库的检查会查出来。</li>
+<li>取用别处的对象时，必须在写盘之前按它的目录列表查一遍（<a href="#7.3" class="ref">7.3</a>）。</li>
+</ul>
+<h3 id="3.2"><span class="sec">3.2</span>入口文件 <code>toa.yaml</code><a href="#3.2" class="anchor" aria-label="Link to 3.2">#</a></h3>
+<h4 id="3.2.1"><span class="sec">3.2.1</span>公共字段<a href="#3.2.1" class="anchor" aria-label="Link to 3.2.1">#</a></h4>
+<ul>
+<li><p><strong>每个对象顶层有且只有一份入口文件 <code>toa.yaml</code>。</strong> 所有类型都叫这个名字。</p></li>
+<li><p><strong>公共字段：</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>必须</td>
+<td>对象的类型：就是它的前缀，一字不差，例如 <code>ckt</code>。前缀碰巧是 <code>on</code>、<code>no</code> 这类词时加引号（<a href="#3.2.3" class="ref">3.2.3</a> 第 10 条）</td>
+</tr>
+<tr>
+<td><code>license</code></td>
+<td>必须</td>
+<td>整个对象的许可证，写成 SPDX 许可证表达式（<a href="#3.2.2" class="ref">3.2.2</a>）</td>
+</tr>
+<tr>
+<td><code>author</code></td>
+<td>可以</td>
+<td>自由文字的署名。随内容固定，不是身份凭据（见下）</td>
+</tr>
+<tr>
+<td><code>base</code></td>
+<td>可以</td>
+<td>一个或多个对象名的列表：这个对象直接从哪些同类型的对象改来（<a href="#3.4" class="ref">3.4</a>）。没有就不写这个字段</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>可以</td>
+<td>一行标题，不超过 200 个字符。模块定义必须写</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>可以</td>
+<td>用一段或几段话说这个对象是什么。更长的写进 <code>README.md</code></td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>可以</td>
+<td>用来查找它的词的列表</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>其余字段由类型规格定</strong>（第 9 章）。</p></li>
+<li><p><strong><code>author</code> 跟着内容走。</strong> 它在入口文件里，因而在哈希里：原样传播的每一份副本都保留它，换了 <code>author</code> 的副本是另一个对象、另一个名字。它不是身份凭据：谁都能写任何名字。是谁把对象放进一个库，由签名的提交说明（<a href="#6.3" class="ref">6.3</a>）；对象某天以前已经存在，由第 11 章的证据说明。</p></li>
+<li><p><strong>字段名。</strong> 本标准和各类型规格定义的每个字段，名字都是一个小写英文词。要两个词的，改成嵌套，例如 <code>simulator: {name, version}</code>。不禁止下划线，只是标准字段都不用。这里只管字段名：值，例如端口名、子电路名、指标名和测试用例名，照各自的规则。</p></li>
+<li><p><strong>入口文件里没有对象自己的名字。</strong> 文件不能包含自己的哈希。</p></li>
+</ul>
+<h4 id="3.2.2"><span class="sec">3.2.2</span>许可证<a href="#3.2.2" class="anchor" aria-label="Link to 3.2.2">#</a></h4>
+<ul>
+<li><code>license</code> 必须合 SPDX 许可证表达式的语法：许可证标识、<code>LicenseRef-&lt;name&gt;</code>、<code>AND</code>、<code>OR</code>、<code>WITH</code>、括号和 <code>+</code>。</li>
+<li>不得用 <code>DocumentRef-…</code>：它指向对象之外的一份 SPDX 文档。<code>NONE</code>、<code>NOASSERTION</code> 不是许可证表达式，也不得用。</li>
+<li>表达式里的每个 <code>LicenseRef-&lt;name&gt;</code>，对象里都必须有一个文件名以 <code>LICENSE</code> 开头、内容是这个许可证全文的文件。</li>
+<li>许可证标识应当在 SPDX 许可证表里。工具认不出某个标识时应当给警告，不得因此判对象不合格：表会增加，工具不必跟着更新。</li>
+<li>对象里的文件带不带许可证文件头、文件头怎样和 <code>license</code> 一致，由类型规格定。</li>
+</ul>
+<h4 id="3.2.3"><span class="sec">3.2.3</span>写法<a href="#3.2.3" class="anchor" aria-label="Link to 3.2.3">#</a></h4>
+<p>入口文件是 YAML 的一个子集。下面的规则只看文件怎么写，不依赖任何 YAML 库对 <code>1.1</code> 版或 <code>1.2</code> 版 YAML 的理解。照这些规则，工具不用 YAML 库也能读入口文件。</p>
+<ol type="1">
+<li><p><strong>整个文件：</strong> UTF-8，不带 BOM。换行只有 LF，文件以 LF 结尾。不含 CR、NUL、U+0085、U+2028、U+2029（字符串里要这些字符时，用双引号加转义）。不超过 256 KiB。</p></li>
+<li><p><strong>一个文档：</strong> 不用指令（<code>%YAML</code>、<code>%TAG</code>），没有 <code>---</code> 或 <code>...</code> 这样的行。顶层是块式映射，键从第一列开始。嵌套不超过 16 层，顶层映射算第 1 层。</p></li>
+<li><p><strong>不用锚点、别名、标签。</strong> 同一个映射里没有重复的键。键都是字符串。不用复杂键（<code>?</code>）。</p></li>
+<li><p><strong>缩进只用空格。</strong> 除了带引号的标量里面和块标量的正文，任何地方都没有制表符。</p></li>
+<li><p><strong>各占一行：</strong> 不带引号的标量、带引号的标量、流式集合，都在同一行里开始和结束。多行的文字写成块标量。</p></li>
+<li><p><strong>块式集合：</strong></p>
+<ul>
+<li>映射的一项是键、<code>:</code>，之后要么是一个空格和同一行上的值，要么什么都没有。什么都没有时，值是下面几行的块式集合：它比键缩进得多，序列也可以和键缩进得一样多；下面没有这样的行时值为空。</li>
+<li>序列的一项是 <code>-</code>，之后要么是一个空格和一个值；要么是一个空格和一个映射的第一项，这个映射的其余各项和第一个键对齐到同一列；要么什么都没有，值是下面几行比 <code>-</code> 缩进得多的块式集合。</li>
+<li>同一个集合的各项缩进相同。</li>
+</ul></li>
+<li><p><strong>块标量：</strong> 头是 <code>|</code>、<code>|-</code>、<code>&gt;</code> 或 <code>&gt;-</code>，此外没有别的；头所在的行上，头之后什么都没有。正文在下面几行，比头所在的行缩进得多。正文的缩进以它的第一行为准，第一行不得为空；正文其余不空的行至少缩进这么多。</p></li>
+<li><p><strong>流式集合：</strong> <code>[…]</code> 和 <code>{…}</code>，可以嵌套，写在一行里。各项用 <code>,</code> 分开，前后可以有空格；没有结尾多余的逗号，没有空的项。流式映射的一项是键、<code>:</code>、一个空格和值。流式序列的一项是一个标量或一个流式集合。流式集合里不带引号的标量不含 <code>,</code> <code>[</code> <code>]</code> <code>{</code> <code>}</code>。<code>[]</code> 和 <code>{}</code> 是空序列和空映射。</p></li>
+<li><p><strong>不带引号的标量</strong>按下表读：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>写法</th>
+<th>读成</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>空、<code>~</code>、<code>null</code></td>
+<td>空值</td>
+</tr>
+<tr>
+<td><code>true</code>、<code>false</code></td>
+<td>布尔值</td>
+</tr>
+<tr>
+<td><code>[-+]?(0\|[1-9][0-9]{0,17})</code></td>
+<td>整数（至多 18 位）</td>
+</tr>
+<tr>
+<td><code>[-+]?(0\|[1-9][0-9]*)\.[0-9]+([eE][-+][0-9]+)?</code>，不超过 32 个字符，值是有限的</td>
+<td>浮点数</td>
+</tr>
+<tr>
+<td><code>.inf</code>、<code>-.inf</code>、<code>.nan</code></td>
+<td>浮点数</td>
+</tr>
+<tr>
+<td>其余</td>
+<td>字符串，还要守第 10、11 条</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>必须加引号的：</strong> 落在上表最后一行、又符合下面任何一条的标量：</p>
+<ul>
+<li>以数字、<code>+</code>、<code>-</code>、<code>.</code> 开头；例如 <code>'2026-10-30'</code>、<code>'23.1.0'</code>、<code>'1e-9'</code>、<code>'0x1F'</code>、<code>'007'</code>、<code>'../lib'</code>；</li>
+<li>不分大小写等于 <code>y</code>、<code>n</code>、<code>yes</code>、<code>no</code>、<code>on</code>、<code>off</code>、<code>true</code>、<code>false</code>、<code>null</code>；例如 <code>'on'</code>、<code>'True'</code>、<code>'NULL'</code>；</li>
+<li>或者等于 <code>=</code> 或 <code>&lt;&lt;</code>。</li>
+</ul>
+<p>键也守这一条。</p></li>
+<li><p><strong>读成字符串的不带引号的标量：</strong> 不以空格开头，也不以 <code>-</code> <code>?</code> <code>:</code> <code>,</code> <code>[</code> <code>]</code> <code>{</code> <code>}</code> <code>#</code> <code>&amp;</code> <code>*</code> <code>!</code> <code>|</code> <code>&gt;</code> <code>'</code> <code>"</code> <code>%</code> <code>@</code> <code>`</code> 中的任何一个开头；不含 <code>:</code> 和 <code>#</code>；不以 <code>:</code> 或空格结尾。</p></li>
+<li><p><strong>带引号的标量：</strong> 单引号里，<code>''</code> 表示一个单引号，没有别的转义。双引号里的转义只有 <code>\0</code> <code>\a</code> <code>\b</code> <code>\t</code> <code>\n</code> <code>\v</code> <code>\f</code> <code>\r</code> <code>\e</code> <code>\"</code> <code>\\</code> <code>\N</code> <code>\_</code> <code>\L</code> <code>\P</code>，以及 <code>\x</code> 加 2 位、<code>\u</code> 加 4 位、<code>\U</code> 加 8 位十六进制；别的转义（例如 <code>\/</code>）都不许用。带引号的标量和块标量一律是字符串。</p></li>
+<li><p><strong>注释和空行：</strong> 空的行、只有空格的行、第一个非空格字符是 <code>#</code> 的行，都不读。一行里在值之后，至少一个空格再加 <code>#</code>，从那里到行尾是注释。块标量的头所在的行上没有注释；块标量的正文里，<code>#</code> 是正文。</p></li>
+</ol>
+<h4 id="3.2.4"><span class="sec">3.2.4</span>读和写<a href="#3.2.4" class="anchor" aria-label="Link to 3.2.4">#</a></h4>
+<ul>
+<li><strong>入口文件不合这些规则的对象不是合格的对象。</strong> 工具报告它，不组装它，不把它当展开树的一部分。按名字列出、拷贝、核对哈希仍然可以。</li>
+<li><strong>定稿时遇到不合写法的入口文件必须报错，</strong> 不得替作者改写：<code>on</code> 是想写字符串还是布尔值，工具不能猜。</li>
+<li><strong>读的时候，</strong> 工具必须忽略不认识的字段，不得因此拒绝对象。定稿时按类型规格严格检查。</li>
+<li><strong>类型规格的版本不写在对象里。</strong> 类型规格只做兼容的改动；不兼容的改动用一个新前缀，等于一种新类型（第 10 章）。</li>
+<li><strong>所有历史版本必须永久可读。</strong> 对象不可变，所以不存在”原地升级格式”。</li>
+</ul>
+<h3 id="3.3"><span class="sec">3.3</span>引用<a href="#3.3" class="anchor" aria-label="Link to 3.3">#</a></h3>
+<ul>
+<li><strong>入口文件里，任何层级上，整串是对象名的值就是一条引用。</strong> 只看值，不看键。只是想提到、不想让它成为引用的对象名，写进 <code>README.md</code>：不从它的文字里找引用。</li>
+<li><strong><code>lock.json</code> 里的名字也是引用。</strong> 对象顶层有一个叫 <code>lock.json</code> 的文件时，不管对象是什么类型：
+<ul>
+<li>它必须是一个 JSON 对象，UTF-8，不超过 1 MiB；</li>
+<li>其中任何层级上整串是对象名的字符串值，都是这个对象的引用；</li>
+<li>它其余的格式由类型规格定。现在只有验证记录用它（第 9 章）。</li>
+</ul></li>
+<li><strong><code>members.source.jsonl</code> 里的成员也是引用。</strong> 对象顶层有一个叫 <code>members.source.jsonl</code> 的文件时，不管对象是什么类型，它就是一份成员表：
+<ul>
+<li>它是一份按严格的读法合格的来源表（<a href="#5.1" class="ref">5.1</a>），大小受 <a href="#3.1" class="ref">3.1</a> 的上限约束，而不是来源表的上限；</li>
+<li>头是 <code>{"toa": "source/1"}</code>，不多不少；其余每一行都是对象行，没有包含行，因为永远不变的对象不能拉进会变的表；</li>
+<li>对象行没有 <code>removed</code> 和 <code>latest</code>，来源只能是 <code>git</code> 来源；</li>
+<li>每一行的 <code>object</code> 都是这个对象的引用。这份表缓存字段里的名字，例如 <code>refs</code> 里的，不是引用；</li>
+<li>它还有什么含义，由类型规格定。现在只有冻结库（类型 <code>lib</code>）用它，并且要求必须有（第 9 章）。</li>
+</ul></li>
+<li><strong>引用必须找得到。</strong> 范围是一份工作区清单展开后列出的对象（<a href="#8.1" class="ref">8.1</a>）：它包含的各库发布分支上的对象，加上它直接列出的对象。在这个范围里找不到的引用是悬空的，工具必须报告。</li>
+<li><strong>引用的对象已经删掉、留了删除记录时，</strong> 工具报告它在哪个库删掉了，并给出删除记录里说的（<a href="#4.2" class="ref">4.2</a>）。</li>
+<li><strong>库的检查不知道工作区清单。</strong> 它列出不在本库里的引用（<a href="#6.4" class="ref">6.4</a> 第 9 项），允许不允许由部署定。</li>
+<li><strong><code>history.json</code> 里的名字不要求找得到。</strong></li>
+<li><strong>方向只有一个：后来的指向先有的。</strong> 电路网表指向它实现的模块定义，不反过来。一个模块定义有哪些电路网表，由索引汇总。引用不可能成环：对象的名字取决于它引用的名字。</li>
+<li><strong>引用锁定整棵树。</strong> 入口文件在哈希里，所以一个对象的名字固定了它引用的每一个对象，一层层到底。</li>
+<li><strong>放引用的字段怎么起名。</strong> 类型规格给值是引用的字段起名：
+<ul>
+<li>只能指一种类型的，用那种类型的前缀，列表加 <code>s</code>：<code>ifc</code>、<code>ckt</code>、<code>tbs</code>；</li>
+<li>能指几种类型的，或者一个对象在两个角色上引用同一种类型的，用表示角色的英文词：<code>dut</code>、<code>refs</code>。类型规格写明它允许哪些前缀。</li>
+</ul></li>
+</ul>
+<h3 id="3.4"><span class="sec">3.4</span>来历：<code>base</code> 和 <code>history.json</code><a href="#3.4" class="anchor" aria-label="Link to 3.4">#</a></h3>
+<ul>
+<li><p><strong><code>base</code> 由作者写：</strong> 这个对象直接从哪些对象改来。出同一个设计的下一版、改别人的对象，都写。从零开始的不写这个字段；草稿里写成空列表的，定稿时去掉（<a href="#7.1" class="ref">7.1</a>）。</p></li>
+<li><p><strong><code>base</code> 的每一项和对象本身前缀相同：</strong> 对象只从同类型的对象改来。定稿和库的检查只看名字就能查。</p></li>
+<li><p><strong><code>base</code> 只说对象是从什么改来的，从不说它取代了谁。</strong> 现在该用哪个，由库在库的清单里给它标 <code>latest</code> 来说（<a href="#5.2" class="ref">5.2</a>、<a href="#7.5" class="ref">7.5</a>）。</p></li>
+<li><p><strong>引用还是 <code>base</code>？</strong> 问一句：这个字段换成指别的，对象说的事还一样吗？换了子电路的电路网表、换了测试用例的验证记录，说的就是另一回事：这样的字段是类型规格定的引用（<a href="#3.3" class="ref">3.3</a>）。新版电路网表不靠旧版也说同样的事：那就是 <code>base</code>。<code>base</code> 指的对象随对象一起带上，但不再往下展开（<a href="#5.2" class="ref">5.2</a>）；<code>history.json</code> 里的名字根本不取。</p></li>
+<li><p><strong>一支</strong> 是一个设计的各代：类型相同、<code>name</code> 相同，沿 <code>base</code> 第一项连起来的对象。没有 <code>name</code> 的类型，例如 <code>evd</code> 和 <code>doc</code>，沿 <code>base</code> 第一项的整条来历算一支。可读名去掉代数，就是这一支的名字（<a href="#6.2" class="ref">6.2</a>）。</p>
+<ul>
+<li>移植到别的工艺，或者只为一次仿真做的变体，另起 <code>name</code>，自成一支，从第 1 代算起。</li>
+<li>别人改了、没改 <code>name</code> 的，仍在这一支里。它是不是原来那个库推荐的新版，看哪些库给它标了记号（<a href="#7.5" class="ref">7.5</a>）。</li>
+</ul></li>
+<li><p><strong>代：</strong> 没有 <code>base</code> 的对象是第 1 代。有 <code>base</code> 的对象，<code>base</code> 第一项和它在同一支里时，代数是那一项的代数加一；不在同一支里时是 1。定稿算出代数，写进 <code>history.json</code>，所以一个对象在哪里显示的都是同一代。</p>
+<ul>
+<li>代数是给人看的：工具把它写进可读名和标签（<a href="#6.2" class="ref">6.2</a>）。它从不写进入口文件。两个对象可以是同一代，代数说明不了是谁做的、什么时候做的。</li>
+</ul></li>
+<li><p><strong><code>history.json</code> 由定稿写出：</strong> 对象目录顶层的一个文件。内容是一个 JSON 对象，有两个键：</p>
+<ul>
+<li><code>history</code>：对象名的列表，最近的在前。列表是 <code>base</code> 的第一项，后面接上那一项的 <code>history</code>。<code>base</code> 有几项时只沿第一项往上记；</li>
+<li><code>generation</code>：这个对象的代数，从 1 起的整数；<code>base</code> 第一项在别的支里时是 1。</li>
+<li>有 <code>base</code> 的对象必须有这个文件；没有 <code>base</code> 的对象不得有，它是第 1 代。</li>
+</ul></li>
+<li><p><strong>写法只有一种：</strong> 两个空格缩进，每个名字一行，以 LF 结尾；和 Python 的 <code>json.dumps({"history": names, "generation": n}, indent=2)</code> 写出的内容（键就按这个顺序）后面加一个 LF 逐字节相同。它在对象里、进哈希，不同的工具必须写出同样的字节。例如：</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;history&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;ckt_cd15342bb4ed1cc1137937195f7cf3c3b8b03af5&quot;</span><span class="ot">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;ckt_f1ede73af6ba50ae0621e34b2b6f6b946dbf1ff1&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;generation&quot;</span><span class="fu">:</span> <span class="dv">3</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
+<li><p><strong>定稿照抄上一代的 <code>history</code>、读它的代数之前，</strong> 上一代必须在本机找得到，并且读文件核对相符（<a href="#7.4" class="ref">7.4</a>）。没有 <code>history.json</code> 的上一代是第 1 代。</p></li>
+<li><p><strong>库的检查核对它</strong>（<a href="#6.4" class="ref">6.4</a> 第 4 项）：写法是那一种；第一项等于 <code>base</code> 的第一项；那一项也在本库时，其余各项等于它的 <code>history</code>，<code>generation</code> 也按上面的算法由它算出；那一项在本库只剩删除记录时，其余各项等于删除记录里的 <code>history</code>（<a href="#4.2" class="ref">4.2</a>）；别的情况下，其余各项和 <code>generation</code> 不核对。</p></li>
+<li><p><strong><code>history.json</code> 在对象里，进哈希。</strong> 所以每个对象带着自己完整的来历和代数，链条中间某一环丢了，更早的祖先仍然查得到。</p></li>
+<li><p><strong>它能证明的：</strong> 它点名的、找得到的祖先，内容确定，并且先于它存在。</p></li>
+<li><p><strong>它不能证明的：</strong> 作者是谁，是哪天做的，对象没有借用名单之外的东西。祖先找不到的那一段只是声明的，没法和上一代核对的代数也只是声明的；索引必须把核对过的部分和只是声明的部分分开（<a href="#8.3" class="ref">8.3</a>）。</p></li>
+</ul>
+<h3 id="3.5"><span class="sec">3.5</span>外部依赖：对象需要、但不随它发布的文件<a href="#3.5" class="anchor" aria-label="Link to 3.5">#</a></h3>
+<p>公开的对象不带 PDK 的模型和其他受限文件。对象只声明它需要什么；这些文件本身在使用者本机。</p>
+<ul>
+<li><p><strong>所有类型用同一套机制；用不用由类型规格定。</strong> 不管什么类型，工艺和别的外部文件都按同样的方式声明。每份类型规格写明这种类型的对象能不能写工艺、写在哪个字段，能不能有 <code>external</code>。<code>0.1</code> 里，电路网表在 <code>specifications.process</code> 里写工艺，电路网表和测试用例可以有 <code>external</code>；别的类型两样都不写。</p></li>
+<li><p><strong>对象写的工艺，</strong> 是它的器件来自哪套工艺的模型：一个短名字，例如 <code>sky130</code>，形如 <code>[a-z][a-z0-9_-]{0,39}</code>。</p></li>
+<li><p><strong><code>external</code>：</strong> 入口文件顶层的一个列表，每项是一个别的外部文件。</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>必须</td>
+<td>在这个对象里怎么称呼它；对象内不重复</td>
+</tr>
+<tr>
+<td><code>role</code></td>
+<td>必须</td>
+<td>是哪种文件，例如 <code>modelfile</code>、<code>techfile</code> 或 <code>other</code>：形如 <code>[a-z][a-z0-9_-]{0,31}</code> 的一个词。这些词是开放的：工具必须接受它不认识的角色</td>
+</tr>
+<tr>
+<td><code>process</code></td>
+<td>可以</td>
+<td>它属于哪套工艺</td>
+</tr>
+<tr>
+<td><code>file</code></td>
+<td>可以</td>
+<td>文件名，供人辨认。不含 <code>/</code> 和 <code>\</code></td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>可以</td>
+<td>可读的版本标签</td>
+</tr>
+<tr>
+<td><code>match</code></td>
+<td>可以</td>
+<td>一组短字符串，文件里必须都出现。用来确认手上的是对的那一份，容忍文件被改名或微调</td>
+</tr>
+<tr>
+<td><code>sha256</code></td>
+<td>可以</td>
+<td>整个文件的 SHA-256。只在允许公开这个值、并且要求逐字节相同时写</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>一次仿真实际用了哪些模型文件，</strong> 仍然记在验证记录的 <code>conditions.models</code> 里：文件名（同样不含 <code>/</code> 和 <code>\</code>）、<code>section</code>、<code>version</code>、<code>match</code>。每项可以多写 <code>process</code> 和 <code>sha256</code>。</p></li>
+<li><p><strong>外部文件本身不得进公开的库。</strong></p></li>
+<li><p><strong>本机映射表</strong>是使用者本机的一份文件，说明每个 <code>process</code> 和每个外部文件在本机对应哪个实际文件。它在工作目录里，不进任何公开的库。格式和怎么对上见 <a href="#7.6" class="ref">7.6</a>。</p></li>
+<li><p><strong>两个对象可以用同一个 <code>name</code> 指不同的文件。</strong> <code>name</code> 只在一个对象里有意义，所以本机映射表的条目可以多写 <code>process</code> 来区分。</p></li>
+<li><p><strong>本标准不要求一棵展开树里的工艺一致。</strong> 组装时工具必须列出整棵树的全部外部依赖，逐个在本机映射表里对上，报出对不上的。两套模型里有同名的器件时怎么处理，是组装工具的事，本标准不规定。</p></li>
+</ul>
+<h3 id="3.6"><span class="sec">3.6</span>不可变<a href="#3.6" class="anchor" aria-label="Link to 3.6">#</a></h3>
+<ul>
+<li>对象的内容定了，名字就定了。任何改动都得到另一个名字，也就是另一个对象。</li>
+<li>要改一个已有的对象：把它复制成草稿，<code>base</code> 指回原来的，改完定稿。</li>
+</ul>
+<h2 id="4"><span class="sec">4</span>旁挂文件<a href="#4" class="anchor" aria-label="Link to 4">#</a></h2>
+<p>对象目录旁边（同一个父目录下）可以有四样名字以对象名开头的东西。它们是旁挂文件：不属于对象，不进哈希。</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>名字</th>
+<th>是什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;object name&gt;.notes/</code></td>
+<td>说明目录：这个库对这个对象的补充（<a href="#4.1" class="ref">4.1</a>）</td>
+</tr>
+<tr>
+<td><code>&lt;object name&gt;.source.jsonl</code></td>
+<td>来源表：这个对象和它需要的对象的已知来源（第 5 章）</td>
+</tr>
+<tr>
+<td><code>&lt;object name&gt;.removed.json</code></td>
+<td>删除记录：这个对象从这里删掉了（<a href="#4.2" class="ref">4.2</a>）</td>
+</tr>
+<tr>
+<td><code>&lt;object name&gt;.stamps/</code></td>
+<td>时间戳目录：第三方做的、证明这个对象名在某个时间已经存在的证明（<a href="#4.3" class="ref">4.3</a>）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>别的名字不得以 <code>&lt;object name&gt;.</code> 开头。</strong></li>
+<li><strong>它们必须是普通的目录和普通的文件，</strong> 不得是符号链接。来源表、删除记录各不超过 1 MiB。</li>
+<li><strong>同一个对象在库里放了几份时，</strong> 每份旁边都可以有自己的旁挂文件。各份的说明是什么关系见 <a href="#4.1" class="ref">4.1</a>。</li>
+<li>库里可以有某个对象的旁挂文件而没有那个对象本身。删除记录就是这样；别的旁挂文件这时放在哪都行。</li>
+</ul>
+<h3 id="4.1"><span class="sec">4.1</span>说明<a href="#4.1" class="anchor" aria-label="Link to 4.1">#</a></h3>
+<ul>
+<li><strong>一条说明一个文件：</strong> <code>&lt;object name&gt;.notes/&lt;file name&gt;.md</code>。文件名守 <a href="#3.1" class="ref">3.1</a> 第 3 条，必须以 <code>.md</code> 结尾，应当写成 <code>&lt;date&gt;-&lt;short name&gt;.md</code>（日期加短名），例如 <code>20261118-erratum.md</code>。</li>
+<li><strong>目录里只有直接放在里面的普通 <code>.md</code> 文件，</strong> 没有子目录。一份说明不超过 256 KiB。</li>
+<li><strong>一份说明由对象名加文件名认定，</strong> 和它的说明目录放在库的哪个位置无关。同一个对象在库里有几份、旁边各有说明目录时，同名的说明内容必须相同，合起来算一个说明目录。</li>
+<li><strong>只增不减：</strong> 一份说明上了发布分支之后，内容不得修改，不得删除。整个说明目录可以跟着对象挪位置。更正的办法是再加一份。例外只有一种：对象删掉时（<a href="#6.5" class="ref">6.5</a>），它的说明可以一起删。</li>
+<li><strong>说明是这个库对这个对象说的话。</strong> 同一个对象在原库和 fork 里可以有不同的说明。索引按库分别记。</li>
+<li><strong>谁写的，</strong> 以加进这个文件的那次提交为准。文件里的署名只是文字。</li>
+<li><strong>展示说明时，工具必须当作不可信的文本，</strong> 并标明来自哪个库（第 11 章）。</li>
+<li><strong>撤回、被取代这类给机器读的状态不写在说明里，</strong> 写在库的维护者专管的文件里（<a href="#6.6" class="ref">6.6</a>）。</li>
+<li>用途：勘误、澄清、补充。模块定义的文字修正写成一条说明，不出新的模块定义。</li>
+</ul>
+<h3 id="4.2"><span class="sec">4.2</span>删除记录<a href="#4.2" class="anchor" aria-label="Link to 4.2">#</a></h3>
+<p>对象从库里删掉之后（<a href="#6.5" class="ref">6.5</a>），可以在它原来的位置留一份文件，告诉别人删的是什么、它从哪来、到哪还能找到。</p>
+<ul>
+<li><p><strong>本标准不要求留。</strong> 要让库的当前状态里彻底没有一个对象的痕迹，就不留。删除对象的工具应当能写它。</p></li>
+<li><p><strong>文件：</strong> <code>&lt;object name&gt;.removed.json</code>。在库里任何位置都算数，应当放在对象原来的父目录下。一个 UTF-8 的 JSON 对象，不超过 1 MiB。</p></li>
+<li><p><strong>字段：</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>toa</code></td>
+<td>必须</td>
+<td><code>"removed/1"</code></td>
+</tr>
+<tr>
+<td><code>object</code></td>
+<td>必须</td>
+<td>被删的对象名，和文件名里的相同</td>
+</tr>
+<tr>
+<td><code>commit</code></td>
+<td>必须</td>
+<td>发布分支上含有这个对象的一个提交。工具写删除之前的最后一个</td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>必须</td>
+<td>对象在那个提交里的路径</td>
+</tr>
+<tr>
+<td><code>license</code></td>
+<td>可以</td>
+<td>抄自对象的入口文件</td>
+</tr>
+<tr>
+<td><code>label</code></td>
+<td>可以</td>
+<td>给人看的名字，同 <a href="#5.1" class="ref">5.1</a></td>
+</tr>
+<tr>
+<td><code>base</code></td>
+<td>对象有就必须有</td>
+<td>抄自对象的入口文件</td>
+</tr>
+<tr>
+<td><code>history</code></td>
+<td>对象有就必须有</td>
+<td>抄自对象的 <code>history.json</code></td>
+</tr>
+<tr>
+<td><code>reason</code></td>
+<td>可以</td>
+<td>为什么删。自由文字，不超过 1,000 个字符</td>
+</tr>
+<tr>
+<td><code>sources</code></td>
+<td>可以</td>
+<td>别处已知的来源，至多 3 个，只能是 <code>git</code> 来源（<a href="#5.1" class="ref">5.1</a>）</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>内容从 git 里读，不从工作目录读：</strong> 工具读 <code>commit</code> 里 <code>path</code> 处的对象，从中抄出上面的字段。</p></li>
+<li><p><strong>它说的必须属实</strong>（<a href="#6.4" class="ref">6.4</a> 第 8 项）：<code>commit</code> 在新提交的历史里；它的 <code>path</code> 处是名字所指的对象；<code>license</code>、<code>base</code>、<code>history</code> 和那个对象的相同。</p></li>
+<li><p><strong>可以改，可以删，可以挪位置。</strong> 改过的删除记录按新的一样检查。对象以后又放回来时，删除记录可以留着。</p></li>
+<li><p><strong>用处：</strong></p>
+<ul>
+<li>按名字找的人在库的清单里看到它标着已删除（<a href="#5.2" class="ref">5.2</a>），到原处读这份记录。</li>
+<li><code>commit</code> 和 <code>path</code> 让人还能从这个库的历史里取到它（<a href="#7.3" class="ref">7.3</a>）；<code>sources</code> 给出别处。</li>
+<li><code>history</code> 让它的后代的来历仍然能逐环核对（<a href="#3.4" class="ref">3.4</a>、<a href="#8.3" class="ref">8.3</a>）。</li>
+</ul></li>
+<li><p>删除记录里的文字是别人写的，按第 11 章对待。</p></li>
+</ul>
+<h3 id="4.3"><span class="sec">4.3</span>时间戳证明<a href="#4.3" class="anchor" aria-label="Link to 4.3">#</a></h3>
+<p>库可以在对象旁边放第三方做的证明，证明这个对象名在某个时间已经存在。本标准不要求有。</p>
+<ul>
+<li><p><strong>目录：</strong> <code>&lt;object name&gt;.stamps/</code>，里面只有直接放着的普通文件，每个不超过 64 KiB。文件名守 <a href="#3.1" class="ref">3.1</a> 第 3 条，应当写成 <code>&lt;date&gt;-&lt;short name&gt;.&lt;extension&gt;</code>，例如 <code>20261124-btc.ots</code>。</p></li>
+<li><p><strong>盖时间戳的是对象名：</strong> 它的 ASCII 字节，不带换行。给一个名字做的证明，对这个对象放在哪里都成立。</p></li>
+<li><p><strong>扩展名说明文件是哪种证明：</strong></p>
+<table>
+<thead>
+<tr>
+<th>扩展名</th>
+<th>证明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.ots</code></td>
+<td>OpenTimestamps 的证明</td>
+</tr>
+<tr>
+<td><code>.tsr</code></td>
+<td>RFC 3161 的时间戳令牌，DER 编码</td>
+</tr>
+</tbody>
+</table>
+<p>可以用别的扩展名。不认识的，工具原样留着。</p></li>
+<li><p><strong>证明随时可以加、换、删；</strong> 例如 OpenTimestamps 的证明锚定之后，换成完整的那一份。库里别的东西都不依赖它们。</p></li>
+<li><p><strong>证明由工具自己核对，</strong> 对着它写明的服务核对。库的检查只看文件的名字、种类和大小（<a href="#6.4" class="ref">6.4</a> 第 5 项）。证明能说明什么、不能说明什么，见第 11 章。</p></li>
+<li><p><strong>对象在库里放了几份时，</strong> 每份旁边都可以有时间戳目录，合起来算一个。草稿没有时间戳目录，因为它的名字还没定。</p></li>
+</ul>
+<h2 id="5"><span class="sec">5</span>来源表<a href="#5" class="anchor" aria-label="Link to 5">#</a></h2>
+<p>来源表是一个文件名以 <code>.source.jsonl</code> 结尾的文件。它列出一批 TOA 对象，每个对象带一些缓存的信息和零到多个已知来源；它还可以包含别的来源表。对象旁边的来源表、库顶层的库的清单、使用者的工作区清单，都是这一种表。对象目录里面的文件是对象的内容，不管叫什么名字，都不是来源表；只有一个例外：对象顶层的 <code>members.source.jsonl</code> 同时也是来源表（<a href="#3.3" class="ref">3.3</a>），工作区清单可以包含它。</p>
+<h3 id="5.1"><span class="sec">5.1</span>格式<a href="#5.1" class="anchor" aria-label="Link to 5.1">#</a></h3>
+<ul>
+<li><p>UTF-8，不带 BOM，换行是 LF。一行一个 JSON 对象。单行不超过 64 KiB。</p></li>
+<li><p><strong>头：</strong> 第一行是 <code>{"toa": "source/1"}</code>。</p></li>
+<li><p><strong>其余每行是对象行或包含行。</strong> 有 <code>object</code> 的是对象行，有 <code>include</code> 的是包含行；两个都有或都没有的行不合格。</p></li>
+<li><p><strong>对象行说一个对象：</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>object</code></td>
+<td>必须</td>
+<td>对象名</td>
+</tr>
+<tr>
+<td><code>label</code></td>
+<td>可以</td>
+<td>缓存：给人看的名字，例如 <code>strongarm-comp/wrap-lee.g2</code>，即可读名（<a href="#6.2" class="ref">6.2</a>）。自由文字，工具不得从它推出任何东西</td>
+</tr>
+<tr>
+<td><code>refs</code></td>
+<td>可以</td>
+<td>缓存：它的全部引用（<a href="#3.3" class="ref">3.3</a>，含 <code>base</code>、<code>lock.json</code> 里的名字和 <code>members.source.jsonl</code> 里的对象），每个名字一次</td>
+</tr>
+<tr>
+<td><code>license</code></td>
+<td>可以</td>
+<td>缓存：它的许可证</td>
+</tr>
+<tr>
+<td><code>group</code></td>
+<td>可以</td>
+<td>它的分组（见下）</td>
+</tr>
+<tr>
+<td><code>removed</code></td>
+<td>可以</td>
+<td>只在库的清单里：<code>true</code> 表示这个对象在这个库里删掉了（<a href="#5.2" class="ref">5.2</a>）</td>
+</tr>
+<tr>
+<td><code>latest</code></td>
+<td>可以</td>
+<td>只在库的清单里：<code>true</code> 表示这个库推荐用这个对象，取代它那一支里之前的各代（<a href="#5.2" class="ref">5.2</a>、<a href="#7.5" class="ref">7.5</a>）</td>
+</tr>
+<tr>
+<td><code>sources</code></td>
+<td>可以</td>
+<td>已知来源的列表</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>label</code>、<code>license</code> 是不超过 256 个字符的字符串。<code>refs</code> 是对象名的列表。对象的类型就是它的前缀，表里不另写。</li>
+</ul></li>
+<li><p><strong>包含行把另一份来源表的内容接进来：</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>include</code></td>
+<td>必须</td>
+<td>被包含的表的路径：<code>name/name/…</code>，每段守 <a href="#3.1" class="ref">3.1</a> 第 3 条，以 <code>.source.jsonl</code> 结尾，不超过 256 个字符</td>
+</tr>
+<tr>
+<td><code>sources</code></td>
+<td>可以</td>
+<td>到哪里找这份表。每个来源指向一个根目录（一个库，或一个本机目录），<code>include</code> 的路径相对于它。这里的 <code>git</code> 来源不带 <code>path</code></td>
+</tr>
+<tr>
+<td><code>group</code></td>
+<td>可以</td>
+<td>被包含进来的对象放进哪个分组</td>
+</tr>
+<tr>
+<td><code>branch</code></td>
+<td>可以</td>
+<td>来源是一个库时，它的发布分支（<a href="#6.3" class="ref">6.3</a>）；不写就是 <code>main</code></td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>路径相对于什么：</strong></p>
+<ul>
+<li>库里的表（库的清单、它的分卷、对象旁边的来源表）：<code>include</code> 和 <code>local</code> 都相对于库的根；</li>
+<li>别的表：相对于这份表所在的目录。</li>
+<li>不写 <code>sources</code> 的包含行，被包含的表和这份表在同一处：同一个库，同一台机器，或者按地址取来的同一个提交。</li>
+</ul></li>
+<li><p><strong>展开包含：</strong></p>
+<ul>
+<li>同一份表不管被包含几次只读一次，所以成环也只读一次。至多 8 层。全部表合计的大小上限由工具定。</li>
+<li>一份表读不出来，只影响它自己。</li>
+<li><strong>每份表里的包含行都跟着走，</strong> 不管表是谁写的。带 <code>sources</code> 的包含行按 <a href="#7.3" class="ref">7.3</a> 的顺序找：本机已有的先用（它的某个 <code>git</code> 地址和本机某个库的地址相同，就用那个库），再按来源去取。去不去连某个主机，由工具和使用者定，本标准不规定（第 11 章）。</li>
+<li>按地址取来的库的清单里，相对于库的路径的来源指那个库里的位置，等于那个库的 <code>git</code> 地址加这个路径。</li>
+</ul></li>
+<li><p><strong>分组：</strong></p>
+<ul>
+<li><code>group</code> 是一条分组路径：1 到 4 段，用 <code>/</code> 分开，每段守 <a href="#3.1" class="ref">3.1</a> 第 3 条，合计不超过 128 个字符。</li>
+<li>一个对象的分组，是一路包含到它的各条包含行的 <code>group</code> 依次接起来，再接上它自己那一行的 <code>group</code>。没写 <code>group</code> 的那一级不加段。</li>
+<li>同一个对象经几条路包含进来，就在每个分组下都出现。</li>
+<li>对象的类型不写进分组：工具按前缀分。</li>
+<li>分组只给人看。查找、核对、引用、取对象都不看它。</li>
+</ul></li>
+<li><p><strong>每个来源是下面两种之一：</strong></p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>写法</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{"git": address, "commit": commit, "path": path}</code></td>
+<td>在一个 git 仓库里。<code>commit</code> 和 <code>path</code> 可以省。不得有别的键</td>
+</tr>
+<tr>
+<td><code>{"local": path}</code></td>
+<td>在本机的一个目录里。不得有别的键</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong><code>git</code> 的地址：</strong></p>
+<pre class="text"><code>https://主机[:端口]/路径
+ssh://[用户@]主机[:端口]/路径</code></pre>
+<ul>
+<li>主机：用点分开的若干段，每段是 1 到 63 个字母、数字或连字符，不以连字符开头或结尾。写成小写。</li>
+<li>端口：1 到 65535。</li>
+<li>用户：只在 <code>ssh</code> 地址里可以有。<code>A-Z a-z 0-9 . _ -</code>，不以连字符开头，至多 64 个字符。</li>
+<li>路径：<code>A-Z a-z 0-9 . _ ~ / -</code>；各段不为空，不是 <code>.</code> 或 <code>..</code>。</li>
+<li>不带口令、查询串、片段。整个地址不超过 512 个字符。</li>
+<li><strong>两个地址相同，</strong> 指主机转成小写、去掉结尾的 <code>/</code> 之后整串相同。</li>
+</ul></li>
+<li><p><strong><code>commit</code></strong> 是 40 位小写十六进制：那个仓库里含有这个对象的任何一个提交。应当写发布分支上沿第一父提交往回数、最早含有它的那一个。</p></li>
+<li><p><strong><code>path</code></strong> 是对象目录在那个提交里的路径：相对路径，用 <code>/</code> 分隔，每段守 <a href="#3.1" class="ref">3.1</a> 第 3 条。</p></li>
+<li><p><strong><code>local</code></strong> 在对象行里是对象目录本身的路径，在包含行里是根目录的路径。绝对路径，或者按上面说的相对路径。用 <code>/</code> 分隔，不超过 1,024 个字符，不含控制字符和不可见的格式字符。</p></li>
+<li><p><strong>以后的来源形式：</strong> 既没有 <code>git</code> 也没有 <code>local</code> 的来源，读的时候忽略。</p></li>
+<li><p><strong>缓存的信息都能从对象重新算出</strong>（<code>label</code> 和 <code>group</code> 除外；<code>removed</code> 从删除记录算出）。<code>latest</code> 不是缓存的信息：它是库自己的说法。和对象不一致时以对象为准。</p></li>
+<li><p><strong>同一个对象可以出现在几行里，</strong> 读的时候合并。</p></li>
+<li><p><strong>读别人的表时容错，从大到小：</strong></p>
+<ul>
+<li>整份表超过大小上限，或者头的版本不认识：整份忽略。没有头的表按本版本读。</li>
+<li>不是 JSON 对象的行、<code>object</code> 不是对象名的对象行、不合格的包含行：丢掉这一行。</li>
+<li>形状不对的缓存字段、不合格的来源：只丢那一个字段、那一个来源。</li>
+<li>每个对象只采用前 3 个来源。不认识的字段忽略。</li>
+</ul></li>
+<li><p><strong>发布分支上的表按严格的读法检查</strong>（<a href="#6.4" class="ref">6.4</a> 第 6 项）：头是且只是 <code>{"toa": "source/1"}</code>；每一行、每个字段、每个来源都合格；每个对象、每条包含行至多 3 个来源；包含行的 <code>git</code> 来源不带 <code>path</code>；不带 <code>sources</code> 的包含行指向同一个提交里的一份表；<code>removed</code> 和 <code>latest</code> 只出现在库的清单和它的分卷里；本机路径只许是 <a href="#5.3" class="ref">5.3</a> 允许的那种。表指向哪些地址、包含哪些库的清单，不受限制。</p></li>
+</ul>
+<h3 id="5.2"><span class="sec">5.2</span>用在哪<a href="#5.2" class="anchor" aria-label="Link to 5.2">#</a></h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>位置</th>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对象旁边</td>
+<td><code>&lt;object name&gt;.source.jsonl</code></td>
+<td>这个对象自己，加上用它所需要的对象</td>
+</tr>
+<tr>
+<td>库的顶层</td>
+<td><code>library.source.jsonl</code>；分卷时还有它包含的 <code>library.source/</code> 下的各份</td>
+<td>这个库里的全部对象，和删掉了、留了删除记录的；可以包含别的清单</td>
+</tr>
+<tr>
+<td>对象里面</td>
+<td>对象顶层的 <code>members.source.jsonl</code></td>
+<td>一份成员表，随对象一起冻结（<a href="#3.3" class="ref">3.3</a>）；冻结库在里面列出它的成员和成员需要的对象（类型 <code>lib</code>）</td>
+</tr>
+<tr>
+<td>使用者的工作目录</td>
+<td><code>workspace.source.jsonl</code>（默认的名字）</td>
+<td>当前设计用到的全部对象：通常是包含几个库的清单（<a href="#8.1" class="ref">8.1</a>）</td>
+</tr>
+<tr>
+<td>别的任何地方</td>
+<td>任意以 <code>.source.jsonl</code> 结尾的文件</td>
+<td>工具或使用者自己的缓存</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>对象旁边的来源表：</strong>
+<ul>
+<li>第一行是对象自己。别人把对象和这份表一起取走，就同时拿到了它引用什么、那些对象在哪。发布之前这一行没有来源，发布时补上（<a href="#5.3" class="ref">5.3</a>）。</li>
+<li>其余是用它所需要的对象，按下面算：
+<ol type="1">
+<li>它的全部引用（<a href="#3.3" class="ref">3.3</a>），<code>base</code> 指向的对象也在内。</li>
+<li>对目前得到的、类型要往下展开的每个对象（见下；只经 <code>base</code> 引到的不算）：加上它的引用，它的 <code>base</code> 除外。对新加进来的对象重复这一步，直到没有新的。</li>
+<li>哪些类型往下展开，由各自的类型规格说。<code>0.1</code> 里模块定义、电路网表、测试用例和冻结库往下展开，冻结库沿它的成员表展开；验证记录和文档不展开，工具不认识的类型也不展开。只列对象本身的 <code>base</code> 指向的对象；<code>history.json</code> 里更早的祖先不列。</li>
+</ol></li>
+<li>这些行也带缓存的信息。取用的人不用先取到任何东西，就知道整棵树有哪些对象、各在哪。</li>
+<li>来源的顺序：<code>git</code> 来源在前，本机路径在后。发布整理之后每个对象至多留 3 个。</li>
+<li>也可以有包含行，例如包含它用到的那些库的清单。</li>
+</ul></li>
+<li><strong>库的清单：</strong>
+<ul>
+<li>每个对象一行，按对象名排序。来源写 <code>{"local": path}</code>：路径相对于库的根（分卷里也是），只能是 <code>name/name/…</code> 的形式，每段守 <a href="#3.1" class="ref">3.1</a> 第 3 条。对象在库里有几份时，写前 3 份的路径。</li>
+<li><strong>分组：</strong> 每个对象可以写 <code>group</code>，例如按设计分。怎么分由库自己定；样例库取推荐摆法里的模块名（<a href="#6.2" class="ref">6.2</a>）。</li>
+<li><strong>删掉了、留了删除记录的对象</strong>（<a href="#6.5" class="ref">6.5</a>）也列一行，写 <code>"removed": true</code>；来源写删除记录的路径去掉结尾的 <code>.removed.json</code>，通常就是它原来的位置。</li>
+<li><strong>最新标记：</strong> 对象那一行可以写 <code>"latest": true</code>：这个库推荐用这个对象，取代它那一支里之前的各代（<a href="#3.4" class="ref">3.4</a>）。这个标记只在库的清单和它的分卷里算数，和 <code>removed</code> 一样；写在别的来源表里没有意义。
+<ul>
+<li>标了的对象在本库里，并且没有删掉。本库里同一支的两个标了的对象，哪一个都不在另一个的 <code>history</code> 里（<a href="#6.4" class="ref">6.4</a> 第 6 项）。从同一个祖先分出来的两个都标了，可以；工具两个都报。</li>
+<li>标记随时可以挪走或去掉：出了更好的一代就挪过去，发现有问题就去掉。</li>
+</ul></li>
+<li>别人要在库里找东西，先读这份清单，不用遍历整个库。</li>
+<li><strong>包含别的清单：</strong> 维护者可以在库的清单里加包含行，例如按地址包含这个库的对象用到的那些库的清单。使用者只包含这一个库，也找得到整棵树。工具重新写这份清单时，应当保留这些包含行。</li>
+<li><strong>太大时分卷：</strong> 对象行放进 <code>library.source/</code> 下的若干份表，<code>library.source.jsonl</code> 留头、各卷的包含行，和维护者加的包含行。应当按哈希的前两位分成 <code>00.source.jsonl</code> 到 <code>ff.source.jsonl</code>，查一个名字只读一卷。每卷不超过 16 MiB。<code>library.source/</code> 下的每一份都必须被包含到。</li>
+<li>对象行是派生的，由维护者一侧的工具写，可以落后。清单和库不一致时以库为准。</li>
+<li>投稿不应当改它；维护者合并之后重新写。合并两个分支之后一律重新写，不管 git 有没有报冲突。</li>
+</ul></li>
+</ul>
+<h3 id="5.3"><span class="sec">5.3</span>本机路径和发布<a href="#5.3" class="anchor" aria-label="Link to 5.3">#</a></h3>
+<ul>
+<li><strong>在本机，来源表里可以写本机路径。</strong> 这样它在本地也是缓存，不用每次遍历目录。</li>
+<li><strong>发布分支上：</strong>
+<ul>
+<li>对象旁边的来源表不得有任何 <code>local</code> 来源；</li>
+<li>库的清单和分卷里的 <code>local</code>，只能是 <a href="#5.2" class="ref">5.2</a> 说的相对于库的路径；</li>
+<li>表里写哪些 <code>git</code> 地址、包含哪些清单，不受限制。</li>
+</ul></li>
+<li><strong>发布时（7.2），工具只动这一次新发布的对象旁边的来源表，</strong> 并且必须：
+<ol type="1">
+<li>去掉全部 <code>local</code> 来源。来源全是本机路径的包含行，整行去掉。</li>
+<li>表里凡是在本库的对象（它自己，和它需要的），都补上要发布到的那个库的地址和该对象在库里的路径。已经在发布分支上的对象再带上提交号；这次才发布的没有提交号。</li>
+<li>别处的 <code>git</code> 地址照留。</li>
+<li>整理之后，表里不在本库、又一个 <code>git</code> 来源都不剩的对象：这一行只留 <code>object</code>，缓存的可读名、引用、许可证一律去掉，并列给使用者。公开之后别人按名字找不到它们（第 11 章）。</li>
+<li>这些新对象的 <code>history.json</code> 里，不在本库、也不在工作区清单里任何有 <code>git</code> 地址的库里的祖先，列给使用者。</li>
+</ol></li>
+<li><strong>写出去之前给使用者看什么，由工具定。</strong> 别处的地址会随表公开，<code>ssh</code> 地址里的用户名可能是个人账号名。工具可以把要写出去的地址列给使用者，让使用者去掉不想公开的（第 11 章）。</li>
+<li><strong>本库的地址：</strong>
+<ul>
+<li>由使用者指明；不指明时取名叫 <code>origin</code> 的远程地址。</li>
+<li><code>https</code> 地址去掉用户名和口令。主机写成小写。</li>
+<li><code>user@host:path</code> 这种写法工具不自动改写：在普通服务器上它的路径相对于家目录，改写成 <code>ssh://</code> 地址之后可能指到别处。请使用者给出 <code>https://</code> 或 <code>ssh://</code> 形式的地址。</li>
+<li>不合 <a href="#5.1" class="ref">5.1</a> 的地址（例如本机目录）不补，并告诉使用者。</li>
+</ul></li>
+<li><strong>不改已经发布的对象旁边的来源表。</strong> fork 带来的对象，旁边的表仍然指向原库。</li>
+<li><strong>投稿经合并进入另一个库时，</strong> 那个库的维护者一侧对新进来的对象做同样的整理：补上自己的地址，原来的地址留着。</li>
+<li><strong>从别处拿来的表里的 <code>local</code> 来源：</strong> 只认库里的表里相对于库的路径，它指那个库里的位置，解析出来必须仍在那个库的目录里。其余的忽略。</li>
+</ul>
+<h3 id="5.4"><span class="sec">5.4</span>它是缓存<a href="#5.4" class="anchor" aria-label="Link to 5.4">#</a></h3>
+<ul>
+<li>来源表缺了、过期了、写错了，都不影响对象合不合格。</li>
+<li>工具不得因为来源表缺失或失效而拒绝对象；这条路走不通就换别的路（<a href="#7.3" class="ref">7.3</a>）。</li>
+<li>来源表里的任何内容都是别人写的，按第 11 章对待。</li>
+</ul>
+<h2 id="6"><span class="sec">6</span>库<a href="#6" class="anchor" aria-label="Link to 6">#</a></h2>
+<h3 id="6.1"><span class="sec">6.1</span>库是什么<a href="#6.1" class="anchor" aria-label="Link to 6.1">#</a></h3>
+<ul>
+<li><p><strong>库是一个 git 仓库，指整个仓库。</strong> 这是 <code>0.1</code> 版发布和共享对象的方式；对象本身不依赖 git（<a href="#1.1" class="ref">1.1</a>）。<code>0.1</code> 版不定义”仓库里的一个子目录是一个库”。仓库里可以放别的文件，但本节和 <a href="#6.2" class="ref">6.2</a>、<a href="#6.4" class="ref">6.4</a> 对整个仓库生效。</p></li>
+<li><p><strong>库不是有含义的一层：</strong> 对象的身份和引用不依赖库，库没有自己的标识。</p></li>
+<li><p><strong>仓库必须用 SHA-1 对象格式。</strong> 建库的工具应当显式指定，读库的工具应当检查。</p></li>
+<li><p><strong>整个库里只有普通文件和目录。</strong> 发布分支上所有成员的模式只能是 <code>100644</code> 和 <code>40000</code>：没有符号链接，没有子模块，没有带可执行位的文件。</p></li>
+<li><p><strong><code>.gitattributes</code> 只有一份，在库的根，名字就是小写的 <code>.gitattributes</code>。</strong></p>
+<ul>
+<li>它必须有一行 <code>* -text</code>。</li>
+<li>别的行不得设置 <code>text</code>、<code>eol</code>、<code>crlf</code>、<code>filter</code>、<code>ident</code>、<code>working-tree-encoding</code>，不得定义宏（<code>[attr]</code>）。</li>
+<li>任何别的位置、任何大小写的 <code>.gitattributes</code> 都不得出现。在不分大小写的文件系统上，git 会把 <code>.GITATTRIBUTES</code> 当成它来读。</li>
+</ul></li>
+<li><p><strong><code>.gitmodules</code> 不得出现在任何位置，</strong> 任何大小写都算。</p></li>
+<li><p><strong>库根可以有：</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>文件</th>
+<th>要求</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>library.yaml</code></td>
+<td>可以</td>
+<td><code>toa: library/1</code>；展示用的 <code>name</code>、<code>title</code>、<code>description</code></td>
+</tr>
+<tr>
+<td><code>library.source.jsonl</code>，分卷时加上 <code>library.source/</code></td>
+<td>应当</td>
+<td>全部对象的库的清单（<a href="#5.2" class="ref">5.2</a>）</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>库不写自己的地址，也不写自己的发布分支。</strong> 写在库里的地址和分支名，对 fork 和镜像不成立。例外只有发布时补进来源表的那些地址，它们是缓存。</p></li>
+<li><p><strong>库可以不自足：</strong> 库里的对象可以引用别的库里的对象。</p></li>
+</ul>
+<h3 id="6.2"><span class="sec">6.2</span>摆法<a href="#6.2" class="anchor" aria-label="Link to 6.2">#</a></h3>
+<ul>
+<li><p><strong>工具必须能在库的任何深度找到对象，不得从路径里读出任何含义。</strong> 只有对象目录的名字有意义。</p></li>
+<li><p><strong>同一个对象可以在一个库里放几份，</strong> 都是同一个对象，不算错。对象名只能用作目录的名字。</p></li>
+<li><p><strong>推荐的摆法：</strong></p>
+<pre class="text"><code>ifc/strongarm-comp/ifc_945cdda7…/
+ifc/strongarm-comp/ifc_945cdda7….notes/20261007-clk-edge.md
+ifc/strongarm-comp/ifc_945cdda7….source.jsonl
+ckt/strongarm-comp/wrap-lee.g2/ckt_1ec6249c…/
+ckt/strongarm-comp/wrap-lee.g2/ckt_1ec6249c….source.jsonl
+ckt/dyn-latch-cmp/lee-sky130.g1/ckt_f1ede73a….removed.json
+tb/strongarm-comp/tb_offset.g1/tb_ad96a147…/
+evd/strongarm-comp/20261103T1200Z-wrap-off/evd_b7d77959…/
+doc/strongarm-comp/kickback-mitigation/doc_044f932c…/
+lib/toa-official.g3/lib_5d0e7b3a…/
+library.source.jsonl</code></pre>
+<ul>
+<li>第一级是类型目录，名字就是前缀；第二级是模块名；第三级是其余的可读名；最后是对象目录。模块定义没有第三级；不讲任何模块定义的文档，以及冻结库，没有模块名这一级。</li>
+<li>可读名由工具在新建对象时按字段和代数（<a href="#3.4" class="ref">3.4</a>）拼出，之后不检查它和字段是否还一致。<code>wrap-lee.g2</code> 里的 <code>g2</code> 就是第 2 代。</li>
+</ul></li>
+<li><p><strong>对象之外的每一级名字，</strong> 守 <a href="#3.1" class="ref">3.1</a> 第 3、4 条，只是允许以点开头（<code>.gitattributes</code>、<code>.gitignore</code>、<code>.github/</code>）。</p></li>
+<li><p><strong>路径预算：</strong></p>
+<table>
+<thead>
+<tr>
+<th>哪一段</th>
+<th>上限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对象目录之前的路径，连同结尾的 <code>/</code></td>
+<td>60 个字符</td>
+</tr>
+<tr>
+<td>对象名</td>
+<td>49 个字符（前缀至多 8，加下划线，加 40）</td>
+</tr>
+<tr>
+<td>对象内的路径（<a href="#3.1" class="ref">3.1</a>），连同前面的 <code>/</code></td>
+<td>81 个字符</td>
+</tr>
+<tr>
+<td>合计：库内任何文件的路径</td>
+<td>190 个字符</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>Windows：</strong> git 默认设置下，完整路径到 260 个字符就检出失败，而且是整个库检不出来。工具克隆库时应当为该仓库打开 <code>core.longpaths</code>。</p></li>
+</ul>
+<h3 id="6.3"><span class="sec">6.3</span>发布分支和”已发布”<a href="#6.3" class="anchor" aria-label="Link to 6.3">#</a></h3>
+<ul>
+<li><strong>发布分支是哪一个，由用这个库的人说：</strong> 包含这个库的包含行的 <code>branch</code>（<a href="#5.1" class="ref">5.1</a>、<a href="#8.1" class="ref">8.1</a>），没写就是 <code>main</code>。使用者自己的清单里写的优先。库的维护者对自己的库也是这样说。
+<ul>
+<li>分支名：<code>A-Z a-z 0-9 . _ / -</code>，以字母或数字开头，至多 100 个字符，不含 <code>..</code>，不以 <code>/</code> 或 <code>.lock</code> 结尾。</li>
+</ul></li>
+<li><strong>一个对象在某个库里已发布，</strong> 指它的目录在该库发布分支最新的提交里，也就是别人现在能从这个库拿到它。</li>
+<li><strong>在一份检出里怎么判断：</strong>
+<ul>
+<li>这个分支有远程跟踪引用（<code>refs/remotes/origin/&lt;branch&gt;</code>）时，以它为准。本地提交了、还没推送的对象不算已发布。</li>
+<li>没有远程跟踪引用的仓库（库本身，或没有远程的本机库），以本地分支为准。</li>
+<li>仓库有远程跟踪引用、但没有这个分支的（例如这个分支从没推送过），也以本地分支为准。这时只在本机提交的对象也算已发布，这样偏安全：它们不能取消定稿（<a href="#7.1" class="ref">7.1</a>）。工具应当告诉使用者这个分支没有远程跟踪引用。</li>
+<li>仓库里有提交、却没有这个分支，是错误，不得当成”什么都没发布”。</li>
+</ul></li>
+<li><strong>“在这个库里”只有这一个判据。</strong> 能用这个库的地址按名字取到，不等于在这个库里：未合并的分支、被丢掉的提交里的对象也可能取得到。</li>
+<li><strong>把对象放上发布分支的那个提交应当签名，</strong> 用 git 自带的 SSH 或 GPG 签名。做提交的工具按使用者的 git 设置签名。核对通过的签名说明是谁在那个提交里把对象放进了这个库；它不说明对象是谁写的，提交的日期也仍然是提交者自己写的（第 11 章）。</li>
+<li>来源表里的 <code>commit</code> 可以用来核实出处：它是发布分支的祖先，并且那里 <code>path</code> 处的 tree 号等于对象的哈希。</li>
+</ul>
+<h3 id="6.4"><span class="sec">6.4</span>库的检查<a href="#6.4" class="anchor" aria-label="Link to 6.4">#</a></h3>
+<ul>
+<li><strong>库的维护者必须在把发布分支移到一个新提交之前，对它做下面的检查。</strong></li>
+<li><strong>基准</strong>是发布分支当前的头。新提交必须是它的后代；不是的话，历史被改写了，拒绝。</li>
+<li><strong>删除</strong>（<a href="#6.5" class="ref">6.5</a>）不受限制：不用另交删除的名单，也不要求留删除记录。</li>
+<li>检查只需要 git 的目录列表和少量小文件。读每个文件之前先看大小。目录列表边读边数，一超过部署定的上限就拒绝，不要读完再数。</li>
+<li><strong>读不出目录列表的提交，一律拒绝。</strong></li>
+</ul>
+<ol type="1">
+<li><strong>仓库和全库：</strong> 仓库是 SHA-1 格式；<code>.gitattributes</code> 和 <code>.gitmodules</code> 守 <a href="#6.1" class="ref">6.1</a>；全库没有符号链接、子模块、带可执行位的文件；新提交是基准的后代。</li>
+<li><strong>每个名字是对象名的目录：</strong>
+<ul>
+<li>它的 tree 号等于名字里的哈希；</li>
+<li>按目录列表重新拼出的规范 tree 号也等于它（<a href="#7.4" class="ref">7.4</a>）；</li>
+<li>它是合法的对象树（<a href="#3.1" class="ref">3.1</a>），列出的每个文件确实存在、确实是文件；</li>
+<li>同一个对象有几份时，每一份都这样查；</li>
+<li>对象名不出现在不是目录的东西上。</li>
+</ul></li>
+<li><strong>没有草稿名</strong>（<a href="#2.4" class="ref">2.4</a> 列的几处）。</li>
+<li><strong>每个对象的文件：</strong> <code>toa.yaml</code> 合乎 <a href="#3.2" class="ref">3.2</a> 的写法，公共字段合格，<code>type</code> 等于前缀；<code>lock.json</code> 和 <code>members.source.jsonl</code>（有的话）合乎 <a href="#3.3" class="ref">3.3</a>；<code>history.json</code> 是那一种写法，和 <code>base</code> 相符，上一代在本库时它的 <code>generation</code> 也和上一代相符（<a href="#3.4" class="ref">3.4</a>）；<code>base</code> 的每一项和对象本身前缀相同。</li>
+<li><strong>对象之外：</strong> 每一级名字的规则；路径预算；以”对象名加点”开头的名字只有四种：<code>.notes</code> 目录、<code>.source.jsonl</code> 普通文件、<code>.removed.json</code> 普通文件和 <code>.stamps</code> 目录，目录里只有直接放着的普通文件，每个不超过 64 KiB，名字守 <a href="#3.1" class="ref">3.1</a> 第 3 条（<a href="#4.3" class="ref">4.3</a>）。</li>
+<li><strong>来源表</strong>（对象目录之外、名字以 <code>.source.jsonl</code> 结尾的所有文件；对象目录里面的文件是对象的内容，不是来源表；对象顶层的 <code>members.source.jsonl</code> 由第 4 项检查）：大小不超限；按严格的读法合格（<a href="#5.1" class="ref">5.1</a>）；对象旁边的表没有 <code>local</code> 来源；库的清单和分卷的 <code>local</code> 是相对于库的路径；不带 <code>sources</code> 的包含行指向这个提交里的一份表；<code>library.source/</code> 下的每一份都从 <code>library.source.jsonl</code> 包含到，不超过 8 层。<code>latest</code> 标记守 <a href="#5.2" class="ref">5.2</a>：标了的对象在本库里、没有删掉，本库里同一支的两个标了的对象，哪一个都不在另一个的 <code>history</code> 里。表指向哪里不查。</li>
+<li><strong>说明目录：</strong> 只有直接放在里面的普通 <code>.md</code> 文件，每份不超过 256 KiB；同一个对象几份旁边同名的说明内容相同；和基准相比，已有的说明（按对象名加文件名认）没有被改、没有被删，删掉了的对象的说明除外。</li>
+<li><strong>删除记录属实：</strong> 每份新加的或改过的删除记录合乎 <a href="#4.2" class="ref">4.2</a> 并且属实。不要求消失的对象留记录，也不要求已有的记录一直留着。</li>
+<li><strong>列出不在本库里的引用。</strong> 公开的库允不允许，由部署定。</li>
+</ol>
+<ul>
+<li>一个对象出错只报它自己，不得让别的对象查不下去。</li>
+</ul>
+<h3 id="6.5"><span class="sec">6.5</span>删除<a href="#6.5" class="anchor" aria-label="Link to 6.5">#</a></h3>
+<ul>
+<li><strong>本标准不限制删除对象。</strong> 删掉的是这个库里的这一份。对象名不变，别人对它的引用、各处 <code>history.json</code> 里的记录、这个库 git 历史里的那一份，都还在。</li>
+<li><strong>删除记录不是必须的</strong>（<a href="#4.2" class="ref">4.2</a>）。留了，别人还能顺着它找；不留，这个库的当前状态里就没有它的痕迹（git 历史里仍有，见下）。删除对象的工具应当能在它原来的位置留一份；库的检查只核对留了的记录属实（<a href="#6.4" class="ref">6.4</a> 第 8 项）。</li>
+<li>删除时，它旁边的来源表一起删（留删除记录的，表里别处的 <code>git</code> 来源抄进记录）；说明目录和时间戳目录可以留着，也可以一起删。</li>
+<li>库的清单里：留了删除记录的，它那一行标上 <code>removed</code>（<a href="#5.2" class="ref">5.2</a>）；没留的，这一行去掉。</li>
+<li><strong>撤回一个对象是给它做标记</strong>（<a href="#6.6" class="ref">6.6</a>），不是删掉它：撤回的对象还在，只是这个库说不要再用。</li>
+<li><strong>删除不等于别人拿不到。</strong> 推上公开库的东西应当按已经公开对待：git 历史里还有它，别人也可能早已拷走。确实要从历史里抹掉（例如误传了受限内容），只能改写历史，库的检查会拒绝（第 1 项），由部署在本标准之外处理。</li>
+<li>来源表是缓存，任何时候都可以删、可以重新写。</li>
+</ul>
+<h3 id="6.6"><span class="sec">6.6</span>库里其他会变的文件<a href="#6.6" class="anchor" aria-label="Link to 6.6">#</a></h3>
+<p>撤回、被取代这类状态，别名，工艺登记，收稿规则，放在库的维护者专管的文件里。它们的格式不在 <code>0.1</code> 版的范围内。它们只对本库说话：同一个对象在两个库里，各库说各库的。</p>
+<h2 id="7"><span class="sec">7</span>操作<a href="#7" class="anchor" aria-label="Link to 7">#</a></h2>
+<h3 id="7.1"><span class="sec">7.1</span>定稿和取消定稿<a href="#7.1" class="anchor" aria-label="Link to 7.1">#</a></h3>
+<p>定稿把草稿变成对象。它在提交之前做，可以重复做。</p>
+<ul>
+<li><strong>要么全部做完，要么什么都不改。</strong> 中途任何一步出错（包括目录正被别的程序占用、改名失败），已经改过的文件和目录名必须恢复原样。</li>
+</ul>
+<ol type="1">
+<li><strong>分清四种目录：</strong>
+<ul>
+<li>草稿名的目录：这次要定稿的；</li>
+<li>对象名的目录，内容和名字相符：不动；</li>
+<li>对象名的目录，不是合法的对象树，或内容和名字不符：<strong>报错并停止，不改任何名字。</strong> 这可能是一份被改动过的别人的对象；</li>
+<li>同一个对象名出现几次：每一份分别按上两条处理（<a href="#6.2" class="ref">6.2</a>）。</li>
+</ul></li>
+<li><strong>把草稿按依赖排序，</strong> 被点名的在前。一个草稿依赖它点名的每一个草稿，<code>toa.yaml</code>、<code>lock.json</code> 和 <code>members.source.jsonl</code> 里的都算。成环就报错。</li>
+<li><strong>按这个顺序，对每个草稿：</strong>
+<ol type="1">
+<li>用本次已经得到的对象名换掉草稿名：<code>toa.yaml</code> 里的每个值、<code>lock.json</code> 里的值，以及 <code>members.source.jsonl</code> 里的值。换完之后还有草稿名形式的值，报错。
+<ul>
+<li><strong>只换值的那几个字符。</strong> 引号、缩进、注释和文件的其余字节一律不动。草稿名和对象名都只用小写字母、数字、下划线和连字符，放在哪种写法的标量里都不用转义，所以换法是唯一的。</li>
+<li><strong>所以草稿里的草稿名必须照原样写：</strong> 在 <code>toa.yaml</code> 里写成一行里不带转义的标量；在 <code>lock.json</code> 和 <code>members.source.jsonl</code> 里写成不带转义的 JSON 字符串。草稿名写成别的样子，定稿报错。</li>
+<li><strong>不需要改的文件原样不动，</strong> 一个字节都不改。</li>
+</ul></li>
+<li>有 <code>base</code> 的，写出 <code>history.json</code>（<a href="#3.4" class="ref">3.4</a>）。<code>base</code> 的第一项在本机找不到，或核对不符，报错。没有 <code>base</code> 的，删掉草稿里的 <code>history.json</code>。草稿可以写 <code>base: []</code>，这时它必须是顶层单独的一行；定稿删掉这一行，其余字节不动。</li>
+<li>检查：合法的对象树；入口文件的写法和公共字段；<code>type</code> 等于前缀；类型规格的要求。工具不认识的类型照样定稿，只是做不了最后一项。</li>
+<li>算哈希，<strong>两种办法都算：</strong> 按 <a href="#2.2" class="ref">2.2</a> 读文件算一遍；按这个仓库真实的设置交给 git 算一遍（忽略规则、属性、文件模式都生效，例如用一个临时索引 <code>git add</code> 再 <code>git write-tree</code>）。两者不同就报错，并说出原因（常见的是有文件被 <code>.gitignore</code> 忽略、带了可执行位、换行被转换）。
+<ul>
+<li><strong>不在 git 仓库里的草稿</strong>只算第一遍。工具必须告诉使用者第二遍没做。对象以后提交进库时，发布之前的核对（<a href="#7.2" class="ref">7.2</a>）和库的检查（<a href="#6.4" class="ref">6.4</a> 第 2 项）会查出第二遍本来要查出的问题。</li>
+</ul></li>
+<li>把目录改名成 <code>&lt;prefix&gt;_&lt;hash&gt;</code>。旁边的说明目录和来源表跟着改名。新名字已经被占用时报错（例如同一个目录下两个内容相同的草稿）。库里别处已经有这个对象不算错。</li>
+<li>写出它的来源表（<a href="#5.2" class="ref">5.2</a>）。</li>
+</ol></li>
+<li><strong>定稿不需要任何保存下来的对照表。</strong> 草稿之间用草稿名互相引用就够了。</li>
+</ol>
+<ul>
+<li><strong>取消定稿：</strong> 定稿之后、发布之前想再改，先把对象改回草稿。
+<ul>
+<li>工具必须同时把引用它的、同样还没发布的对象一起改回草稿（一层层往上，直到没有），并把它们之间的名字换成草稿名，<code>toa.yaml</code>、<code>lock.json</code> 和 <code>members.source.jsonl</code> 都换，换法同第 3 步第 1 小步。旁挂文件跟着改名。</li>
+<li>草稿名由工具取。已经有同名的东西时报错。要改回的对象里有哪个在库里不止一份，也报错：请使用者先删掉多余的。</li>
+<li>已发布（<a href="#6.3" class="ref">6.3</a>）的对象不得取消定稿。</li>
+</ul></li>
+<li><strong>提交钩子是可选的，只做检查：</strong> 发现草稿名或名字对不上的目录就拒绝提交。不改任何名字。</li>
+<li><strong>真正的保证是 6.4 的库的检查，</strong> 不是使用者本机的工具。</li>
+</ul>
+<h3 id="7.2"><span class="sec">7.2</span>发布<a href="#7.2" class="anchor" aria-label="Link to 7.2">#</a></h3>
+<p>把定稿好的对象放上发布分支之前，工具必须：</p>
+<ol type="1">
+<li>确认没有草稿；这一次新发布的对象逐个读文件核对（<a href="#7.4" class="ref">7.4</a>）；跑一遍 <a href="#6.4" class="ref">6.4</a> 里能在本机做的检查。</li>
+<li>按 <a href="#5.3" class="ref">5.3</a> 整理这一次新发布的对象旁边的来源表。没有的补一份。</li>
+<li>重新写库的清单（可以由维护者一侧在合并之后做）。</li>
+</ol>
+<ul>
+<li><strong>这些整理在提交里完成。</strong> git 的推送不能改动已有的提交，所以”推送时再去掉本机路径”做不到；能做的是推送之前再检查一次，不合格就不推。</li>
+</ul>
+<h3 id="7.3"><span class="sec">7.3</span>取对象<a href="#7.3" class="anchor" aria-label="Link to 7.3">#</a></h3>
+<p>取对象是按名字拿到一个对象的文件。</p>
+<ul>
+<li><strong>到哪里找，依次：</strong>
+<ol type="1">
+<li>本机已有的：本机的库、本机的缓存，按名字找。<strong>用之前必须读文件核对</strong>（<a href="#7.4" class="ref">7.4</a>）：本机的拷贝也可能被改过。</li>
+<li>工作区清单给出的：它直接列的对象，和它包含的各库。有库的清单的，先读清单，再取对象。</li>
+<li>手里的来源表给出的地址。</li>
+</ol></li>
+<li><strong>连不连某个主机，</strong> 由工具和使用者定，本标准不规定（第 11 章）。</li>
+<li><strong>从一个 git 地址取，步骤是固定的：</strong>
+<ol type="1">
+<li><strong>先看名字。</strong> 要取的名字必须整串是对象名，不是就什么都不做。每个对象至多试 3 个来源。</li>
+<li><strong>不合格的来源</strong>（<a href="#5.1" class="ref">5.1</a>）丢掉，不交给 git。</li>
+<li><strong>调 git 时：</strong> 地址放在 <code>--</code> 之后，使它不可能被读成选项。git 不得弹出输入；工具要问使用者，就在调 git 之前自己问。不跟随重定向。设超时，超时后 git 和它起的进程一起结束。只允许 <code>https</code> 和 <code>ssh</code> 两种传输（git 的 <code>GIT_ALLOW_PROTOCOL</code>）。不在本机留下指向这个地址的远程设置。
+<ul>
+<li><strong>凭据</strong>（使用者的 git 凭据、凭据助手、钥匙）用不用，和连不连主机一样，由工具和使用者定：使用者没同意过的主机，工具不得用。自动运行的服务用什么，由部署定（第 11 章）。</li>
+</ul></li>
+<li><strong>让 git 检查收到的东西</strong>（<code>fetch.fsckObjects</code>）。</li>
+<li><strong>写盘之前</strong>先读目录列表，按 <a href="#3.1" class="ref">3.1</a> 检查每条路径的每一级，以及模式、大小、个数。目录列表边读边数，超过一个合格对象可能有的条数就停。</li>
+<li><strong>把文件按原始字节写进一个临时目录。</strong> 每个文件写之前确认目标路径在临时目录之内。写完按 <a href="#2.2" class="ref">2.2</a> 重算哈希，再查入口文件的写法和 <code>type</code> 等于前缀。都过了才改名到位；任何一步不过，就把临时目录删干净。</li>
+</ol>
+<ul>
+<li>第 4 步和第 5 步各自独立成立：不得因为做了其中一步而省掉另一步。</li>
+</ul></li>
+<li><strong>旁挂文件、库的清单和整个库也走这些步骤。</strong>
+<ul>
+<li>取一份清单（<a href="#5.1" class="ref">5.1</a> 的包含行），取那个分支最新的提交，只读里面的那一份表，先看大小再读。</li>
+<li>取对象旁边的说明和来源表，用来源里的 <code>commit</code> 和 <code>path</code>。</li>
+<li>克隆整个库时先不检出，按 <a href="#6.4" class="ref">6.4</a> 第 1、5 项查过目录列表再检出；或者一直不检出，只读 git 里存的内容。说明目录里的一个符号链接，检出之后会指到库外。</li>
+</ul></li>
+<li><strong>按名字直接取：</strong> <code>git fetch &lt;address&gt; &lt;hash&gt;</code> 只取这一个目录。这需要 git 的 v2 协议（git <code>2.26</code> 起是默认），或服务器允许按任意对象号取。</li>
+<li><strong>退路：</strong> 按名字取不到时，用来源里的 <code>commit</code> 和 <code>path</code> 取；再不行就克隆整个库。库里只剩删除记录时，按记录里的 <code>commit</code> 和 <code>path</code> 或它的 <code>sources</code> 再试（<a href="#4.2" class="ref">4.2</a>）。部分克隆的过滤条件被服务器忽略时，工具必须告诉使用者这次是完整克隆。</li>
+<li><strong>一次取几个：</strong> 要取多个对象时，每个地址一次请求。其中一个名字对方没有会让整次失败，这时拆开重试，并在本次运行里记住失效的地址。</li>
+<li><strong>留住：</strong> 取回的对象应当落成文件。只放在 git 的存储里时必须建引用，否则会被 git 清理掉。</li>
+<li><strong>大文件：</strong> 对象带大文件时分两步取，先取目录，再只取本机缺的文件。</li>
+<li><strong>旁挂文件不随对象来。</strong> 按名字取到的只有对象目录。</li>
+<li><strong>离线传递：</strong> 用 <code>git bundle</code>，或者直接拷对象目录。收到之后一律读文件核对。</li>
+<li>取到的对象只证明内容是名字所指的那一份。它在不在某个库里，按 <a href="#6.3" class="ref">6.3</a> 另行判断。</li>
+</ul>
+<h3 id="7.4"><span class="sec">7.4</span>核对<a href="#7.4" class="anchor" aria-label="Link to 7.4">#</a></h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>办法</th>
+<th>做什么</th>
+<th>什么时候成立</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读文件核对</td>
+<td>按 <a href="#2.2" class="ref">2.2</a> 重算哈希，和目录名比；查 <a href="#3.1" class="ref">3.1</a>；查入口文件的写法（<a href="#3.2" class="ref">3.2</a>）；查 <code>type</code> 等于前缀</td>
+<td>任何地方。这是最终的依据</td>
+</tr>
+<tr>
+<td>读目录列表核对</td>
+<td>只读 git 的目录列表：存的 tree 号等于名字；按列表重新拼出的规范 tree 号也等于它；成员的模式和名字合规</td>
+<td>仓库是经 git 传输得到、并且开了 <code>fsckObjects</code> 的，或先做过 <code>git fsck</code>。直接拷来的仓库不成立</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><strong>重新拼：</strong> 把列表里的文件按 <a href="#2.2" class="ref">2.2</a> 对目录的规则拼成树，文件的哈希用列表给的，不读文件内容。存的树里模式多写了 0、成员没排序、成员名带 <code>/</code>、有空目录时，拼出来的号和存的不同。</p></li>
+<li><p><strong>什么时候必须核对：</strong></p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>场合</th>
+<th>办法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>从别处取来的对象，改名到位之前</td>
+<td>读文件核对（<a href="#7.3" class="ref">7.3</a> 第 6 步）</td>
+</tr>
+<tr>
+<td>本机已有的对象：用它之前（展开、组装、列外部依赖），照抄它的 <code>history</code> 之前，发布它之前</td>
+<td>读文件核对</td>
+</tr>
+<tr>
+<td>库的检查：新提交里的每个对象</td>
+<td>读目录列表核对，加 <a href="#6.4" class="ref">6.4</a> 第 4 项</td>
+</tr>
+<tr>
+<td>索引收录一个对象</td>
+<td>读目录列表核对，加入口文件的检查</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>导出或拷贝对象时必须按原始字节写。会按本机设置转换换行的办法，例如 <code>git archive &lt;hash&gt;</code>，不得使用。</p></li>
+<li><p>在 git 工作目录里，读文件核对不符而 git 报告没有改动时，原因多半是检出时被转换，或目录里多了杂物文件，不是对象被改。</p></li>
+</ul>
+<h3 id="7.5"><span class="sec">7.5</span>更新和订阅<a href="#7.5" class="anchor" aria-label="Link to 7.5">#</a></h3>
+<ul>
+<li><strong>库的 git 历史就是它的广播。</strong> 比较前后两个提交的对象名集合，得到新增的和消失的；消失的必须报告，留了删除记录的一并给出记录的内容。工具记住每个库上次看到的提交；上次的提交不是新提交的祖先时，必须报告并重读整个库。</li>
+<li><strong>一个被引用的对象 P 有了新版 N，</strong> 指下面几条都成立：
+<ul>
+<li>使用者读的某个库，在它的库的清单里给 N 标了 <code>latest</code>（<a href="#5.2" class="ref">5.2</a>）；</li>
+<li>N 的 <code>history</code> 里核对过的部分（<a href="#8.3" class="ref">8.3</a>）含有 P；</li>
+<li>N 和 P 在同一支里（<a href="#3.4" class="ref">3.4</a>）。</li>
+</ul></li>
+<li><strong>N 和 P 的 <code>ifc</code> 不同时，</strong> 模块定义变了，工具必须说明。跟进时，和引用一起的 <code>ifc</code> 也要一起换，例如 <code>uses</code> 里一项的 <code>ifc</code> 和它的 <code>ckt</code> 一起换；端口变了的，网表也要改。</li>
+<li><strong>哪些库这样说，由使用者掂量。</strong> 工具报告哪些库给 N 标了记号，以及 N 和 P 在哪些库的发布分支上；不替使用者下结论说 N 是谁出的。
+<ul>
+<li>记号是一个库自己的说法。fork 出来的库带着原库的全部对象，也可以随意标，所以 fork 库里的记号不说明 N 出自原作者；使用者按自己信哪些库来判断。</li>
+<li>公开平台可以再加一条：两者由同一个核实过的账号加入。</li>
+<li>不得用对象自己写的 <code>author</code> 来判断。<code>name</code> 只说明一个记号管到哪几代（<a href="#3.4" class="ref">3.4</a>）：别人起同样的名字，也只能在自己的库里标，使用者看得出是哪个库。</li>
+</ul></li>
+<li><strong>没有哪个库标记的后代，</strong> 只在使用者要看时列出，不当作新版推送。</li>
+<li><strong>跟进是自愿的，逐层的。</strong> 引用方复制成草稿、改引用、定稿，得到它的新版；已有的验证记录留在旧版上。跟进一处，上面每一层引用方都要出一个新对象；工具应当先告诉使用者一共会产生几个。</li>
+<li><strong>验证记录不能走捷径：</strong> 验证记录测的是它那个电路网表原样的展开树，不能用某个子模块的别的版本代替树里写的那个（<code>evd</code> 类型规格）。</li>
+</ul>
+<h3 id="7.6"><span class="sec">7.6</span>组装<a href="#7.6" class="anchor" aria-label="Link to 7.6">#</a></h3>
+<p>组装把一个电路网表连同它的展开树变成一组可以直接仿真的文件。</p>
+<ul>
+<li><p>按引用展开整棵树；同一个对象只展开一次；每个对象展开之前先核对（<a href="#7.4" class="ref">7.4</a>）。</p></li>
+<li><p>子电路重名时由工具改名。</p></li>
+<li><p>列出整棵树的全部外部依赖（<a href="#3.5" class="ref">3.5</a>），在本机映射表里逐个对上，核对 <code>match</code> 和 <code>sha256</code>，写出 include 模型文件的那几行。</p></li>
+<li><p>写出 <code>lock.json</code>：整棵树每个对象的名字，和类型规格指定的那些文件各自的 SHA-256（第 9 章）。</p></li>
+<li><p><strong>本机映射表：</strong> 工具应当默认在工作区清单所在的目录里找 <code>local-files.yaml</code>；使用者可以指定别的文件。工具还有没有一台机器上所有工作区共用的一份、放在哪，由工具定。它的格式（示意）：</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">toa</span><span class="kw">:</span><span class="at"> local-files/1</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">process</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">sky130</span><span class="kw">:</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">release</span><span class="kw">:</span><span class="at"> &lt;本机这套模型的发行名&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">file</span><span class="kw">:</span><span class="at"> &lt;本机路径&gt;/design.scs</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">file</span><span class="kw">:</span><span class="at"> &lt;本机路径&gt;/models.scs</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">sections</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">typical</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">,</span><span class="at"> </span><span class="fu">slow</span><span class="kw">:</span><span class="at"> ss</span><span class="kw">,</span><span class="at"> </span><span class="fu">fast</span><span class="kw">:</span><span class="at"> ff</span><span class="kw">}</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">external</span><span class="kw">:</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> &lt;对象里 external 的 name&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">process</span><span class="kw">:</span><span class="at"> &lt;可以不写：只对这套工艺的对象生效&gt;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">path</span><span class="kw">:</span><span class="at"> &lt;本机路径&gt;</span></span></code></pre></div></li>
+<li><p><strong>怎么对上：</strong></p>
+<ul>
+<li>对象写的工艺（<code>0.1</code> 里是电路网表的 <code>specifications.process</code>），在映射表的 <code>process</code> 下按名字找。</li>
+<li>对象的每个 <code>external</code>，和映射表的 <code>external</code> 里 <code>name</code> 相同的条目对上；条目写了 <code>process</code> 的，还要和这个外部文件的 <code>process</code>（没写的话，和它所在对象写的工艺）相同。</li>
+<li><code>match</code> 里的每个字符串都必须在它的文件里出现。</li>
+</ul></li>
+<li><p>工具不得自动执行对象里带的命令，不得自动安装对象里列的依赖（第 11 章）。</p></li>
+</ul>
+<h2 id="8"><span class="sec">8</span>工作区清单和索引<a href="#8" class="anchor" aria-label="Link to 8">#</a></h2>
+<h3 id="8.1"><span class="sec">8.1</span>工作区清单<a href="#8.1" class="anchor" aria-label="Link to 8.1">#</a></h3>
+<p>工作区清单是使用者工作目录里的一份来源表（<a href="#5.1" class="ref">5.1</a>），列出当前设计用到的全部对象。默认叫 <code>workspace.source.jsonl</code>。</p>
+<pre class="text"><code>{&quot;toa&quot;: &quot;source/1&quot;}
+{&quot;include&quot;: &quot;library.source.jsonl&quot;, &quot;group&quot;: &quot;official&quot;, &quot;branch&quot;: &quot;main&quot;, &quot;sources&quot;: [{&quot;git&quot;: &quot;https://example.org/rnl-hub-lib.git&quot;}, {&quot;local&quot;: &quot;../checkouts/rnl-hub-lib&quot;}]}
+{&quot;include&quot;: &quot;library.source.jsonl&quot;, &quot;group&quot;: &quot;mylib&quot;, &quot;sources&quot;: [{&quot;local&quot;: &quot;../mylib&quot;}]}
+{&quot;include&quot;: &quot;team/shared.source.jsonl&quot;, &quot;group&quot;: &quot;team&quot;}
+{&quot;object&quot;: &quot;ckt_…&quot;, &quot;group&quot;: &quot;mine/blocks&quot;, &quot;sources&quot;: [{&quot;local&quot;: &quot;blocks/ckt_…&quot;}]}</code></pre>
+<ul>
+<li><strong>用一个库，就是包含它的库的清单。</strong> 包含行的 <code>sources</code> 说库在哪：别人也能用的地址，和本机检出的位置。本机有检出时，工具可以直接遍历那个库，代替读它的清单（清单是缓存，<a href="#5.2" class="ref">5.2</a>）。</li>
+<li>库的清单又包含别的库的清单时（<a href="#5.2" class="ref">5.2</a>），那些库也进来。它们的地址和工作区清单里某个库的地址相同时，用本机的那个（<a href="#7.3" class="ref">7.3</a>）。</li>
+<li>也可以包含工作目录里别的表，或者直接列对象（上例第 4、5 行）。</li>
+<li><strong>冻结库也这样用：</strong> 一行包含行，<code>include</code> 写它的成员表在库里的路径，例如 <code>lib/toa-official.g3/lib_5d0e7b3a…/members.source.jsonl</code>（类型 <code>lib</code>）。工具也可以按名字展开一个冻结库。</li>
+<li><strong>范围：</strong> 展开之后列出的全部对象构成一个范围，引用在这个范围里按名字找（<a href="#3.3" class="ref">3.3</a>）。</li>
+<li><strong>分组：</strong> 包含行的 <code>group</code> 一般写库的名字，库的清单里的 <code>group</code> 再分一层（例如设计），类型那一层按前缀分。使用者看到的是 <code>official/strongarm-comp/circuits/…</code> 这样的层次，而不是平铺的对象。</li>
+<li><strong>使用者自己写的表和别人写的表，读法一样。</strong> 工具只在去连主机时可以区别对待：样例库的工具去连使用者自己写进清单的主机不再问，别的主机先问。这是那个工具的做法，本标准不规定（第 11 章）。</li>
+<li>工作区清单里有本机路径，不应当进公开的库（<a href="#5.3" class="ref">5.3</a>）。</li>
+</ul>
+<h3 id="8.2"><span class="sec">8.2</span>索引是什么<a href="#8.2" class="anchor" aria-label="Link to 8.2">#</a></h3>
+<ul>
+<li>索引是派生数据：把一份工作区清单包含的库读一遍得到的东西。丢了可以重建。</li>
+<li>库的清单是各库交给索引的现成材料。索引可以直接用它，但清单是缓存；要求可信的场合（平台收录对象），必须对着对象本身核实。</li>
+<li>索引回答三类问题：
+<ul>
+<li><strong>反查：</strong> 谁直接引用了它；谁的 <code>base</code> 写了它。</li>
+<li><strong>在哪、什么时候：</strong> 它在哪些库的哪个路径（同一个库里可以有几个）；各库的发布分支上第一次出现它的是哪个提交、哪天。</li>
+<li><strong>状态：</strong> 各库对它的说明；各库的删除记录、<code>latest</code> 标记、撤回和取代标记。</li>
+</ul></li>
+</ul>
+<h3 id="8.3"><span class="sec">8.3</span>索引的要求<a href="#8.3" class="anchor" aria-label="Link to 8.3">#</a></h3>
+<ul>
+<li><strong>只存直接关系。</strong> “它的全部后代”在查询时沿 <code>base</code> 一步步走出来。</li>
+<li><strong><code>history.json</code> 分两部分记：</strong> 从对象出发，沿 <code>base</code> 逐环找得到、并且每一环的 <code>history</code> 都对得上的部分，是核对过的部分；之后的是只是声明的部分。<code>generation</code> 在 <code>base</code> 第一项找得到、并且和它对得上时算核对过的，否则只是声明的。<code>history</code> 或 <code>generation</code> 和找得到的 <code>base</code> 链对不上的对象，标为不合格。</li>
+<li><strong>某一环在它的库里只剩删除记录时，</strong> 对着删除记录里的 <code>history</code> 核对；删除记录本身先按 <a href="#4.2" class="ref">4.2</a> 核实。</li>
+<li><strong>反查和订阅只用核对过的部分。</strong></li>
+<li><strong><code>base</code> 找不到的对象另放一栏：</strong> 记下它的 <code>history</code> 里最近一个找得到的祖先，标明”这是对象自己声明的，中间有缺”。这一栏只给人看，不混进上面的反查，也不用来判断新版。</li>
+<li><strong>日期：</strong> 取发布分支上沿第一父提交数、最早含有它的那次提交的提交者日期。提交人和日期是提交者自己填的。那次提交签了名的（<a href="#6.3" class="ref">6.3</a>），索引记下签名人和签名是否核对通过。公开平台应当另记它首次收录这个对象的时间和核实过的账号。</li>
+<li><strong>有相同的文件、却没声明来历。</strong> 对象 O 里有一个文件，和另一个对象 P 里的某个文件逐字节相同（<a href="#2.2" class="ref">2.2</a> 的两个哈希相等），并且下面四条都成立时，索引应当指出来。在本机检查对象的工具，在它找得到的对象范围里也应当这样提示。提示给出最早的那个 P 和是哪几个文件；也可以列出别的对象，索引还可以在 P 的页面上说哪些后来的对象里有它的文件。这只是给人看的提示：绝不是判对象不合格的理由，也不算对象的问题。
+<ul>
+<li><strong>P 比 O 早。</strong> 同一个库里，按两者在发布分支上沿第一父提交首次出现的先后定。不在同一个库里时，工具用它有的日期，例如它首次见到各对象的那天、上面说的日期，并说明是按什么定的；提交日期是提交者自己写的。分不出先后时，例如两者首次出现在同一次提交里，不提示。</li>
+<li><strong>作者不同。</strong> 两边的 <code>author</code>（<a href="#3.2.1" class="ref">3.2.1</a>）去掉首尾的空白、中间每一段连续空白算一个空格、不分字母大小写后再比。只有一边写了 <code>author</code> 时，算不同；两边都没写时，不提示。电路网表的 <code>origin</code> 里的 <code>authors</code> 不参与。</li>
+<li><strong>两者没有关系。</strong> 谁都不在对方的 <code>base</code> 或 <code>history</code>（<a href="#3.4" class="ref">3.4</a>）里，谁都不引用对方（<a href="#3.3" class="ref">3.3</a>）。</li>
+<li><strong>这个文件不在略过之列。</strong> 下面这些文件不比：
+<ul>
+<li>许可证全文：名字以 <code>LICENSE</code> 或 <code>COPYING</code> 开头的文件，以及目录 <code>LICENSES/</code> 下的文件；</li>
+<li><code>history.json</code> 和 <code>lock.json</code>，它们由别的对象推出：从同一个 <code>base</code> 改出来的两个对象，<code>history.json</code> 相同；</li>
+<li>不到 256 字节的文件，空文件也在内；</li>
+<li>O 的某个文件，也在 O 的来历（它的 <code>base</code> 和 <code>history</code>）里某个找得到的对象中：O 已经声明了它从哪里来，例如两个对象从同一个祖先改出来时；</li>
+<li>很多互不相关的对象都有、或者很多不同作者的对象都有的文件，例如模板、常见的包含文件。多少算多由工具定，并应当写进它的文档。</li>
+</ul></li>
+</ul></li>
+<li><strong>对照值：</strong> 索引给每个合格的对象记下 <a href="#2.2" class="ref">2.2</a> 的对照值。同一个名字在两个位置得到的对照值不同时，报警。</li>
+<li><strong>一个对象读不出来，只记它自己；一个库读不出来，只记这个库。</strong> 别的照常。</li>
+<li><strong>索引的布局不在 <code>0.1</code> 版的规定之内。</strong> 应当分片，使解析一个名字只读一个小文件。写索引的工具把格式写进自己的文档，作为它自己的、以后可能变的格式。平台的索引和收录记录的格式也留给以后（附录 B）。</li>
+<li>发布的索引不得带本机路径。</li>
+</ul>
+<h2 id="9"><span class="sec">9</span>类型<a href="#9" class="anchor" aria-label="Link to 9">#</a></h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>类型</th>
+<th>前缀，也是 <code>type</code> 和类型目录</th>
+<th>引用字段</th>
+<th>推荐的可读名</th>
+<th>类型规格</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模块定义</td>
+<td><code>ifc</code></td>
+<td>无</td>
+<td><code>ifc/&lt;interface name&gt;/</code></td>
+<td><code>types/en/ifc.md</code></td>
+</tr>
+<tr>
+<td>电路网表的一代</td>
+<td><code>ckt</code></td>
+<td><code>ifc</code>；<code>uses.&lt;subcircuit&gt;.ifc</code> 和 <code>.ckt</code></td>
+<td><code>ckt/&lt;interface name&gt;/&lt;name&gt;.g&lt;generation&gt;/</code></td>
+<td><code>types/en/ckt.md</code></td>
+</tr>
+<tr>
+<td>测试用例的一代</td>
+<td><code>tb</code></td>
+<td><code>ifc</code></td>
+<td><code>tb/&lt;interface name&gt;/&lt;name&gt;.g&lt;generation&gt;/</code></td>
+<td><code>types/en/tb.md</code></td>
+</tr>
+<tr>
+<td>验证记录</td>
+<td><code>evd</code></td>
+<td><code>dut</code>、<code>tbs</code>；<code>lock.json</code> 里的名字</td>
+<td><code>evd/&lt;interface name&gt;/&lt;record label&gt;/</code></td>
+<td><code>types/en/evd.md</code></td>
+</tr>
+<tr>
+<td>文档</td>
+<td><code>doc</code></td>
+<td><code>refs</code></td>
+<td><code>doc/&lt;interface name&gt;/&lt;short name&gt;/</code></td>
+<td><code>types/en/doc.md</code></td>
+</tr>
+<tr>
+<td>冻结库</td>
+<td><code>lib</code></td>
+<td><code>members.source.jsonl</code> 每一行的 <code>object</code></td>
+<td><code>lib/&lt;name&gt;.g&lt;generation&gt;/</code></td>
+<td><code>types/en/lib.md</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>前缀就是类型的名字：</strong> <code>type</code> 写它，推荐的类型目录也用它。表里的中文名只给人看。</li>
+<li><strong>表里的引用字段只是说明。</strong> 什么算引用由 <a href="#3.3" class="ref">3.3</a> 定，和类型无关；类型规格怎样给这样的字段起名，也在 <a href="#3.3" class="ref">3.3</a>。</li>
+<li>所有类型的对象都可以有 <code>base</code>、<code>title</code>、<code>description</code>、<code>tags</code>（<a href="#3.2.1" class="ref">3.2.1</a>）。</li>
+<li><strong>类型规格</strong>写明这种类型的入口文件有哪些字段、对象里带哪些文件、定稿时对这种类型查什么。它分两部分：正文 <code>types/en/&lt;prefix&gt;.md</code>，和用 JSON Schema 写的字段定义 <code>types/&lt;prefix&gt;.schema.json</code>。字段定义是”有哪些字段、哪些必填、取值是什么形式”的唯一来源；正文写 JSON Schema 表达不了的规则。</li>
+<li><strong>类型规格和本标准的各章分开放，</strong> 随本标准的每次修订一起发布。类型规格只做兼容的改动（第 10 章），所以每个前缀只有一份现行的规格，它写明自己需要哪些版本的公共规则（第 2 到 8 章）。</li>
+<li><strong>前缀 <code>lay</code> 留给版图。</strong> 加它之前要先定大文件怎么放：对象不得依赖 git 的过滤器（<a href="#6.1" class="ref">6.1</a>），所以大文件要么直接放进对象，要么对象里只放一份写明大文件哈希和大小的小文件。</li>
+<li><strong>增加一种类型，</strong> 是写一份类型规格并在本表登记一行。登记是为了不重复用前缀；没登记的类型，工具照样核对 <code>type</code> 等于前缀。第 2 到 8 章不用改。</li>
+<li><strong>永远不登记为前缀的词：</strong>
+<ul>
+<li>Windows 的设备名：<code>con</code>、<code>prn</code>、<code>aux</code>、<code>nul</code>、<code>com0</code> 到 <code>com9</code>、<code>lpt0</code> 到 <code>lpt9</code>。推荐摆法的类型目录就用前缀命名（<a href="#6.2" class="ref">6.2</a>），Windows 上不能有这样的目录；</li>
+<li>YAML 可能读成字符串以外的词：<code>y</code>、<code>n</code>、<code>yes</code>、<code>no</code>、<code>on</code>、<code>off</code>、<code>true</code>、<code>false</code>、<code>null</code>；</li>
+<li>TOA 自己的词：<code>check</code>、<code>verify</code>、<code>note</code>、<code>source</code>、<code>lock</code>、<code>library</code>、<code>latest</code>、<code>removed</code>，以及入口文件里不按前缀起名的字段名，例如 <code>type</code>、<code>name</code>、<code>base</code>、<code>files</code>、<code>uses</code> 和 <code>process</code>；</li>
+<li>文件格式的名字：<code>lef</code>、<code>def</code>、<code>gds</code>、<code>oas</code>、<code>spef</code>、<code>sdc</code>、<code>upf</code>；</li>
+<li>在别处另有意思的词：<code>cell</code>、<code>view</code>、<code>module</code>、<code>entity</code>、<code>component</code>、<code>model</code>、<code>net</code>、<code>mod</code>；</li>
+<li>本标准的草稿给类型用过的名字：<code>ip</code>、<code>imp</code>、<code>ver</code>。</li>
+</ul></li>
+<li><strong>以 <code>x</code> 开头的前缀</strong> 留给私有和实验用的类型，永远不登记。</li>
+</ul>
+<h2 id="10"><span class="sec">10</span>版本和演进<a href="#10" class="anchor" aria-label="Link to 10">#</a></h2>
+<ul>
+<li><strong>类型规格的版本不写在对象里。</strong> 一种类型的规格只做兼容的改动：加可以不写的字段，放宽取值。不兼容的改动用一个新前缀，等于一种新类型；旧前缀的对象照旧合格，工具都要继续读。</li>
+<li><strong>公共规则（第 2 到 8 章）跟着本标准的版本走。</strong>
+<ul>
+<li><code>0.x</code> 期间可以改，改了就可能让已有的样例对象不再合格。</li>
+<li><code>1.0</code> 之后，已经合格的对象和库不得因为本标准的修订变成不合格：上限只放宽不收紧，保留的名字不再增加，必须加引号的写法不再增加。</li>
+</ul></li>
+<li><strong>哈希算法定在名字里。</strong> 换算法时新对象用 <a href="#2.1" class="ref">2.1</a> 保留的那种形式，旧名字不变。同一份内容的新旧两个名字是不是同一个对象，由一张别名表说明，不靠推断。新对象用旧名字引用一个对象时，这条引用的强度仍是旧算法的。</li>
+<li><strong>旧工具遇到新东西：</strong> 不认识的前缀，原样保留，不解释内容（<code>type</code> 等于前缀照样核对）；不认识版本的来源表，整份忽略；保留形式的名字，不进入、不改动。</li>
+<li><strong>本标准自己的版本</strong>写在来源表的头里，以及删除记录、<code>lock.json</code> 和 <code>library.yaml</code> 的 <code>toa</code> 字段里。</li>
+</ul>
+<h2 id="11"><span class="sec">11</span>安全上必须写明的事<a href="#11" class="anchor" aria-label="Link to 11">#</a></h2>
+<ul>
+<li><strong>名字保证的只有一件事：</strong> 内容是名字所指的那一份。它不保证有人审过，不保证作者是谁，不保证对象在某个库里。</li>
+<li><strong>取用别人的对象就是执行别人的代码。</strong> 测试用例带分析脚本和仿真命令；依赖清单可以指向任意软件源；网表里的 Verilog-A、Verilog 和仿真器的控制语句可以写文件、调系统命令。
+<ul>
+<li>工具不得自动执行对象里带的命令，不得自动安装对象里列的依赖。</li>
+<li>没有审过的对象应当在容器或虚拟机里仿真。</li>
+<li>一棵树里有没审过的对象时，工具在组装和运行之前应当把它们列给使用者。</li>
+</ul></li>
+<li><strong>对象和旁挂文件里的文字是数据，不是指令。</strong> 给 agent 用的工具和文档必须写明这一点。</li>
+<li><strong>展示说明、README、文档时，</strong> 工具不得自动加载它们指向的外部资源（图片、脚本、链接预览）。</li>
+<li><strong>来源表、说明、库的清单、删除记录都是别人能改的。</strong> 读它们时按 <a href="#5.1" class="ref">5.1</a>、<a href="#4.2" class="ref">4.2</a> 校验，取对象时按 <a href="#7.3" class="ref">7.3</a> 的步骤。</li>
+<li><strong>来源表可以写任何地址，包括内网地址和本机地址，也可以包含任何别的清单。</strong> 本标准不限制表指向哪里，也不规定工具去不去连某个主机，这由工具和使用者定。要知道的风险：
+<ul>
+<li>跟着别人的表去连，等于让写表的人替你选连哪里：可能是你内网里的服务，也可能只是借此知道你在用什么。交互的工具一般在连一个没连过的主机之前问使用者。</li>
+<li>自动运行的服务（平台、CI）没有人可问。它按表里的地址去连，就可能被人引去连内网的服务。它能连哪些主机，由部署定。</li>
+</ul></li>
+<li><strong>凭据。</strong> 对别人的表给出的地址用使用者的凭据，等于把凭据送到那份表选的主机，还可能取到私有的内容。交互的工具只对使用者同意过的主机用凭据（<a href="#7.3" class="ref">7.3</a>）。持有凭据的自动服务，可能被人引去取私有的对象，再放进公开的输出；它用哪些凭据、对哪些主机用，由部署定。</li>
+<li><strong>地址不是身份。</strong> 库的地址可以易主。易主之后新主人换不掉已经被点名的内容，但能发布”新版”、改说明。</li>
+<li><strong>依赖别的库的对象时，</strong> 库应当把它们复制进自己或镜像里（对象名不变），不要只留一个地址。</li>
+<li><strong>时间的证据。</strong> 对象里没有日期，提交的日期是提交者写的，可以往前改。对象某天以前已经存在，只能由别人证明：
+<ul>
+<li><strong>存档。</strong> 对象名里的哈希，就是 Software Heritage 给同一个目录的标识：<code>swh:1:dir:&lt;hash&gt;</code>。只有模式为 <code>100644</code> 的普通文件和模式为 <code>40000</code> 的目录的目录（对象正是这样，<a href="#3.1" class="ref">3.1</a>），SWHID 规范 <a href="#1.2" class="ref">1.2</a> 版第 5 条算出的值就是 <a href="#2.2" class="ref">2.2</a> 的值。库公开并被存档以后，存档对这个目录的记录连同收录日期，就证明对象那时已经存在。作者可以请存档收录一个仓库。</li>
+<li><strong>时间戳。</strong> 时间戳目录里的证明（<a href="#4.3" class="ref">4.3</a>）说明对象名在它给出的时间已经存在，可信的程度取决于做证明的服务。</li>
+<li><strong>签名的提交</strong>（<a href="#6.3" class="ref">6.3</a>）说明是谁把对象放进了库，不说明什么时候。</li>
+<li>这些都不说明对象是谁做的，也不说明谁有权署名为作者。TOA 只提供证据：入口文件的 <code>author</code>（<a href="#3.2.1" class="ref">3.2.1</a>）、来历（<a href="#3.4" class="ref">3.4</a>）、签名和日期。由人来掂量；本标准对此不作判定。</li>
+</ul></li>
+<li><strong>SHA-1：</strong> 对象的作者付出相当的代价，可以造出两个同名而内容不同的对象。经 git 传输时会被检测出来。索引还必须给每个对象记下对照值（<a href="#2.2" class="ref">2.2</a>），同一个名字在不同位置对照值不同时报警。</li>
+<li><strong>私有库和公开库混用时，会带出去的东西：</strong>
+<ul>
+<li><code>history.json</code> 会带出全部内部祖先的名字。它在对象里，去不掉。</li>
+<li>来源表会带出地址；<code>ssh</code> 地址里的用户名可能是个人账号名。</li>
+<li>来源表里的 <code>label</code>、<code>refs</code>、<code>license</code> 是缓存的内容。所以没有公开来源的对象，发布时只留名字（<a href="#5.3" class="ref">5.3</a>）。</li>
+<li>公开一个内部对象之前，工具必须按 <a href="#5.3" class="ref">5.3</a> 列出这些。</li>
+</ul></li>
+<li><strong>符号链接：</strong> 库里任何地方都不许有（<a href="#6.1" class="ref">6.1</a>）。检出一个没查过的库之前，先看它的目录列表（<a href="#7.3" class="ref">7.3</a>）。</li>
+<li><strong>解析：</strong> 读任何文件、任何目录列表都有大小和深度的上限，并且先看大小再读。一个对象、一个旁挂文件、一个库出错，只影响它自己。</li>
+<li><strong>传给 git 的每个参数</strong>（地址、提交号、分支名、路径）都不得能被读成选项：先按本标准的语法校验，再放到 <code>--</code> 之后，或确认不以连字符开头。</li>
+</ul>
+<h2 id="annex-a"><span class="sec">附录 A</span>（说明性）上限<a href="#annex-a" class="anchor" aria-label="Link to annex-a">#</a></h2>
+<p>把正文各处定的上限汇总在一起，方便实现。本表和正文不一致时，以正文为准。</p>
+<table>
+<thead>
+<tr>
+<th>什么</th>
+<th>上限</th>
+<th>节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对象名的前缀</td>
+<td>2 到 8 个字符</td>
+<td><a href="#2.1" class="ref">2.1</a></td>
+</tr>
+<tr>
+<td>对象名里的哈希</td>
+<td>恰好 40 位十六进制；64 位保留</td>
+<td><a href="#2.1" class="ref">2.1</a></td>
+</tr>
+<tr>
+<td>草稿名的标签</td>
+<td>1 到 40 个字符</td>
+<td><a href="#2.4" class="ref">2.4</a></td>
+</tr>
+<tr>
+<td>一个文件或目录的名字</td>
+<td>1 到 64 个字符</td>
+<td><a href="#3.1" class="ref">3.1</a></td>
+</tr>
+<tr>
+<td>对象内的目录层数</td>
+<td>相对路径里至多 6 个 <code>/</code></td>
+<td><a href="#3.1" class="ref">3.1</a></td>
+</tr>
+<tr>
+<td>对象内的一条路径</td>
+<td>80 个字符</td>
+<td><a href="#3.1" class="ref">3.1</a></td>
+</tr>
+<tr>
+<td>一个对象的文件数</td>
+<td>2,000</td>
+<td><a href="#3.1" class="ref">3.1</a></td>
+</tr>
+<tr>
+<td>对象里的一个文件</td>
+<td>10 MiB</td>
+<td><a href="#3.1" class="ref">3.1</a></td>
+</tr>
+<tr>
+<td>整个对象</td>
+<td>50 MiB</td>
+<td><a href="#3.1" class="ref">3.1</a></td>
+</tr>
+<tr>
+<td>入口文件</td>
+<td>256 KiB</td>
+<td><a href="#3.2.3" class="ref">3.2.3</a></td>
+</tr>
+<tr>
+<td>入口文件的嵌套</td>
+<td>16 层</td>
+<td><a href="#3.2.3" class="ref">3.2.3</a></td>
+</tr>
+<tr>
+<td>入口文件里的整数</td>
+<td>18 位</td>
+<td><a href="#3.2.3" class="ref">3.2.3</a></td>
+</tr>
+<tr>
+<td>入口文件里写出的浮点数</td>
+<td>32 个字符</td>
+<td><a href="#3.2.3" class="ref">3.2.3</a></td>
+</tr>
+<tr>
+<td><code>lock.json</code></td>
+<td>1 MiB</td>
+<td><a href="#3.3" class="ref">3.3</a></td>
+</tr>
+<tr>
+<td>一份说明</td>
+<td>256 KiB</td>
+<td><a href="#4.1" class="ref">4.1</a></td>
+</tr>
+<tr>
+<td>对象旁边的来源表；删除记录</td>
+<td>各 1 MiB</td>
+<td>4</td>
+</tr>
+<tr>
+<td>一份时间戳证明</td>
+<td>64 KiB</td>
+<td><a href="#4.3" class="ref">4.3</a></td>
+</tr>
+<tr>
+<td>删除记录的 <code>reason</code></td>
+<td>1,000 个字符</td>
+<td><a href="#4.2" class="ref">4.2</a></td>
+</tr>
+<tr>
+<td>删除记录里的来源</td>
+<td>3 个</td>
+<td><a href="#4.2" class="ref">4.2</a></td>
+</tr>
+<tr>
+<td>来源表的一行</td>
+<td>64 KiB</td>
+<td><a href="#5.1" class="ref">5.1</a></td>
+</tr>
+<tr>
+<td>来源表里的 <code>label</code>、<code>license</code></td>
+<td>各 256 个字符</td>
+<td><a href="#5.1" class="ref">5.1</a></td>
+</tr>
+<tr>
+<td>包含行的路径</td>
+<td>256 个字符</td>
+<td><a href="#5.1" class="ref">5.1</a></td>
+</tr>
+<tr>
+<td>包含的层数</td>
+<td>8 层</td>
+<td><a href="#5.1" class="ref">5.1</a></td>
+</tr>
+<tr>
+<td>一条分组路径</td>
+<td>1 到 4 段，128 个字符</td>
+<td><a href="#5.1" class="ref">5.1</a></td>
+</tr>
+<tr>
+<td>一个 <code>git</code> 地址</td>
+<td>512 个字符</td>
+<td><a href="#5.1" class="ref">5.1</a></td>
+</tr>
+<tr>
+<td>一条 <code>local</code> 路径</td>
+<td>1,024 个字符</td>
+<td><a href="#5.1" class="ref">5.1</a></td>
+</tr>
+<tr>
+<td>每个对象采用的来源数；发布分支上每条包含行的来源数</td>
+<td>3 个</td>
+<td><a href="#5.1" class="ref">5.1</a></td>
+</tr>
+<tr>
+<td>库的清单的一卷</td>
+<td>16 MiB</td>
+<td><a href="#5.2" class="ref">5.2</a></td>
+</tr>
+<tr>
+<td>对象目录之前的路径</td>
+<td>60 个字符</td>
+<td><a href="#6.2" class="ref">6.2</a></td>
+</tr>
+<tr>
+<td>对象名</td>
+<td>49 个字符</td>
+<td><a href="#6.2" class="ref">6.2</a></td>
+</tr>
+<tr>
+<td>对象内的路径，连同前面的 <code>/</code></td>
+<td>81 个字符</td>
+<td><a href="#6.2" class="ref">6.2</a></td>
+</tr>
+<tr>
+<td>库内任何文件的路径</td>
+<td>190 个字符</td>
+<td><a href="#6.2" class="ref">6.2</a></td>
+</tr>
+<tr>
+<td>分支名</td>
+<td>100 个字符</td>
+<td><a href="#6.3" class="ref">6.3</a></td>
+</tr>
+<tr>
+<td>取一个对象时试的来源数</td>
+<td>3 个</td>
+<td><a href="#7.3" class="ref">7.3</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="annex-b"><span class="sec">附录 B</span>（说明性）留给以后版本的<a href="#annex-b" class="anchor" aria-label="Link to annex-b">#</a></h2>
+<p><code>0.1</code> 版没有规定下面这些。在以后的版本规定之前，由部署和工具自己定，它们定的不算 TOA 的一部分。</p>
+<ul>
+<li><strong>撤回和取代标记、别名、工艺登记：</strong> 库里会变的那些文件（<a href="#6.6" class="ref">6.6</a>）在 <code>0.1</code> 里没有格式。</li>
+<li><strong>索引的布局，</strong> 以及收录对象的平台的索引和收录记录（<a href="#8.3" class="ref">8.3</a>）。</li>
+<li><strong>别名表：</strong> 换哈希算法时，说明哪些新旧名字指同一份内容（第 10 章）。</li>
+<li><strong>版图：</strong> 前缀 <code>lay</code> 已经保留；要先定大文件怎么放（第 9 章）。</li>
+<li><strong>仓库里的一个子目录是一个库：</strong> <code>0.1</code> 只把整个仓库定义为库（<a href="#6.1" class="ref">6.1</a>）。</li>
+<li><strong>本机映射表的格式：</strong> <a href="#7.6" class="ref">7.6</a> 给的只是示意。</li>
+</ul>
+<h2 class="unnumbered" id="types">类型规格</h2>
+<h2 class="type-spec" id="types-ifc">类型规格 <code>ifc</code>：模块定义</h2>
+<p>模块定义说明一个模块是什么：它的名字、它做什么、它的引脚，就像子电路的头。它没有工艺，也没有指标：那些属于它的电路网表和测试用例。前缀是 <code>ifc</code>。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/ifc.schema.json</code>。</p>
+<h3 class="type-spec" id="types-ifc-1">字段</h3>
+<p>除公共字段（<a href="#3.2.1" class="ref">3.2.1</a>）外：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>必须</td>
+<td><code>ifc</code></td>
+<td>类型</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>必须</td>
+<td><code>[a-z][a-z0-9]{0,39}(-[a-z0-9]+)*</code></td>
+<td>模块定义的短名，例如 <code>strongarm-comp</code>。名字不必唯一：两个模块定义可以同名</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>必须</td>
+<td>不超过 200 个字符的字符串</td>
+<td>一行标题。别的类型可以不写（<a href="#3.2.1" class="ref">3.2.1</a>）</td>
+</tr>
+<tr>
+<td><code>pins</code></td>
+<td>必须</td>
+<td>一个或多个引脚的列表</td>
+<td>它的引脚，按子电路端口的顺序</td>
+</tr>
+</tbody>
+</table>
+<p>每个引脚：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>必须</td>
+<td><code>[a-zA-Z][a-zA-Z0-9_]{0,31}</code></td>
+<td>端口名</td>
+</tr>
+<tr>
+<td><code>kind</code></td>
+<td>可以</td>
+<td><code>analog</code>、<code>digital</code>、<code>supply</code> 或 <code>ground</code></td>
+<td>这个引脚上是什么。没写的当普通信号画</td>
+</tr>
+<tr>
+<td><code>direction</code></td>
+<td>可以</td>
+<td><code>in</code>、<code>out</code> 或 <code>inout</code></td>
+<td>方向</td>
+</tr>
+<tr>
+<td><code>width</code></td>
+<td>可以</td>
+<td>从 1 起的整数</td>
+<td>总线宽度；不写就是 1（见下）</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>可以</td>
+<td>字符串</td>
+<td>它做什么用</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>总线：</strong> <code>width</code> 为 N 的引脚，代表子电路里前后相接的 N 个端口，按网表里的顺序。这些端口在网表里叫什么，例如 <code>LSB&lt;5&gt;</code> 或 <code>LSB_5</code>，各是哪一位，本标准都不规定：工具按位置对引脚和端口，从不按名字对。导出模块定义的工具应当把总线写成一个带 <code>width</code> 的引脚，不要每一位写一个。</li>
+<li>模块定义不写工艺，也不声明外部文件（<a href="#3.5" class="ref">3.5</a>）。</li>
+<li><code>description</code>、<code>tags</code> 和 <code>base</code> 和任何类型一样可以写。</li>
+</ul>
+<h3 class="type-spec" id="types-ifc-2">文件</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>文件</th>
+<th>要求</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>toa.yaml</code></td>
+<td>必须</td>
+<td>入口文件</td>
+</tr>
+<tr>
+<td><code>symbol.rnl</code></td>
+<td>应当</td>
+<td>这个模块定义的 RNL <code>0.4</code> 符号：一个名为 <code>&lt;name&gt;-sym</code> 的包，画出这个模块；由使用它的网表把它用在子电路上。画这个模块的电路网表和测试用例用这个包，不另抄一份</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>可以</td>
+<td>写给人看的关于这个模块定义的更多内容</td>
+</tr>
+<tr>
+<td>图片</td>
+<td>可以</td>
+<td><code>README.md</code> 里显示的图片，例如框图、时序图，用相对路径引用</td>
+</tr>
+<tr>
+<td><code>LICENSE…</code></td>
+<td><code>license</code> 里有 <code>LicenseRef-</code> 时</td>
+<td>许可证全文（<a href="#3.2.2" class="ref">3.2.2</a>）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>模块定义里不放别的文件。模型、网表和较长的文字放进电路网表、测试用例和文档。</li>
+<li><strong>用哪个包画一个子电路，由引用决定，不看包名。</strong> 在电路网表里，它定义的子电路用 <code>ifc</code> 所指模块定义的 <code>symbol.rnl</code> 画，<code>uses</code> 每一项的子电路用这一项的 <code>ifc</code> 所指模块定义的画；在测试用例里，被测的模块用它的 <code>ifc</code> 所指模块定义的画。工具把这些文件作为这些名字的包交给 RNL。包名里放不进模块定义的名字，因为文件不能包含自己所在对象的哈希（<a href="#3.2.1" class="ref">3.2.1</a>）。</li>
+<li><strong>两个模块定义可以有相同的 <code>name</code></strong>（见上），这时它们的包也同名。两者出现在同一棵展开树里时，RNL 只用其中一个包，所以工具应当给警告。这不让任何对象不合格。</li>
+<li><strong>符号随模块定义走。</strong> 符号变了就是一个新的模块定义，指向旧模块定义的电路网表不跟着变。所以符号应当在模块定义定稿前画好。以后真要改，就做一个 <code>base</code> 指向旧模块定义的新模块定义；库可以给它标 <code>latest</code>（<a href="#5.2" class="ref">5.2</a>），电路网表的作者愿意的话再逐个跟进（<a href="#7.5" class="ref">7.5</a>）。</li>
+<li><strong>来源表</strong> 会往下展开模块定义（<a href="#5.2" class="ref">5.2</a>）；模块定义不引用任何对象，所以不会多出什么。</li>
+</ul>
+<h3 class="type-spec" id="types-ifc-3">定稿时的检查</h3>
+<ul>
+<li>引脚名不重复，比较时不分大小写。</li>
+<li>有 <code>symbol.rnl</code> 时，它的端子就是这些引脚；能读 RNL 的工具检查它。</li>
+<li>除 <code>toa.yaml</code>、<code>symbol.rnl</code>、<code>README.md</code> 和 <code>LICENSE…</code> 之外，每个文件都是 <code>README.md</code> 引用的图片。</li>
+<li>修正模块定义的文字是一条说明（<a href="#4.1" class="ref">4.1</a>），不是一个新的模块定义。引脚或符号变了才做新的模块定义。</li>
+</ul>
+<h3 class="type-spec" id="types-ifc-4">可读名</h3>
+<p><code>ifc/&lt;name&gt;/</code>，例如 <code>ifc/strongarm-comp/ifc_945cdda7…/</code>（<a href="#6.2" class="ref">6.2</a>）。</p>
+<p>可读名去掉类型目录和斜杠，即 <code>&lt;name&gt;</code>，例如 <code>strongarm-comp</code>，就是工具在来源表里给这个模块定义写的 <code>label</code>（<a href="#5.1" class="ref">5.1</a>），也是工具显示它时用的名字。</p>
+<h3 class="type-spec" id="types-ifc-5">例子</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> ifc</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> MIT</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> strongarm-comp</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> StrongARM latched comparator</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">description</span><span class="kw">: </span><span class="ch">&gt;-</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  Clocked comparator with a regenerative latch; output valid in the</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  evaluation phase.</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">pins</span><span class="kw">:</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> inp</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> analog</span><span class="kw">,</span><span class="at"> </span><span class="fu">direction</span><span class="kw">:</span><span class="at"> in</span><span class="kw">}</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> inn</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> analog</span><span class="kw">,</span><span class="at"> </span><span class="fu">direction</span><span class="kw">:</span><span class="at"> in</span><span class="kw">}</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> clk</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> digital</span><span class="kw">,</span><span class="at"> </span><span class="fu">direction</span><span class="kw">:</span><span class="at"> in</span><span class="kw">}</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> outp</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> digital</span><span class="kw">,</span><span class="at"> </span><span class="fu">direction</span><span class="kw">:</span><span class="at"> out</span><span class="kw">}</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> outn</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> digital</span><span class="kw">,</span><span class="at"> </span><span class="fu">direction</span><span class="kw">:</span><span class="at"> out</span><span class="kw">}</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> vdd</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> supply</span><span class="kw">}</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> vss</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> ground</span><span class="kw">}</span></span></code></pre></div>
+<h2 class="type-spec" id="types-ckt">类型规格 <code>ckt</code>：电路网表</h2>
+<p>电路网表是一个模块定义的一种设计的一个版本：一份网表，连同它需要的文件。它引用自己所实现的模块定义，并通过 <code>uses</code> 引用它所用的其他模块定义的电路网表。前缀是 <code>ckt</code>。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/ckt.schema.json</code>。</p>
+<h3 class="type-spec" id="types-ckt-1">字段</h3>
+<p>除公共字段（<a href="#3.2.1" class="ref">3.2.1</a>）外：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>必须</td>
+<td><code>ckt</code></td>
+<td>类型</td>
+</tr>
+<tr>
+<td><code>ifc</code></td>
+<td>必须</td>
+<td>前缀为 <code>ifc</code> 的对象名</td>
+<td>它实现的模块定义</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>必须</td>
+<td><code>[a-z][a-z0-9_-]{1,39}</code></td>
+<td>这个设计的名字，例如 <code>sky130-razavi</code>。它的各代同名，这个名字也标出它们是哪一支（<a href="#3.4" class="ref">3.4</a>）</td>
+</tr>
+<tr>
+<td><code>form</code></td>
+<td>必须</td>
+<td><code>[a-z][a-z0-9_-]{1,31}</code></td>
+<td>这个电路网表本身是怎么写的（见下）</td>
+</tr>
+<tr>
+<td><code>files</code></td>
+<td>必须</td>
+<td>映射</td>
+<td>按用途列出它的文件（见下）</td>
+</tr>
+<tr>
+<td><code>external</code></td>
+<td>可以</td>
+<td>列表</td>
+<td>它需要、但不随它发布的别的外部文件（<a href="#3.5" class="ref">3.5</a>）</td>
+</tr>
+<tr>
+<td><code>uses</code></td>
+<td>可以</td>
+<td>映射</td>
+<td>它所用的其他模块定义的电路网表（见下）</td>
+</tr>
+<tr>
+<td><code>parameters</code></td>
+<td>可以</td>
+<td>名字到数、字符串或布尔值的映射</td>
+<td>它的子电路的参数和默认值</td>
+</tr>
+<tr>
+<td><code>specifications</code></td>
+<td>可以</td>
+<td>映射</td>
+<td>作者在任何验证之前声明的情况：电源、温度、引脚范围、拓扑</td>
+</tr>
+<tr>
+<td><code>origin</code></td>
+<td>可以</td>
+<td>映射</td>
+<td>从 TOA 之外的仓库取来的设计，写它从哪里取来（见下）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><strong><code>description</code></strong>（<a href="#3.2.1" class="ref">3.2.1</a>）说这个设计是什么。</p></li>
+<li><p><strong><code>form</code></strong> 按这个电路网表自己文件的内容判断，不看它用了什么：</p>
+<ul>
+<li><code>ideal</code>：用理想元件搭的模型；</li>
+<li><code>va</code>：Verilog-A 写的行为模型；</li>
+<li><code>rtl</code>：Verilog 或其他 RTL；</li>
+<li><code>transistor</code>：晶体管电路，即使它同时用了别的模块定义；</li>
+<li><code>passive</code>：只有工艺的无源器件，例如电阻串、电容阵列；</li>
+<li><code>gates</code>：门级网表，只有工艺标准单元的实例；</li>
+<li><code>composition</code>：只有其他模块的实例和它们之间的连线，没有器件，没有模型代码；</li>
+<li><code>mixed</code>：这一层本身有上面几种中的多种。</li>
+</ul>
+<p>可以用别的值；不认识某个值的工具照原样显示。</p></li>
+<li><p><strong><code>specifications.process</code></strong>（<a href="#3.5" class="ref">3.5</a>）在 <code>form</code> 是 <code>transistor</code>、<code>passive</code> 或 <code>gates</code>，或是带某个工艺的器件或单元的 <code>mixed</code> 时必须写。其他形态的电路网表可以写。同一棵展开树里的电路网表可以写不同的工艺。</p></li>
+<li><p><strong><code>files</code>：</strong> 每种用途是对象内文件路径的列表，相对于对象顶层，用 <code>/</code> 分隔：</p>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>要求</th>
+<th>文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>netlist</code></td>
+<td>必须，至少一个</td>
+<td>网表；第一个定义这个模块的子电路</td>
+</tr>
+<tr>
+<td><code>va</code></td>
+<td>可以</td>
+<td>Verilog-A</td>
+</tr>
+<tr>
+<td><code>rtl</code></td>
+<td>可以</td>
+<td>Verilog 和其他 RTL</td>
+</tr>
+<tr>
+<td><code>packages</code></td>
+<td>可以</td>
+<td>RNL 包</td>
+</tr>
+<tr>
+<td><code>extras</code></td>
+<td>可以</td>
+<td>网表需要的其他文件</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong><code>uses</code></strong> 把网表里实例化的子电路名映射到用于它的电路网表：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ifc</code></td>
+<td>必须</td>
+<td>前缀为 <code>ifc</code> 的对象名</td>
+<td>这个子电路的模块定义</td>
+</tr>
+<tr>
+<td><code>ckt</code></td>
+<td>必须</td>
+<td>前缀为 <code>ckt</code> 的对象名</td>
+<td>所用的电路网表</td>
+</tr>
+<tr>
+<td><code>requirements</code></td>
+<td>可以</td>
+<td>指标全名（<code>&lt;name&gt;.&lt;id&gt;</code>，见 <code>tb</code>）到 <code>{min, max}</code> 的映射</td>
+<td>这个设计对它的要求</td>
+</tr>
+</tbody>
+</table>
+<p>键是子电路在网表里的名字：<code>[A-Za-z_][A-Za-z0-9_]{0,63}</code>。</p></li>
+<li><p><strong><code>specifications</code>：</strong> 键自由。<code>process</code> 是一个短名字，例如 <code>sky130</code>，形如 <code>[a-z][a-z0-9_-]{0,39}</code>（<a href="#3.5" class="ref">3.5</a>）。<code>vdd</code>、<code>temp</code> 和 <code>pins</code> 的每一项是一个数，或由 <code>min</code>、<code>nom</code>、<code>max</code>、<code>unit</code>、<code>description</code> 组成的映射。</p></li>
+<li><p><strong><code>origin</code>：</strong> 必须写 <code>repo</code>（仓库，例如 <code>owner/name</code>）、<code>commit</code>（40 位十六进制数）、<code>path</code>、<code>license</code> 和 <code>authors</code>；可以写 <code>tag</code> 和 <code>files</code>（路径到 <code>{sha256, size}</code> 的映射）。<code>license</code> 是 <code>{spdx, file}</code>：原仓库的 SPDX 许可证表达式，和它在原仓库里的许可证文件路径。</p></li>
+<li><p><strong>换子模块</strong>会让它上面每一层都出一个新的电路网表（<a href="#7.5" class="ref">7.5</a>）。只为跑一次仿真做的电路网表，例如把某个子模块换成理想模型，照样写 <code>base</code>，但另起一个 <code>name</code>，例如 <code>sky130-razavi-ideal</code>：它自成一支，永远不会被当成原电路网表的新版（<a href="#3.4" class="ref">3.4</a>、<a href="#7.5" class="ref">7.5</a>）。</p></li>
+</ul>
+<h3 class="type-spec" id="types-ckt-2">文件</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>要求</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>toa.yaml</code></td>
+<td>必须</td>
+<td>入口文件</td>
+</tr>
+<tr>
+<td><code>files</code> 里列出的文件</td>
+<td>必须</td>
+<td>设计本身</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>应当</td>
+<td>这个设计是什么、怎么做出来的、已知它的哪些情况</td>
+</tr>
+<tr>
+<td><code>LICENSE…</code></td>
+<td><code>license</code> 里有 <code>LicenseRef-</code> 时</td>
+<td>许可证全文（<a href="#3.2.2" class="ref">3.2.2</a>）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>文件可以用一行注释开头，写许可证文件头 <code>SPDX-License-Identifier: &lt;expression&gt;</code>。写了的话，其中每个许可证都必须是 <code>license</code> 里出现的。</li>
+<li><strong>来源表</strong> 会往下展开电路网表，沿 <code>ifc</code> 和 <code>uses</code>（<a href="#5.2" class="ref">5.2</a>）。</li>
+</ul>
+<h3 class="type-spec" id="types-ckt-3">定稿时的检查</h3>
+<ol type="1">
+<li><code>files</code> 里列出的每个文件都在对象里，没有路径列两次。</li>
+<li>找得到所引用的对象时：<code>ifc</code> 是一个模块定义；<code>uses</code> 的每一项，<code>ckt</code> 是一个电路网表，它的 <code>ifc</code> 就是这一项的 <code>ifc</code>。</li>
+<li>网表、Verilog-A 和 RTL 把外部文件留在对象之外（<a href="#3.5" class="ref">3.5</a>）：
+<ul>
+<li>不含工艺的模型文件，不含模型卡（例如带工艺参数的 <code>.model</code> 块）；</li>
+<li>不包含工艺的库；</li>
+<li>每个 <code>include</code>、<code>.lib</code> 和 <code>ahdl_include</code> 写的是留在对象之内的相对路径，不用 <code>..</code>、绝对路径或环境变量，并指向 <code>files</code> 里列出的文件；</li>
+<li>不含本机路径、主机名、用户名或形如密钥的字符串；</li>
+<li>画图要用的器件类型，写在 RNL 头记录的 <code>@DEVICE</code> 里，例如 <code>@DEVICE(model=…, terminals=…, type=…)</code>；不为画图写 <code>.model</code>，像 <code>.model nch nmos</code> 这样不带参数的也不行。</li>
+</ul></li>
+<li>能读 RNL 的工具用 RNL 检查网表。</li>
+</ol>
+<p>电路网表需要的外部文件在 <code>specifications.process</code> 和 <code>external</code> 里声明，组装时由使用者的本机映射表提供（<a href="#7.6" class="ref">7.6</a>）。</p>
+<h3 class="type-spec" id="types-ckt-4">可读名</h3>
+<p><code>ckt/&lt;interface name&gt;/&lt;name&gt;.g&lt;generation&gt;/</code>，例如 <code>ckt/strongarm-comp/sky130-razavi.g1/ckt_…/</code>（<a href="#6.2" class="ref">6.2</a>）。代数就是它的 <code>history.json</code> 里写的那个（<a href="#3.4" class="ref">3.4</a>）。</p>
+<p>可读名去掉类型目录和两头的斜杠，即 <code>&lt;interface name&gt;/&lt;name&gt;.g&lt;generation&gt;</code>，例如 <code>strongarm-comp/sky130-razavi.g1</code>，就是工具在来源表里给这个电路网表写的 <code>label</code>（<a href="#5.1" class="ref">5.1</a>），也是工具显示它时用的名字。<code>&lt;interface name&gt;</code> 是 <code>ifc</code> 所指模块定义的 <code>name</code>；找不到那个模块定义时，用 <code>ifc</code> 里对象名的前 12 个字符代替。</p>
+<h3 class="type-spec" id="types-ckt-5">例子</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> ckt</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CERN-OHL-P-2.0</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ifc</span><span class="kw">:</span><span class="at"> ifc_945cdda7d9b4c0f6a2e1d3b5c7a9e0f1d2c3b4a5</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> wrap-lee</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">form</span><span class="kw">:</span><span class="at"> composition</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> Alice Zhang</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">description</span><span class="kw">:</span><span class="at"> StrongARM comparator built from Lee&#39;s dynamic latch.</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">base</span><span class="kw">:</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> ckt_cd15342bb4ed1cc1137937195f7cf3c3b8b03af5</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">uses</span><span class="kw">:</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">dyn_latch_cmp</span><span class="kw">:</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ifc</span><span class="kw">:</span><span class="at"> ifc_6c2f0e9a8b7d6c5e4f3a2b1c0d9e8f7a6b5c4d3e</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ckt</span><span class="kw">:</span><span class="at"> ckt_f1ede73af6ba50ae0621e34b2b6f6b946dbf1ff1</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">files</span><span class="kw">:</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">netlist</span><span class="kw">:</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> strongarm_comp.scs</span></span></code></pre></div>
+<h2 class="type-spec" id="types-tb">类型规格 <code>tb</code>：测试用例</h2>
+<p>测试用例是测量一个模块定义的一种方法的一个版本：一份网表、运行它的命令，以及把结果变成指标的分析脚本。任何人都可以给任何模块定义写测试用例，一个模块定义可以有很多测试用例。前缀是 <code>tb</code>。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/tb.schema.json</code>。</p>
+<h3 class="type-spec" id="types-tb-1">字段</h3>
+<p>除公共字段（<a href="#3.2.1" class="ref">3.2.1</a>）外：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>必须</td>
+<td><code>tb</code></td>
+<td>类型</td>
+</tr>
+<tr>
+<td><code>ifc</code></td>
+<td>必须</td>
+<td>前缀为 <code>ifc</code> 的对象名</td>
+<td>它测量的模块定义</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>必须</td>
+<td><code>tb_[a-z0-9_]{1,36}</code></td>
+<td>这个测试用例的名字，例如 <code>tb_static</code>。它的各代同名，这个名字也标出它们是哪一支（<a href="#3.4" class="ref">3.4</a>）。它是它的指标全名的第一部分</td>
+</tr>
+<tr>
+<td><code>files</code></td>
+<td>必须</td>
+<td>映射</td>
+<td>按用途列出它的文件，和电路网表（<code>ckt</code>）一样：<code>netlist</code> 至少列一个，第一个是运行的那份网表；可以写 <code>va</code>、<code>rtl</code>、<code>packages</code>、<code>extras</code></td>
+</tr>
+<tr>
+<td><code>external</code></td>
+<td>可以</td>
+<td>列表</td>
+<td>它需要、但不随它发布的外部文件（<a href="#3.5" class="ref">3.5</a>）。测试用例不写工艺</td>
+</tr>
+<tr>
+<td><code>run</code></td>
+<td>必须</td>
+<td>字符串</td>
+<td>运行仿真的命令，供参考；使用者自己的环境可以不同</td>
+</tr>
+<tr>
+<td><code>analyze</code></td>
+<td>必须</td>
+<td>映射</td>
+<td>分析脚本：必须写 <code>entry</code> 和 <code>python</code>（它需要的 Python 版本，例如 <code>'&gt;=3.10'</code>），可以写 <code>requirements</code></td>
+</tr>
+<tr>
+<td><code>metrics</code></td>
+<td>必须</td>
+<td>一个或多个指标的列表</td>
+<td>它测什么（见下）</td>
+</tr>
+<tr>
+<td><code>simulators</code></td>
+<td>可以</td>
+<td><code>{name, version}</code> 的列表，<code>version</code> 可以不写</td>
+<td>作者用来跑过它的仿真器。只供参考：工具不得因为换了仿真器就拒绝运行</td>
+</tr>
+<tr>
+<td><code>parameters</code></td>
+<td>可以</td>
+<td>映射</td>
+<td>测试用例自己的网表声明的参数，例如激励幅度、负载、电源；不是被测电路网表的参数。每个是 <code>{unit, description}</code></td>
+</tr>
+<tr>
+<td><code>presets</code></td>
+<td>可以</td>
+<td>映射</td>
+<td>有名字的几组条件，分 <code>parameters</code>、<code>options</code>、<code>models</code> 三格，写法和验证记录一样，只是 <code>parameters</code> 的值可以是列表：一次扫描，每个点出一条验证记录</td>
+</tr>
+</tbody>
+</table>
+<p>每个指标：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>必须</td>
+<td><code>[a-zA-Z][a-zA-Z0-9_]{0,31}</code></td>
+<td>它的名字。全名是 <code>&lt;name&gt;.&lt;id&gt;</code>，例如 <code>tb_static.inl</code></td>
+</tr>
+<tr>
+<td><code>unit</code></td>
+<td>必须</td>
+<td>字符串</td>
+<td>单位</td>
+</tr>
+<tr>
+<td><code>better</code></td>
+<td>必须</td>
+<td><code>lower</code>、<code>higher</code> 或 <code>none</code></td>
+<td>哪个方向更好</td>
+</tr>
+<tr>
+<td><code>tolerance</code></td>
+<td>必须</td>
+<td><code>{abs}</code>、<code>{rel}</code> 或两者都有，数值</td>
+<td>两个结果相差多少仍算一致</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>可以</td>
+<td>字符串</td>
+<td>怎么测的</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>全名的含义不变。</strong> 在一个测试用例的各代里，指标名的含义永远不变；含义不同的指标换一个名字。设计的目标和电路网表 <code>uses</code> 里的要求，都用全名写。</li>
+<li><strong><code>description</code></strong>（<a href="#3.2.1" class="ref">3.2.1</a>）说这个测试用例测什么、怎么测。</li>
+</ul>
+<h3 class="type-spec" id="types-tb-2">文件</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>文件</th>
+<th>要求</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>toa.yaml</code></td>
+<td>必须</td>
+<td>入口文件</td>
+</tr>
+<tr>
+<td><code>files</code> 里列出的文件</td>
+<td>必须</td>
+<td>网表和它们需要的文件</td>
+</tr>
+<tr>
+<td><code>analyze</code> 的 <code>entry</code></td>
+<td>必须</td>
+<td>分析脚本</td>
+</tr>
+<tr>
+<td><code>analyze</code> 的 <code>requirements</code></td>
+<td>写了时</td>
+<td>它需要的 Python 包，每个写明确切版本</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>应当</td>
+<td>写给人看：测什么，怎么测</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>分析脚本</strong>的调用方式是 <code>&lt;entry&gt; &lt;results&gt; &lt;output&gt;</code>。它从目录 <code>&lt;results&gt;</code> 读一组条件的仿真结果，在 <code>&lt;output&gt;</code> 里写一个文件 <code>metrics.json</code>（每个指标一个数，按 <code>id</code>）和一个目录 <code>evidence/</code>。</li>
+<li><strong>它是别人的代码</strong>（第 11 章）。没有使用者同意，工具不得运行它；第一次运行某个版本之前，应当把它和它相对上一版的差别给使用者看；应当在单独的进程和目录里运行它。这不算隔离：没有审过的测试用例应当在容器或虚拟机里运行。</li>
+<li>文件可以用许可证文件头开头，和电路网表（<code>ckt</code>）一样。</li>
+<li><strong>来源表</strong> 会往下展开测试用例，沿 <code>ifc</code>（<a href="#5.2" class="ref">5.2</a>）。</li>
+</ul>
+<h3 class="type-spec" id="types-tb-3">定稿时的检查</h3>
+<ol type="1">
+<li><code>files</code> 里列出的每个文件、<code>entry</code> 和写了时的 <code>requirements</code> 都在对象里，<code>files</code> 里没有路径列两次。</li>
+<li>各指标的 <code>id</code> 不重复。</li>
+<li>找得到 <code>ifc</code> 时，它是一个模块定义。</li>
+<li>网表遵守电路网表的网表规则（<code>ckt</code>，定稿时的检查，第 3 项）。</li>
+</ol>
+<h3 class="type-spec" id="types-tb-4">可读名</h3>
+<p><code>tb/&lt;interface name&gt;/&lt;name&gt;.g&lt;generation&gt;/</code>，例如 <code>tb/strongarm-comp/tb_offset.g1/tb_…/</code>（<a href="#6.2" class="ref">6.2</a>）。代数就是它的 <code>history.json</code> 里写的那个（<a href="#3.4" class="ref">3.4</a>）。</p>
+<p>可读名去掉类型目录和两头的斜杠，即 <code>&lt;interface name&gt;/&lt;name&gt;.g&lt;generation&gt;</code>，例如 <code>strongarm-comp/tb_offset.g1</code>，就是工具在来源表里给这个测试用例写的 <code>label</code>（<a href="#5.1" class="ref">5.1</a>），也是工具显示它时用的名字。<code>&lt;interface name&gt;</code> 是 <code>ifc</code> 所指模块定义的 <code>name</code>；找不到那个模块定义时，用 <code>ifc</code> 里对象名的前 12 个字符代替。</p>
+<h3 class="type-spec" id="types-tb-5">例子</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> tb</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CERN-OHL-P-2.0</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ifc</span><span class="kw">:</span><span class="at"> ifc_945cdda7d9b4c0f6a2e1d3b5c7a9e0f1d2c3b4a5</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> tb_offset</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Input-referred offset by a slow ramp</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">files</span><span class="kw">:</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">netlist</span><span class="kw">:</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> tb.scs</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">simulators</span><span class="kw">:</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;21.1&#39;</span><span class="kw">}</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">run</span><span class="kw">:</span><span class="at"> spectre tb.scs +aps -format psfxl -raw psf</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="fu">analyze</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">entry</span><span class="kw">:</span><span class="at"> analyze.py</span><span class="kw">,</span><span class="at"> </span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;&gt;=3.10&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">requirements</span><span class="kw">:</span><span class="at"> requirements.txt</span><span class="kw">}</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">id</span><span class="kw">:</span><span class="at"> offset</span><span class="kw">,</span><span class="at"> </span><span class="fu">unit</span><span class="kw">:</span><span class="at"> mV</span><span class="kw">,</span><span class="at"> </span><span class="fu">better</span><span class="kw">:</span><span class="at"> lower</span><span class="kw">,</span><span class="at"> </span><span class="fu">tolerance</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">abs</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.2</span><span class="kw">}}</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">unit</span><span class="kw">:</span><span class="at"> V</span><span class="kw">,</span><span class="at"> </span><span class="fu">description</span><span class="kw">:</span><span class="at"> Supply voltage</span><span class="kw">}</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">presets</span><span class="kw">:</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">nom</span><span class="kw">:</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span><span class="at"> </span><span class="kw">[{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> models.scs</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">}]</span></span></code></pre></div>
+<h2 class="type-spec" id="types-evd">类型规格 <code>evd</code>：验证记录</h2>
+<p>验证记录是某人考察一个设计得到的东西：考察的是哪个对象、怎么考察的、在什么条件下、得到了什么。前缀是 <code>evd</code>。它的 <code>kind</code> 说明是哪一种验证记录。<code>0.1</code> 版只定义一种，<code>sim</code>：一次仿真，即在一个电路网表上运行测试用例；以后的版本可以加别的种类，例如签核检查、硅片实测和表征。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/evd.schema.json</code>。</p>
+<h3 class="type-spec" id="types-evd-1">字段</h3>
+<p>除公共字段（<a href="#3.2.1" class="ref">3.2.1</a>）外，每条验证记录都有：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>必须</td>
+<td><code>evd</code></td>
+<td>类型</td>
+</tr>
+<tr>
+<td><code>kind</code></td>
+<td>必须</td>
+<td><code>[a-z][a-z0-9_-]{0,31}</code></td>
+<td>验证记录的种类。<code>0.1</code> 只定义了 <code>sim</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>工具不认识的种类：</strong> 工具照原样保留和显示这条验证记录，只按公共规则（第 2 到 8 章）和上面两个字段检查。别的种类由本规格以后的修订定义；这不改变 <code>sim</code> 是什么。</li>
+</ul>
+<p>种类为 <code>sim</code> 的验证记录还有：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dut</code></td>
+<td>必须</td>
+<td>对象名；<code>0.1</code> 里前缀为 <code>ckt</code></td>
+<td>被测的对象。<code>0.1</code> 里是一个电路网表；以后的版本可以允许别的类型</td>
+</tr>
+<tr>
+<td><code>tbs</code></td>
+<td>必须</td>
+<td>一个或多个前缀为 <code>tb</code> 的对象名的列表</td>
+<td>运行的测试用例</td>
+</tr>
+<tr>
+<td><code>conditions</code></td>
+<td>必须</td>
+<td>映射</td>
+<td>实际运行的条件，分三格（见下）</td>
+</tr>
+<tr>
+<td><code>environment</code></td>
+<td>必须</td>
+<td>映射</td>
+<td>环境（见下）</td>
+</tr>
+<tr>
+<td><code>metrics</code></td>
+<td>必须</td>
+<td>指标全名（<code>&lt;name&gt;.&lt;id&gt;</code>，见 <code>tb</code>）到数的映射</td>
+<td>分析给出的每个指标的值。没得到的指标不写</td>
+</tr>
+<tr>
+<td><code>evidence</code></td>
+<td>可以</td>
+<td><code>{path, kind}</code> 的列表，可以加 <code>label</code></td>
+<td><code>evidence/</code> 下的文件（见下）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>测的就是 <code>dut</code> 原样的展开树。</strong> 验证记录不能拿别的电路网表代替树里的某个电路网表；要测某个子模块的另一个版本，先给它上面各层出新版（<a href="#7.5" class="ref">7.5</a>），再测新版。</li>
+<li><strong>一条验证记录，一个条件点。</strong> 扫描一组条件，就出多条验证记录。</li>
+<li><strong><code>conditions</code></strong> 只放会随环境变化的东西；展开树、网表和分析由 <code>lock.json</code> 固定：
+<ul>
+<li><code>parameters</code>：测试用例的 <code>parameters</code> 的取值，每个是单个数、字符串或布尔值，不能是列表；</li>
+<li><code>options</code>：仿真器和求解器的设置，例如 <code>temp</code>、<code>reltol</code> 或 <code>errpreset</code>；</li>
+<li><code>models</code>：所用模型文件的列表，每项有 <code>file</code>（不含 <code>/</code> 或 <code>\</code> 的文件名），可以有 <code>section</code>（一个名字或列表）、<code>version</code>、<code>match</code>（文件里必须都出现的字符串）、<code>process</code> 和 <code>sha256</code>（<a href="#3.5" class="ref">3.5</a>）。</li>
+</ul></li>
+<li><strong><code>environment</code>：</strong> 必须写 <code>simulator</code>，带 <code>name</code> 和 <code>version</code>，可以带 <code>command</code>：运行它的整条命令行，选项也在里面。可以写 <code>pdk</code>（<code>process</code>、<code>release</code>）、<code>analysis</code>（<code>python</code>、<code>packages</code>）、<code>system</code>（<code>os</code>、<code>cpu</code>、<code>threads</code>）和 <code>note</code>。<code>environment</code> 里不含本机路径、主机名或用户名。</li>
+<li><strong><code>evidence</code>：</strong> 文件的 <code>kind</code> 是 <code>spectrum</code>、<code>curve</code>、<code>waveform</code>、<code>table</code> 或 <code>json</code>。它不是验证记录本身的 <code>kind</code>。</li>
+<li><strong><code>description</code></strong>（<a href="#3.2.1" class="ref">3.2.1</a>）写读者还应当知道的事，例如某个指标为什么没得到。</li>
+</ul>
+<h3 class="type-spec" id="types-evd-2">文件 <code>lock.json</code></h3>
+<p>种类为 <code>sim</code> 的验证记录，顶层都有一个 <code>lock.json</code>（<a href="#3.3" class="ref">3.3</a>）。它按名字记下仿真的那棵树，连同所用文件的 SHA-256，让没有 TOA 工具也能核对这条验证记录。它是一个 JSON 对象：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>toa</code></td>
+<td>必须</td>
+<td><code>"lock/1"</code></td>
+<td>格式</td>
+</tr>
+<tr>
+<td><code>dut</code></td>
+<td>必须</td>
+<td>对象名</td>
+<td>和入口文件里的 <code>dut</code> 相同</td>
+</tr>
+<tr>
+<td><code>tbs</code></td>
+<td>必须</td>
+<td><code>{object, files}</code> 的列表</td>
+<td><code>tbs</code> 里的每个测试用例，顺序相同</td>
+</tr>
+<tr>
+<td><code>tree</code></td>
+<td>必须</td>
+<td><code>{path, object, ifc, files}</code> 的列表</td>
+<td><code>dut</code> 的展开树里的每个电路网表，按 <code>path</code> 排序</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>path</code> 是从被测电路网表到这个实例一路上的子电路名，用 <code>.</code> 连起来，例如 <code>core</code> 或 <code>core.latch</code>；被测电路网表的路径是 <code>""</code>。</li>
+<li><code>object</code> 和 <code>ifc</code> 是对象名：电路网表和它的模块定义。<code>files</code> 把对象里每个文件的路径映射到它的 SHA-256，写成 64 位小写十六进制数：电路网表是它 <code>files</code> 里列出的文件；测试用例是它 <code>files</code> 里列出的文件、<code>analyze</code> 的 <code>entry</code> 和它的 <code>requirements</code>。</li>
+<li>任何成员都可以另带一个给人看的 <code>label</code>，工具不得解读它。</li>
+<li><code>lock.json</code> 里的名字是引用（<a href="#3.3" class="ref">3.3</a>），所以验证记录的名字固定了整棵树。</li>
+</ul>
+<h3 class="type-spec" id="types-evd-3">文件</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>要求</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>toa.yaml</code></td>
+<td>必须</td>
+<td>入口文件</td>
+</tr>
+<tr>
+<td><code>lock.json</code></td>
+<td><code>sim</code> 必须</td>
+<td>仿真的那棵树（见上）</td>
+</tr>
+<tr>
+<td><code>evidence/</code></td>
+<td>可以</td>
+<td>关键数据，例如一张图的数据。不是原始仿真数据</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>可以</td>
+<td>读者应当知道的事</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>来源表</strong> 不往下展开验证记录（<a href="#5.2" class="ref">5.2</a>）。验证记录旁边的来源表列出验证记录引用的对象；从别的对象引到的验证记录不再多带什么。</li>
+</ul>
+<h3 class="type-spec" id="types-evd-4">定稿时的检查</h3>
+<p>种类为 <code>sim</code> 的验证记录：</p>
+<ol type="1">
+<li><code>lock.json</code> 合上面的格式，它的 <code>dut</code> 和测试用例和入口文件一致。</li>
+<li><code>evidence</code> 的每个 <code>path</code> 都是对象里 <code>evidence/</code> 下的文件。</li>
+<li>找得到测试用例时，<code>metrics</code> 的每个键都是其中某个测试用例的某个指标的 <code>&lt;name&gt;.&lt;id&gt;</code>。</li>
+<li>找得到对象时：<code>dut</code> 是一个电路网表；每个测试用例测的是 <code>dut</code> 的模块定义；<code>tree</code> 就是 <code>dut</code> 的展开树，每个文件哈希都一致。</li>
+<li>一棵展开树里，每个模块定义只有一个电路网表：同一个模块定义的两个电路网表是同一个子电路的两份定义，仿真会拒绝。</li>
+</ol>
+<h3 class="type-spec" id="types-evd-5">可读名</h3>
+<p><code>evd/&lt;interface name&gt;/&lt;record label&gt;/</code>，标签是 <code>&lt;UTC time&gt;-&lt;short name&gt;</code>，例如 <code>evd/strongarm-comp/20261103T1200Z-wrap-off/evd_…/</code>（<a href="#6.2" class="ref">6.2</a>）。</p>
+<p>可读名去掉类型目录和两头的斜杠，例如 <code>strongarm-comp/20261103T1200Z-wrap-off</code>，就是工具在来源表里给这条验证记录写的 <code>label</code>（<a href="#5.1" class="ref">5.1</a>），也是工具显示它时用的名字。<code>&lt;interface name&gt;</code> 是 <code>dut</code> 所指对象的模块定义的 <code>name</code>；找不到时，用 <code>dut</code> 里对象名的前 12 个字符代替。验证记录的标签不在入口文件里：建验证记录的工具取建立时的 UTC 时间，写成 <code>YYYYMMDDTHHMMZ</code>，再向使用者要一个短名。显示别人建的验证记录时，工具用它在来源表里那一行的 <code>label</code>，没有就用 <code>&lt;interface name&gt;/</code> 加验证记录名的前 12 个字符。</p>
+<h3 class="type-spec" id="types-evd-6">例子</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> evd</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> MIT</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">kind</span><span class="kw">:</span><span class="at"> sim</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dut</span><span class="kw">:</span><span class="at"> ckt_1ec6249c0d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tbs</span><span class="kw">:</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> tb_ad96a1470e2d4c6b8a9f1e3d5c7b9a0e2f4d6c8b</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> Alice Zhang</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">conditions</span><span class="kw">:</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">models</span><span class="kw">:</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> sky130.lib.spice</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;0.20.1&#39;</span><span class="kw">}</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">simulator</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;23.1.0&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">command</span><span class="kw">:</span><span class="at"> spectre tb.scs +aps</span><span class="kw">}</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">analysis</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;3.11.9&#39;</span><span class="kw">}</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">tb_offset.offset</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.7</span></span></code></pre></div>
+<h2 class="type-spec" id="types-doc">类型规格 <code>doc</code>：文档</h2>
+<p>文档是关于模块定义、电路网表、测试用例、验证记录或冻结库的文字：设计笔记、测试用例的使用说明、架构说明、参考资料。它的正文是对象的 <code>README.md</code>。前缀是 <code>doc</code>。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/doc.schema.json</code>。</p>
+<h3 class="type-spec" id="types-doc-1">字段</h3>
+<p>除公共字段（<a href="#3.2.1" class="ref">3.2.1</a>）外：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>必须</td>
+<td><code>doc</code></td>
+<td>类型</td>
+</tr>
+<tr>
+<td><code>refs</code></td>
+<td>可以</td>
+<td>对象名的列表</td>
+<td>它讲的对象。这些是引用（<a href="#3.3" class="ref">3.3</a>）</td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>可以</td>
+<td>日期，<code>'YYYY-MM-DD'</code>，加引号</td>
+<td>作者给它的日期</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong><code>title</code></strong>（<a href="#3.2.1" class="ref">3.2.1</a>）不写时，就是 <code>README.md</code> 的第一个标题。是哪一种文档，例如 <code>design-note</code> 或 <code>tb-guide</code>，可以写在 <code>tags</code> 里。</li>
+<li>只是顺带提到、不要求找得到的对象，在 <code>README.md</code> 里提，不列进 <code>refs</code>（<a href="#3.3" class="ref">3.3</a>）。</li>
+<li>对另一个对象的修正是那个对象旁边的说明（<a href="#4.1" class="ref">4.1</a>），不是文档。</li>
+</ul>
+<h3 class="type-spec" id="types-doc-2">文件</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>要求</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>toa.yaml</code></td>
+<td>必须</td>
+<td>入口文件</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>必须</td>
+<td>正文，用 Markdown 写</td>
+</tr>
+<tr>
+<td>其他文件</td>
+<td>可以</td>
+<td>正文用到的图片和数据，用相对路径引用</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>显示文档时，工具不得自行加载对象之外的资源（第 11 章）。</li>
+<li><strong>来源表</strong> 不往下展开文档（<a href="#5.2" class="ref">5.2</a>）。</li>
+</ul>
+<h3 class="type-spec" id="types-doc-3">定稿时的检查</h3>
+<ol type="1">
+<li><code>README.md</code> 存在。</li>
+<li><code>README.md</code> 的每个相对链接和图片都指向对象里的文件。</li>
+</ol>
+<h3 class="type-spec" id="types-doc-4">可读名</h3>
+<p><code>doc/&lt;interface name&gt;/&lt;short name&gt;/</code>，例如 <code>doc/strongarm-comp/kickback-mitigation/doc_…/</code>（<a href="#6.2" class="ref">6.2</a>）。</p>
+<p>可读名去掉类型目录和两头的斜杠，例如 <code>strongarm-comp/kickback-mitigation</code>，就是工具在来源表里给这份文档写的 <code>label</code>（<a href="#5.1" class="ref">5.1</a>），也是工具显示它时用的名字。<code>&lt;interface name&gt;</code> 是 <code>refs</code> 里第一个模块定义的 <code>name</code>；<code>refs</code> 里没有模块定义的文档没有这一级，例如 <code>doc/kickback-mitigation/doc_…/</code>。短名不在入口文件里：建文档的工具向使用者要。显示别人建的文档时，工具用它在来源表里那一行的 <code>label</code>，没有就用它的标题。</p>
+<h3 class="type-spec" id="types-doc-5">例子</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> doc</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CC-BY-4.0</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Reducing kickback in StrongARM comparators</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tags</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">design-note</span><span class="kw">,</span><span class="at"> comparator</span><span class="kw">]</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">refs</span><span class="kw">:</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> ifc_945cdda7d9b4c0f6a2e1d3b5c7a9e0f1d2c3b4a5</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;2026-10-28&#39;</span></span></code></pre></div>
+<h2 class="type-spec" id="types-lib">类型规格 <code>lib</code>：冻结库</h2>
+<p>冻结库是冻结成一个对象的一组对象：一个库在某一刻的样子，例如它的一次发布，或者从几个库里挑出的一组对象。它带一份来源表格式的成员表；它是对象，所以这份表永远不变。前缀是 <code>lib</code>。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/lib.schema.json</code>。</p>
+<ul>
+<li>本标准里的”库”仍指放对象的 git 仓库（<a href="#6.1" class="ref">6.1</a>）。冻结库是一个对象，和别的对象一样放在库里。</li>
+</ul>
+<h3 class="type-spec" id="types-lib-1">字段</h3>
+<p>除公共字段（<a href="#3.2.1" class="ref">3.2.1</a>）外：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>必须</td>
+<td><code>lib</code></td>
+<td>类型</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>必须</td>
+<td><code>[a-z][a-z0-9]{0,39}(-[a-z0-9]+)*</code></td>
+<td>冻结库的名字，例如 <code>toa-official</code>。它的各次发布同名，这个名字也标出它们是哪一支（<a href="#3.4" class="ref">3.4</a>）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong><code>title</code></strong>（<a href="#3.2.1" class="ref">3.2.1</a>）说是哪一次发布，例如 <code>TOA official library, 2026-12</code>。</li>
+<li><strong>下一次发布</strong> 写 <code>base</code> 指向上一次。库给最新的那次标 <code>latest</code>（<a href="#5.2" class="ref">5.2</a>）。</li>
+<li>冻结库不写工艺，也不声明外部文件（<a href="#3.5" class="ref">3.5</a>）。</li>
+</ul>
+<h3 class="type-spec" id="types-lib-2">文件</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>要求</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>toa.yaml</code></td>
+<td>必须</td>
+<td>入口文件</td>
+</tr>
+<tr>
+<td><code>members.source.jsonl</code></td>
+<td>必须</td>
+<td>成员表，一份来源表（第 5 章）</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>可以</td>
+<td>发布说明</td>
+</tr>
+</tbody>
+</table>
+<h3 class="type-spec" id="types-lib-3">成员表</h3>
+<p><code>members.source.jsonl</code> 遵守 <a href="#3.3" class="ref">3.3</a> 对任何对象里这个文件定的规则：</p>
+<ul>
+<li>头是 <code>{"toa": "source/1"}</code>，不多不少。其余每一行都是对象行，没有包含行。</li>
+<li>对象行可以有 <code>object</code>、<code>label</code>、<code>refs</code>、<code>license</code>、<code>group</code> 和 <code>sources</code>；不得有 <code>removed</code> 和 <code>latest</code>。来源只能是 <code>git</code> 来源，不能是 <code>local</code>。</li>
+<li>它按发布分支上的来源表那样严格地读（<a href="#5.1" class="ref">5.1</a>），但大小受对象的上限（<a href="#3.1" class="ref">3.1</a>）约束，而不是来源表的上限：最多 10 MiB。一行仍最多 64 KiB。</li>
+<li><strong>每一行的 <code>object</code> 都是引用</strong>（<a href="#3.3" class="ref">3.3</a>），和别的引用一样必须找得到。缓存字段里的名字，例如 <code>refs</code> 里的，不是引用。</li>
+</ul>
+<p>冻结库另有：</p>
+<ul>
+<li><strong>来源只是提示：</strong> 地址失效了，工具就到别处找这个对象（<a href="#7.3" class="ref">7.3</a>）。</li>
+<li><strong>应当列全：</strong> 成员需要的对象（<a href="#5.2" class="ref">5.2</a>）也应当各占一行，各带来源，这样取冻结库的人不用再到别处找。工具写冻结库时默认列全；读到没列全的表时应当告诉使用者。</li>
+<li>冻结库可以是另一个冻结库的成员，例如由几部分组成的官方发布。文档可以在 <code>refs</code> 里引用它，例如发布说明。</li>
+</ul>
+<h3 class="type-spec" id="types-lib-4">用法</h3>
+<ul>
+<li><strong>工作区清单可以直接包含成员表，</strong> 用一行包含行，<code>include</code> 写它在库里的路径（<a href="#5.1" class="ref">5.1</a>、<a href="#8.1" class="ref">8.1</a>）。分组和可读名照任何来源表一样显示。</li>
+<li><strong>取一个冻结库，</strong> 就是取它、它的成员和成员需要的对象。它旁边的来源表列出了这些对象（<a href="#5.2" class="ref">5.2</a>）。</li>
+<li><strong>库的清单和冻结库不同：</strong> 库的清单会变，对象会加进来、删掉、被标记；成员表永远不变，只说某一刻有哪些对象、到哪里找。</li>
+<li>和 git 标签不同，冻结库是对象：定稿后不变，别的对象可以引用它，它可以从几个库里挑成员，也不依赖某一个仓库还在。</li>
+<li><strong>来源表</strong> 会往下展开冻结库，沿 <code>members.source.jsonl</code> 里的对象（<a href="#5.2" class="ref">5.2</a>）。</li>
+</ul>
+<h3 class="type-spec" id="types-lib-5">定稿时的检查</h3>
+<ol type="1">
+<li><code>members.source.jsonl</code> 存在，并遵守上面的规则。</li>
+<li>没有一个对象名出现在两行上。</li>
+<li>找得到成员时，工具应当告诉使用者成员需要、但表里没列的对象。</li>
+</ol>
+<p>不管对象是什么类型，定稿都像替换 <code>toa.yaml</code> 和 <code>lock.json</code> 里的草稿名一样，替换 <code>members.source.jsonl</code> 里的草稿名（<a href="#7.1" class="ref">7.1</a>）。</p>
+<h3 class="type-spec" id="types-lib-6">可读名</h3>
+<p><code>lib/&lt;name&gt;.g&lt;generation&gt;/</code>，例如 <code>lib/toa-official.g3/lib_…/</code>（<a href="#6.2" class="ref">6.2</a>）。代数就是它的 <code>history.json</code> 里写的那个（<a href="#3.4" class="ref">3.4</a>）。冻结库没有模块名这一级。</p>
+<p>可读名去掉类型目录和两头的斜杠，即 <code>&lt;name&gt;.g&lt;generation&gt;</code>，例如 <code>toa-official.g3</code>，就是工具在来源表里给这个冻结库写的 <code>label</code>（<a href="#5.1" class="ref">5.1</a>），也是工具显示它时用的名字。</p>
+<h3 class="type-spec" id="types-lib-7">例子</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> lib</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CC0-1.0</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> toa-official</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> TOA official library, 2026-12</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">base</span><span class="kw">:</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> lib_3b9e5c1d7a2f4e6b8c0d9a1e3f5b7c9d2e4f6a8b</span></span></code></pre></div>
+<p>它的 <code>members.source.jsonl</code> 的头几行：</p>
+<pre class="text"><code>{&quot;toa&quot;: &quot;source/1&quot;}
+{&quot;object&quot;: &quot;ckt_1ec6249c0d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a&quot;, &quot;label&quot;: &quot;strongarm-comp/wrap-lee.g2&quot;, &quot;group&quot;: &quot;strongarm-comp&quot;, &quot;sources&quot;: [{&quot;git&quot;: &quot;https://example.org/toa-lib.git&quot;}]}
+{&quot;object&quot;: &quot;ifc_945cdda7d9b4c0f6a2e1d3b5c7a9e0f1d2c3b4a5&quot;, &quot;label&quot;: &quot;strongarm-comp&quot;, &quot;group&quot;: &quot;strongarm-comp&quot;, &quot;sources&quot;: [{&quot;git&quot;: &quot;https://example.org/toa-lib.git&quot;}]}</code></pre>
+<!--/spec-body-->
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>TOA（True-OpenAccess）· 代码 MIT · 文本 CC-BY-4.0 · 数据 CC0-1.0 · 标准以英文为准。</div>
+    <nav aria-label="页脚">
+      <a href="../../index.html">概览</a>
+      <a href="../../tools.html">工具</a>
+      <a href="../../agents.html">Agent</a>
+      <a href="../../../llms.txt">llms.txt</a>
+      <a href="../../translation.html">翻译进度</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

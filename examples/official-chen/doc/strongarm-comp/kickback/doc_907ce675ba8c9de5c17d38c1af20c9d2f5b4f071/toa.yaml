@@ -1,0 +1,7 @@
+type: doc
+license: CC0-1.0
+author: Chen Wei
+title: Less kickback in a StrongARM comparator
+tags: [design-note]
+refs: [ifc_12ad57c51e8f36cac47a4b8a53f2949315f190f5, ckt_876f99c0ddb9fae4aabf6b8b3b7fd59de24e7e2b]
+date: '2026-11-09'

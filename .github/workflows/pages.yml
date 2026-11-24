@@ -1,0 +1,86 @@
+# Builds the project site with the standard's pages and publishes it with GitHub Pages: on a push to
+# main that changes the site, the standard, the translations or the scripts, and by hand.
+#
+# The site is a preview: every page says so in its own language (site/build.py --preview), and the
+# languages not yet published, such as Chinese, are built too and marked as previews in the menus
+# (--incubating). It needs no secret and names no organisation: GitHub Pages gives the address.
+# Settings > Pages > Source must be "GitHub Actions".
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "spec/**"
+      - "i18n/**"
+      - "scripts/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# one build at a time; a build that is running is not cut off by the next
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  # pandoc writes the standard's web pages and the Typst sources of its PDFs (scripts/spec/README.md);
+  # both release archives are pinned by SHA-256
+  PANDOC_URL: https://github.com/jgm/pandoc/releases/download/3.8.3/pandoc-3.8.3-linux-amd64.tar.gz
+  PANDOC_SHA256: c224fab89f827d3623380ecb7c1078c163c769c849a14ac27e8d3bfbb914c9b4
+  TYPST_URL: https://github.com/typst/typst/releases/download/v0.15.1/typst-x86_64-unknown-linux-musl.tar.xz
+  TYPST_SHA256: a6d077d0a95eed5a2eba715b2dae06be954f624ccbf85758a03f389ded33118c
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      # the whole history and the tags: the standard's pages name its revision and last change
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - name: Install pandoc, typst and fonts for Chinese
+        run: |
+          bin="$RUNNER_TEMP/bin" && d="$RUNNER_TEMP/dl" && mkdir -p "$bin" "$d/pandoc" "$d/typst"
+          curl -fsSL --retry 3 "$PANDOC_URL" -o "$d/pandoc.tar.gz"
+          echo "$PANDOC_SHA256  $d/pandoc.tar.gz" | sha256sum --check --strict --quiet -
+          tar -xzf "$d/pandoc.tar.gz" -C "$d/pandoc" --strip-components=2 --wildcards '*/bin/pandoc'
+          install -m 755 "$d/pandoc/pandoc" "$bin/pandoc"
+          curl -fsSL --retry 3 "$TYPST_URL" -o "$d/typst.tar.xz"
+          echo "$TYPST_SHA256  $d/typst.tar.xz" | sha256sum --check --strict --quiet -
+          tar -xJf "$d/typst.tar.xz" -C "$d/typst" --strip-components=1 --wildcards '*/typst'
+          install -m 755 "$d/typst/typst" "$bin/typst"
+          echo "$bin" >> "$GITHUB_PATH"
+          "$bin/pandoc" --version | head -n 1
+          "$bin/typst" --version
+          # the Chinese PDF: Noto Serif CJK SC and Noto Sans CJK SC (FONTS in scripts/spec/build.py)
+          sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends fonts-noto-cjk
+      - name: Check the site and its translations
+        run: |
+          python3 site/build.py --check --incubating
+          python3 scripts/i18n/status.py check
+          python3 -m unittest discover -s scripts/i18n
+      - name: Build the standard's pages
+        run: python3 scripts/spec/build.py --site site/dist
+      - name: Build the site
+        run: python3 site/build.py --incubating --preview --out site/dist
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

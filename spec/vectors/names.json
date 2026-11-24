@@ -1,0 +1,407 @@
+{
+  "about": "Object names, the reserved form and draft names (2.1, 2.4). See README.md.",
+  "vectors": [
+    {
+      "value": "tb_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": true,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "The shortest registered prefix."
+    },
+    {
+      "value": "ifc_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": true,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1"
+    },
+    {
+      "value": "ckt_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": true,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1"
+    },
+    {
+      "value": "evd_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": true,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1"
+    },
+    {
+      "value": "doc_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": true,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1"
+    },
+    {
+      "value": "lib_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": true,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1"
+    },
+    {
+      "value": "lay_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": true,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "A prefix no type is registered for is still an object name."
+    },
+    {
+      "value": "x9_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": true,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Prefix of 2 characters: a letter, then a digit."
+    },
+    {
+      "value": "abcdefgh_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": true,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Prefix of 8 characters, the longest."
+    },
+    {
+      "value": "a1234567_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": true,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Prefix of 8 characters with digits."
+    },
+    {
+      "value": "a_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Prefix of 1 character."
+    },
+    {
+      "value": "abcdefghi_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Prefix of 9 characters."
+    },
+    {
+      "value": "1p_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Prefix starting with a digit."
+    },
+    {
+      "value": "IFC_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Upper case in the prefix."
+    },
+    {
+      "value": "i-p_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Hyphen in the prefix."
+    },
+    {
+      "value": "ifc_EA44863A8D2F242BC651CAF709D45A27E7531D9D",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Upper-case hexadecimal."
+    },
+    {
+      "value": "ifc_ea44863a8d2f242bc651caf709d45a27e7531d9",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "39 hexadecimal digits."
+    },
+    {
+      "value": "ifc_ea44863a8d2f242bc651caf709d45a27e7531d9d0",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "41 hexadecimal digits."
+    },
+    {
+      "value": "ifc_ea44863a8d2f242bc651caf709d45a27e7531d9g",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "A character that is not hexadecimal."
+    },
+    {
+      "value": "my_ifc_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Two underscores."
+    },
+    {
+      "value": "ifc__ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Two underscores in a row."
+    },
+    {
+      "value": "ifc-ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "No underscore."
+    },
+    {
+      "value": "ifc_ea44863a8d2f242bc651caf709d45a27e7531d9d\n",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "A line end after the name: the whole string must match."
+    },
+    {
+      "value": " ifc_ea44863a8d2f242bc651caf709d45a27e7531d9d",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "A space before the name."
+    },
+    {
+      "value": "tb_ac",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "An ordinary string; other lengths than 40 and 64 have no special meaning."
+    },
+    {
+      "value": "",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "The empty string."
+    },
+    {
+      "value": "ifc_e282624f05b86cc1bae3ef0abf32ad2540fb72fc15d309cea0988289b9ee2bd9",
+      "object_name": false,
+      "reserved": true,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Reserved for a later hash algorithm: not an object name in 0.1, and must not be renamed or removed by tools."
+    },
+    {
+      "value": "lay_e282624f05b86cc1bae3ef0abf32ad2540fb72fc15d309cea0988289b9ee2bd9",
+      "object_name": false,
+      "reserved": true,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "Reserved form with another prefix."
+    },
+    {
+      "value": "ifc_e282624f05b86cc1bae3ef0abf32ad2540fb72fc15d309cea0988289b9ee2bd",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.1",
+      "note": "63 digits: neither an object name nor the reserved form."
+    },
+    {
+      "value": "ckt_draft-lee-sky130",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": true,
+      "section": "2.4"
+    },
+    {
+      "value": "ifc_draft-1",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": true,
+      "section": "2.4",
+      "note": "A tag of one digit."
+    },
+    {
+      "value": "evd_draft-a",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": true,
+      "section": "2.4",
+      "note": "A tag of one letter."
+    },
+    {
+      "value": "lay_draft-x",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": true,
+      "section": "2.4",
+      "note": "Any prefix."
+    },
+    {
+      "value": "ckt_draft-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": true,
+      "section": "2.4",
+      "note": "A tag of 40 characters, the longest."
+    },
+    {
+      "value": "ckt_draft-x-",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": true,
+      "section": "2.4",
+      "note": "A tag may end with a hyphen; it only has to start with a letter or digit."
+    },
+    {
+      "value": "ckt_draft-a--b",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": true,
+      "section": "2.4",
+      "note": "Hyphens may follow each other."
+    },
+    {
+      "value": "ckt_draft-",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "An empty tag."
+    },
+    {
+      "value": "ckt_draft--x",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "A tag starting with a hyphen."
+    },
+    {
+      "value": "ckt_draft-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "A tag of 41 characters."
+    },
+    {
+      "value": "ckt_draft-Lee",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "Upper case in the tag."
+    },
+    {
+      "value": "ckt_draft-a.b",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "A dot in the tag; names of sidecar files start with a draft name and a dot."
+    },
+    {
+      "value": "ckt_draft-a_b",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "An underscore in the tag."
+    },
+    {
+      "value": "ckt_draft-a b",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "A space in the tag."
+    },
+    {
+      "value": "ckt_draft_x",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "No hyphen after 'draft'."
+    },
+    {
+      "value": "ckt-draft-x",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "No underscore."
+    },
+    {
+      "value": "i_draft-x",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "Prefix of 1 character."
+    },
+    {
+      "value": "IMP_draft-x",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "Upper case in the prefix."
+    },
+    {
+      "value": "ckt_DRAFT-x",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "'draft' in upper case."
+    },
+    {
+      "value": "ckt_draft-x\n",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "A line end after the name."
+    },
+    {
+      "value": "ckt_draft-x.notes",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "The notes directory of a draft: a name beside a draft, not a draft name."
+    },
+    {
+      "value": "ckt_draft-x.source.jsonl",
+      "object_name": false,
+      "reserved": false,
+      "draft_name": false,
+      "section": "2.4",
+      "note": "The source list of a draft."
+    }
+  ]
+}

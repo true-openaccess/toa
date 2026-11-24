@@ -1,0 +1,69 @@
+{
+  "format": 1,
+  "default": "en",
+  "languages": [
+    {
+      "code": "en",
+      "name": "English",
+      "short": "EN",
+      "names": {"en": "English"},
+      "html_lang": "en",
+      "matches": ["en"],
+      "status": "published",
+      "fonts": {
+        "google": "IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500",
+        "body": "\"IBM Plex Sans\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+        "mono": "\"IBM Plex Mono\", \"Cascadia Mono\", \"SFMono-Regular\", Consolas, monospace"
+      },
+      "messages": {
+        "full_name": "True-OpenAccess",
+        "intro": "Overview",
+        "spec": "Standard",
+        "tools": "Tools",
+        "agents": "Agents",
+        "github": "GitHub",
+        "glossary": "Glossary",
+        "translation": "Translation status",
+        "language_menu": "Choose language",
+        "theme_dark": "Switch to dark theme",
+        "theme_light": "Switch to light theme",
+        "theme": "Theme",
+        "contents": "Contents",
+        "on_this_page": "On this page",
+        "versions": "Versions: ",
+        "revision": "Version {v} · {state} ({date}, {commit})",
+        "released": "revision {n}",
+        "after": "revision {n} + updates",
+        "draft": "not released",
+        "pdf_label": "PDF",
+        "md_label": "Markdown",
+        "zip_label": "Markdown (by chapter)",
+        "sums_label": "SHA-256 checksums",
+        "foot": "TOA, {full_name}. Code MIT · text CC-BY-4.0 · data CC0-1.0. The English text of the standard is normative.",
+        "not_translated": "Not yet translated into {language}; showing English.",
+        "partly_translated": "Partially translated into {language}; missing sections are shown in English.",
+        "spec_stale": "The English source has changed since translation; where they differ, the English prevails.",
+        "help_translate": "Help translate",
+        "terms_normative": "Only the English terms are normative.",
+        "spec_translated": "Translation of the standard; where it differs from the English, the English prevails.",
+        "spec_english": "Read English version",
+        "preview": "Preview: TOA has no release yet; the standard, the tool and this site may still change."
+      }
+    },
+    {
+      "code": "zh",
+      "name": "简体中文",
+      "short": "中文",
+      "names": {"en": "Chinese (Simplified)"},
+      "html_lang": "zh-CN",
+      "matches": ["zh", "zh-CN", "zh-Hans", "zh-SG", "zh-MY"],
+      "status": "incubating",
+      "reviewer": "the project lead",
+      "fonts": {
+        "google": "IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700",
+        "body": "\"IBM Plex Sans\", \"Noto Sans SC\", \"PingFang SC\", \"Microsoft YaHei\", system-ui, sans-serif",
+        "mono": "\"IBM Plex Mono\", \"Cascadia Mono\", Consolas, \"Noto Sans SC\", monospace"
+      }
+    }
+  ]
+}

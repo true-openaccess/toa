@@ -1,0 +1,203 @@
+<!doctype html>
+<!-- The page of the reference tool, toa. The commands, their options and the exit codes follow the
+     output of toa --help (toa 0.1.0); commands not in the tool yet are listed apart as planned.
+     Section numbers link to the standard. The same conventions as index.html. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>toa CLI · True-OpenAccess</title>
+<meta name="description" content="Build and use toa, the reference CLI for TOA 0.1.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>:root{--sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;--mono:"IBM Plex Mono", "Cascadia Mono", "SFMono-Regular", Consolas, monospace;}</style>
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+<div class="preview-bar"><div class="wrap">Mockup of the site, phase 2: the home page, the standard, the tool, agents, translation status. The standard&#x27;s downloads are left out of the mockup.</div></div>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="TOA home">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="8" width="12" height="12" rx="2" fill="var(--accent)"/></svg>
+      TOA <small>True-OpenAccess</small>
+    </a>
+    <nav class="nav" aria-label="Pages">
+      <a href="index.html">Overview</a>
+      <a href="spec/0.1/">Standard</a>
+      <a class="on" href="tools.html" aria-current="page">Tools</a>
+      <a href="agents.html">Agents</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+    <div class="top-tools">
+      <details class="lang">
+        <summary class="btn small" aria-label="Choose language">
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 8h13M8 1.5c2 2 2.8 4.2 2.8 6.5S10 12.5 8 14.5C6 12.5 5.2 10.3 5.2 8S6 3.5 8 1.5z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+          EN
+        </summary>
+        <div class="lang-list">
+          <a href="../en/tools.html" lang="en" aria-current="true">English <span class="code">EN</span></a>
+          <a href="../zh/tools.html" lang="zh-CN">简体中文 <span class="code">ZH · preview</span></a>
+        </div>
+      </details>
+      <button id="theme-btn" class="btn small" type="button" aria-label="Switch to dark theme" data-dark="Switch to dark theme" data-light="Switch to light theme">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13z" fill="currentColor"/><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        Theme
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap doc">
+    <nav class="toc card" aria-label="On this page">
+      <div class="card-head"><h3>On this page</h3></div>
+      <div class="card-body">
+        <ol>
+          <li><a href="#build"><span class="n">1</span>Build from source</a></li>
+          <li><a href="#git"><span class="n">2</span>Git integration</a></li>
+          <li><a href="#library"><span class="n">3</span>Publishing a library</a></li>
+          <li><a href="#commands"><span class="n">4</span>Commands</a></li>
+          <li><a href="#options"><span class="n">5</span>Options and exit codes</a></li>
+          <li><a href="#planned"><span class="n">6</span>Planned commands</a></li>
+        </ol>
+      </div>
+    </nav>
+
+    <div class="doc-main">
+      <div class="card doc-head">
+        <div class="card-body">
+          <div class="kicker" style="margin:0">Reference tool</div>
+          <h1><code>toa</code> CLI</h1>
+          <p>Standalone CLI (Windows, Linux, macOS) implementing TOA 0.1 to hash, verify, seal, publish, and fetch objects. MIT-licensed.</p>
+          <div class="rev">
+            <span class="pill draft">Not released</span>
+            <span class="mono">toa 0.1.0 (TOA 0.1)</span>
+          </div>
+          <div class="notice">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5l6.8 12H1.2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6.2v3.6M8 11.6v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <p>Prebuilt binaries are not yet available. Build from source below (takes a few minutes).</p>
+          </div>
+        </div>
+      </div>
+
+      <article class="card prose">
+        <h2 id="build"><span class="sec">1</span>Build from source</h2>
+        <p>Requires Rust 1.85+ and cargo (install both via <a href="https://rustup.rs">rustup</a>):</p>
+<pre><code>git clone https://github.com/true-openaccess/toa.git
+cd toa
+cargo build --release -p toa-cli</code></pre>
+        <p>Builds a standalone binary at <code>target/release/toa</code> (<code>toa.exe</code> on Windows). Or install to PATH via cargo:</p>
+<pre><code>cargo install --path crates/toa-cli</code></pre>
+        <p>Verify the build:</p>
+<pre><code>$ toa --version
+toa 0.1.0 (TOA 0.1)</code></pre>
+
+        <h2 id="git"><span class="sec">2</span>Git integration</h2>
+        <p>TOA does not need git: <code>toa</code> computes git-compatible tree hashes itself. A local library can be any directory; a git repository is the easiest way to share one publicly.</p>
+        <table>
+          <thead><tr><th><code>--git=</code></th><th>Behavior</th></tr></thead>
+          <tbody>
+            <tr><td><code>auto</code></td><td>Default: uses system git (2.25+) if available, otherwise built-in git.</td></tr>
+            <tr><td><code>system</code></td><td>System git from PATH.</td></tr>
+            <tr><td><code>builtin</code></td><td>Built-in git inside <code>toa</code> for reading and fetching; sealing hashes files only, and committing requires system git.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="library"><span class="sec">3</span>Publishing a library</h2>
+        <p>Public libraries are git repositories storing objects and the library list on the publication branch (default: <code>main</code>). Add a root <code>.gitattributes</code> to preserve exact bytes—otherwise library checks fail with <code>E_LIB_ATTRIBUTES</code>:</p>
+<pre><code>* -text</code></pre>
+        <p>First publication from a directory with drafts and <code>.gitattributes</code>:</p>
+<pre><code>git init -b main
+toa seal             # seal drafts into hash-named objects
+toa publish --commit  # update lists, commit, and run library check
+git push              # push manually (toa never pushes)</code></pre>
+        <p>Before <code>toa seal</code>, use <code>toa status</code> to list drafts and <code>--dry-run</code> to preview changes.</p>
+
+        <h2 id="commands"><span class="sec">4</span>Commands</h2>
+        <p>Matches <code>toa --help</code>; numbers link to <a href="spec/0.1/">standard</a> sections.</p>
+
+        <h3>Objects</h3>
+        <table class="cmds">
+          <tbody>
+            <tr><td><code>toa hash <span class="nw">[--sha256]</span> DIR...</code></td><td>Print each directory's tree hash (fails on malformed object trees). <a class="ref" href="spec/0.1/#2.2">2.2</a></td></tr>
+            <tr><td><code>toa verify <span class="nw">[--types]</span> DIR...</code></td><td>Verify object directories from files: tree structure, manifest, type/prefix match, and hash. <code>--types</code> adds standalone type-specification checks. <a class="ref" href="spec/0.1/#7.4">7.4</a></td></tr>
+            <tr><td><code>toa seal <span class="nw">[DIR]</span> <span class="nw">[--dry-run]</span> <span class="nw">[--workspace FILE]</span></code></td><td>Atomically seal all drafts under DIR: name each by its contents, and write its history and source list. <a class="ref" href="spec/0.1/#7.1">7.1</a></td></tr>
+            <tr><td><code>toa derive NAME|DIR <span class="nw">[--tag TAG]</span> <span class="nw">[--into DIR]</span> <span class="nw">[--dry-run]</span> <span class="nw">[--workspace FILE]</span> <span class="nw">[--offline]</span> <span class="nw">[--allow-host HOST]...</span> <span class="nw">[--yes]</span></code></td><td>Copy an object into a new draft whose <code>base</code> names it. The object is found and verified as <code>toa fetch</code> does, or taken from its directory; its files are copied except <code>history.json</code>. The draft is <code>&lt;prefix&gt;_draft-&lt;tag&gt;</code>: the tag is <code>--tag</code>, else the manifest's name. Needs no git. <a class="ref" href="spec/0.1/#3.4">3.4</a></td></tr>
+            <tr><td><code>toa unseal NAME <span class="nw">[--branch B]</span></code></td><td>Revert an unpublished object (and unpublished dependents) back to drafts. <a class="ref" href="spec/0.1/#7.1">7.1</a></td></tr>
+            <tr><td><code>toa status <span class="nw">[--branch B]</span></code></td><td>Read-only summary of drafts, hash mismatches, unpublished objects, and missing published objects. <a class="ref" href="spec/0.1/#7.1">7.1</a></td></tr>
+          </tbody>
+        </table>
+
+        <h3>Libraries</h3>
+        <table class="cmds">
+          <tbody>
+            <tr><td><code>toa publish <span class="nw">[--to ADDRESS]</span> <span class="nw">[--branch B]</span> <span class="nw">[--commit [--sign] | --dry-run]</span> <span class="nw">[--workspace FILE]</span> <span class="nw">[--volumes]</span> <span class="nw">[--keep-latest]</span></code></td><td>Confirm no drafts, verify new objects, tidy source lists, and rebuild the library list. <code>--commit</code> commits and runs the library check (never pushes). Latest marks move to the new generations, and new series get one, unless <code>--keep-latest</code>. <a class="ref" href="spec/0.1/#7.2">7.2</a></td></tr>
+            <tr><td><code>toa latest <span class="nw">NAME|PATH... | --all</span> <span class="nw">[--off]</span> <span class="nw">[--branch B]</span> <span class="nw">[--commit [--sign] | --dry-run]</span></code></td><td>Mark objects latest in the library list, taking the mark from the other generations of their series in the same lineage; <code>--off</code> clears it. <code>--all</code> marks the newest generation of every series without a mark, for objects published before <code>toa publish</code> gave marks. <a class="ref" href="spec/0.1/#5.2">5.2</a></td></tr>
+            <tr><td><code>toa check <span class="nw">[--rev R]</span> <span class="nw">[--base B | --no-base]</span> <span class="nw">[--branch NAME]</span> <span class="nw">[--workspace FILE]</span></code></td><td>Run library checks on a commit (default: HEAD) against the publication branch tip. <a class="ref" href="spec/0.1/#6.4">6.4</a></td></tr>
+            <tr><td><code>toa remove NAME|PATH <span class="nw">[--record]</span> <span class="nw">[--reason TEXT]</span> <span class="nw">[--to ADDRESS]</span> <span class="nw">[--keep-notes]</span> <span class="nw">[--branch B]</span> <span class="nw">[--dry-run]</span></code></td><td>Remove an object copy and its sidecar files. <code>--record</code> leaves a removal record pointing to other sources. <a class="ref" href="spec/0.1/#6.5">6.5</a></td></tr>
+            <tr><td><code>toa source check FILE...</code></td><td>Validate source lists against strict publication-branch rules. <a class="ref" href="spec/0.1/#5.1">5.1</a></td></tr>
+          </tbody>
+        </table>
+
+        <h3>Retrieval &amp; indexing</h3>
+        <table class="cmds">
+          <tbody>
+            <tr><td><code>toa fetch NAME... <span class="nw">[--into DIR]</span> <span class="nw">[--workspace FILE]</span> <span class="nw">[--offline]</span> <span class="nw">[--allow-host HOST]...</span> <span class="nw">[--yes]</span></code></td><td>Fetch objects by name from local storage, then workspace-list sources, verifying files before writing. Unlisted hosts prompt or require <code>--allow-host</code>. <a class="ref" href="spec/0.1/#7.3">7.3</a></td></tr>
+            <tr><td><code>toa cat NAME PATH <span class="nw">[--workspace FILE]</span> <span class="nw">[--offline]</span> <span class="nw">[--allow-host HOST]...</span></code></td><td>Locate and verify an object (like <code>toa fetch</code>), then print one file to stdout.</td></tr>
+            <tr><td><code>toa index <span class="nw">[--workspace FILE]</span> <span class="nw">[--out DIR]</span> <span class="nw">[--full]</span> <span class="nw">[--follow-includes]</span> <span class="nw">[--offline]</span> <span class="nw">[--allow-host HOST]...</span></code></td><td>Index all libraries included in the workspace list (non-interactive). <a class="ref" href="spec/0.1/#8.2">8.2</a></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="options"><span class="sec">5</span>Options and exit codes</h2>
+        <table>
+          <tbody>
+            <tr><td><code>--json</code></td><td>Emit JSON Lines to stdout for scripts and agents.</td></tr>
+            <tr><td><code>-C DIR</code></td><td>Run with DIR as working directory.</td></tr>
+            <tr><td><code>--git=auto|system|builtin</code></td><td>Select git backend; see <a href="#git">Git integration</a>.</td></tr>
+            <tr><td><code>--version</code>, <code>--help</code></td><td>Print tool/TOA version or help.</td></tr>
+          </tbody>
+        </table>
+        <table>
+          <thead><tr><th>Exit code</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>0</code></td><td>Success.</td></tr>
+            <tr><td><code>1</code></td><td>Problems found.</td></tr>
+            <tr><td><code>2</code></td><td>Usage error.</td></tr>
+            <tr><td><code>3</code></td><td>Runtime error (missing required git or unreadable files).</td></tr>
+            <tr><td><code>4</code></td><td>Fetch failed (not found, offline, or host disallowed).</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="planned"><span class="sec">6</span>Planned commands</h2>
+        <p>Not yet implemented. Until <code>toa new</code> is, write a new draft directory by hand; to start from an existing object, use <code>toa derive</code>.</p>
+        <table class="cmds">
+          <tbody>
+            <tr><td><code>toa new</code> <span class="pill plain">planned</span></td><td>Scaffold a new draft with a template manifest.</td></tr>
+            <tr><td><code>toa show</code>, <code>toa tree</code> <span class="pill plain">planned</span></td><td>Inspect manifest fields, references, and sidecar files; display the dependency tree.</td></tr>
+            <tr><td><code>toa where</code>, <code>toa used-by</code>, <code>toa updates</code> <span class="pill plain">planned</span></td><td>Locate sources; list reverse references; check for newer generations.</td></tr>
+            <tr><td><code>toa catalog</code>, <code>toa note</code>, <code>toa source expand</code> <span class="pill plain">planned</span></td><td>Rebuild the library list; attach a note; expand included source lists.</td></tr>
+            <tr><td><code>toa hook install</code> <span class="pill plain">planned</span></td><td>Install an optional check-only commit hook.</td></tr>
+          </tbody>
+        </table>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>TOA, True-OpenAccess. Code MIT · text CC-BY-4.0 · data CC0-1.0. The English text of the standard is normative.</div>
+    <nav aria-label="Footer">
+      <a href="spec/0.1/">Standard</a>
+      <a href="tools.html">Tools</a>
+      <a href="agents.html">Agents</a>
+      <a href="../llms.txt">llms.txt</a>
+      <a href="translation.html">Translation status</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

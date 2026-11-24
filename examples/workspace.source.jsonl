@@ -1,0 +1,5 @@
+{"toa": "source/1"}
+{"include": "library.source.jsonl", "group": "official", "branch": "main", "sources": [{"git": "https://example.org/toa-examples/official.git"}, {"local": "official"}]}
+{"include": "library.source.jsonl", "group": "lee", "branch": "main", "sources": [{"git": "https://example.org/toa-examples/lee.git"}, {"local": "lee"}]}
+{"include": "library.source.jsonl", "group": "alice", "branch": "main", "sources": [{"git": "https://example.org/toa-examples/alice.git"}, {"local": "alice"}]}
+{"include": "library.source.jsonl", "group": "official-chen", "branch": "main", "sources": [{"git": "https://example.org/toa-examples/official-chen.git"}, {"local": "official-chen"}]}

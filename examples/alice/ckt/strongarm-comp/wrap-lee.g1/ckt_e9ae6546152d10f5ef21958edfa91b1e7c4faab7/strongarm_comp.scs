@@ -1,0 +1,4 @@
+// A StrongARM comparator made of Lee's dynamic latch comparator
+subckt strongarm_comp inp inn clk outp outn vdd vss
+  xlatch (inp inn clk outp outn vdd vss) dyn_latch_cmp
+ends strongarm_comp

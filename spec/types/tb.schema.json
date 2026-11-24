@@ -1,0 +1,355 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TOA type tb: testbench",
+  "description": "The fields of the manifest toa.yaml of an object of type tb, checked when it is sealed. Readers ignore fields they do not know (3.2.4). Text: types/en/tb.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "license",
+    "ifc",
+    "name",
+    "files",
+    "run",
+    "analyze",
+    "metrics"
+  ],
+  "properties": {
+    "type": {
+      "const": "tb",
+      "description": "The type: the prefix of the object name (3.2.1)."
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "description": "SPDX licence expression of the whole object (3.2.2)."
+    },
+    "author": {
+      "type": "string",
+      "description": "A credit in free text; no proof of identity."
+    },
+    "base": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^tb_[0-9a-f]{40}$"
+      },
+      "description": "The objects of the same type this object was directly derived from (3.4)."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "A title of one line."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What the object is, in a paragraph or a few."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Words to find the object by."
+    },
+    "ifc": {
+      "type": "string",
+      "pattern": "^ifc_[0-9a-f]{40}$"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^tb_[a-z0-9_]{1,36}$"
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "netlist"
+      ],
+      "properties": {
+        "netlist": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+            "maxLength": 80
+          }
+        },
+        "va": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+            "maxLength": 80
+          }
+        },
+        "rtl": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+            "maxLength": 80
+          }
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+            "maxLength": 80
+          }
+        },
+        "extras": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+            "maxLength": 80
+          }
+        }
+      }
+    },
+    "external": {
+      "type": "array",
+      "description": "External files the object needs but does not carry (3.5).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "role"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{0,31}$",
+            "description": "modelfile, techfile, other, or another word: an open list (3.5)."
+          },
+          "process": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{0,39}$"
+          },
+          "file": {
+            "type": "string",
+            "pattern": "^[^/\\\\]+$",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string"
+          },
+          "match": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "simulators": {
+      "type": "array",
+      "description": "Simulators the author ran it with; for reference only.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "run": {
+      "type": "string",
+      "minLength": 1
+    },
+    "analyze": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entry",
+        "python"
+      ],
+      "properties": {
+        "entry": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+          "maxLength": 80
+        },
+        "python": {
+          "type": "string"
+        },
+        "requirements": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}(/[A-Za-z0-9_][A-Za-z0-9._-]{0,63}){0,6}$",
+          "maxLength": 80
+        }
+      }
+    },
+    "metrics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "unit",
+          "better",
+          "tolerance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,31}$"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "better": {
+            "enum": [
+              "lower",
+              "higher",
+              "none"
+            ]
+          },
+          "tolerance": {
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "properties": {
+              "abs": {
+                "type": "number",
+                "minimum": 0
+              },
+              "rel": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "unit": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "presets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "parameters": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": [
+                    "number",
+                    "string",
+                    "boolean"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": [
+                      "number",
+                      "string",
+                      "boolean"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "options": {
+            "type": "object"
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "pattern": "^[^/\\\\]+$",
+                  "minLength": 1
+                },
+                "section": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "version": {
+                  "type": "string"
+                },
+                "match": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "process": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_-]{0,39}$"
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

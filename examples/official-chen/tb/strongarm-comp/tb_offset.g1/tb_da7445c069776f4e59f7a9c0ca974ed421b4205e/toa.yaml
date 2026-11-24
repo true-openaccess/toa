@@ -1,0 +1,16 @@
+type: tb
+license: CC0-1.0
+ifc: ifc_12ad57c51e8f36cac47a4b8a53f2949315f190f5
+name: tb_offset
+title: Input-referred offset by a slow ramp
+files:
+  netlist:
+  - tb.scs
+simulators:
+- {name: spectre, version: '21.1'}
+run: spectre tb.scs +aps -format psfxl -raw psf
+analyze: {entry: analyze.py, python: '>=3.10'}
+metrics:
+- {id: offset, unit: mV, better: lower, tolerance: {abs: 0.2}}
+parameters:
+  vdd: {unit: V, description: Supply voltage}

@@ -1,0 +1,12 @@
+type: ckt
+license: CC0-1.0
+author: Lee
+ifc: ifc_4915f191ad95b57dd34a628ab49030a457d91398
+base: [ckt_3c536534c19f4fd08f986bf49cac879d98f62da4]
+name: lee-sky130
+form: transistor
+specifications: {process: sky130}
+description: A dynamic latch comparator with a wider input pair for less offset.
+files:
+  netlist:
+  - dyn_latch_cmp.scs

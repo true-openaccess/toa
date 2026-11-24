@@ -1,0 +1,12 @@
+type: ckt
+license: CC0-1.0
+author: Chen Wei
+ifc: ifc_12ad57c51e8f36cac47a4b8a53f2949315f190f5
+base: [ckt_876f99c0ddb9fae4aabf6b8b3b7fd59de24e7e2b]
+name: sky130-lowkick
+form: transistor
+specifications: {process: sky130}
+description: The StrongARM latch with switches that cut kickback to the inputs.
+files:
+  netlist:
+  - strongarm_comp.scs
