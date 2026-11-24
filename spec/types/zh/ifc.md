@@ -1,4 +1,4 @@
-<!-- translated from en/ifc.md sha256:fa717c14d716 -->
+<!-- translated from en/ifc.md sha256:8dbdeffcb5ad -->
 # 类型规格 `ifc`：模块定义
 
 模块定义说明一个模块是什么：它的名字、它做什么、它的引脚，就像子电路的头。它没有工艺，也没有指标：那些属于它的电路网表和测试用例。前缀是 `ifc`。本规格需要 TOA `0.1` 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 `types/ifc.schema.json`。
@@ -13,6 +13,7 @@
 | `name` | 必须 | `[a-z][a-z0-9]{0,39}(-[a-z0-9]+)*` | 模块定义的短名，例如 `strongarm-comp`。名字不必唯一：两个模块定义可以同名 |
 | `title` | 必须 | 不超过 200 个字符的字符串 | 一行标题。别的类型可以不写（3.2.1） |
 | `pins` | 必须 | 一个或多个引脚的列表 | 它的引脚，按子电路端口的顺序 |
+| `probes` | 可以 | `{name, description}` 的列表 | 测试用例可以观测的模块内部结点（见下） |
 
 每个引脚：
 
@@ -25,6 +26,7 @@
 | `description` | 可以 | 字符串 | 它做什么用 |
 
 - **总线：** `width` 为 N 的引脚，代表子电路里前后相接的 N 个端口，按网表里的顺序。这些端口在网表里叫什么，例如 `LSB<5>` 或 `LSB_5`，各是哪一位，本标准都不规定：工具按位置对引脚和端口，从不按名字对。导出模块定义的工具应当把总线写成一个带 `width` 的引脚，不要每一位写一个。
+- **探针** 是测试用例可以观测的模块内部结点，例如锁存器的两个结点：`name` 的写法和引脚名一样，`description` 必须写，说明这是什么结点。探针和引脚一样，是这个模块对外的约定：这个模块定义的每个电路网表都应当有对应的网。是哪个网，模块定义和电路网表都不写：由验证记录在每次运行时写明（`evd`），测试用例只写探针名（`tb`）。
 - 模块定义不写工艺，也不声明外部文件（3.5）。
 - `description`、`tags` 和 `base` 和任何类型一样可以写。
 
@@ -46,10 +48,10 @@
 
 ## 定稿时的检查
 
-- 引脚名不重复，比较时不分大小写。
+- 引脚名和探针名合在一起不重复，比较时不分大小写。
 - 有 `symbol.rnl` 时，它的端子就是这些引脚；能读 RNL 的工具检查它。
 - 除 `toa.yaml`、`symbol.rnl`、`README.md` 和 `LICENSE…` 之外，每个文件都是 `README.md` 引用的图片。
-- 修正模块定义的文字是一条说明（4.1），不是一个新的模块定义。引脚或符号变了才做新的模块定义。
+- 修正模块定义的文字是一条说明（4.1），不是一个新的模块定义。引脚、探针或符号变了才做新的模块定义。
 
 ## 可读名
 
@@ -75,4 +77,7 @@ pins:
 - {name: outn, kind: digital, direction: out}
 - {name: vdd, kind: supply}
 - {name: vss, kind: ground}
+probes:
+- {name: latch_p, description: Positive node of the regenerative latch}
+- {name: latch_n, description: Negative node of the regenerative latch}
 ```

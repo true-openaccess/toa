@@ -1,4 +1,4 @@
-<!-- translated from en/ckt.md sha256:81a7f7e9ec56 -->
+<!-- translated from en/ckt.md sha256:3c12eb1f6a08 -->
 # 类型规格 `ckt`：电路网表
 
 电路网表是一个模块定义的一种设计的一个版本：一份网表，连同它需要的文件。它引用自己所实现的模块定义，并通过 `uses` 引用它所用的其他模块定义的电路网表。前缀是 `ckt`。本规格需要 TOA `0.1` 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 `types/ckt.schema.json`。
@@ -17,7 +17,7 @@
 | `external` | 可以 | 列表 | 它需要、但不随它发布的别的外部文件（3.5） |
 | `uses` | 可以 | 映射 | 它所用的其他模块定义的电路网表（见下） |
 | `parameters` | 可以 | 名字到数、字符串或布尔值的映射 | 它的子电路的参数和默认值 |
-| `specifications` | 可以 | 映射 | 作者在任何验证之前声明的情况：电源、温度、引脚范围、拓扑 |
+| `specifications` | 可以 | 映射 | 作者在任何验证之前声明的情况：电源、温度、引脚范围、拓扑、目标 |
 | `origin` | 可以 | 映射 | 从 TOA 之外的仓库取来的设计，写它从哪里取来（见下） |
 
 - **`description`**（3.2.1）说这个设计是什么。
@@ -53,6 +53,7 @@
 
   键是子电路在网表里的名字：`[A-Za-z_][A-Za-z0-9_]{0,63}`。
 - **`specifications`：** 键自由。`process` 是一个短名字，例如 `sky130`，形如 `[a-z][a-z0-9_-]{0,39}`（3.5）。`vdd`、`temp` 和 `pins` 的每一项是一个数，或由 `min`、`nom`、`max`、`unit`、`description` 组成的映射。
+- **`specifications.targets`** 是作者定的目标：从指标全名（`<name>.<id>`，见 `tb`）到一个目标或一串目标的映射。一个目标是 `{min, max, preset}`：`min` 和 `max` 至少写一个，可以写 `preset`，即那个测试用例里这个目标适用的预设名；不写 `preset` 时，对所有预设都适用。目标不是结果，结果在验证记录里。电路网表不会变，所以改目标就是出新的一代。
 - **`origin`：** 必须写 `repo`（仓库，例如 `owner/name`）、`commit`（40 位十六进制数）、`path`、`license` 和 `authors`；可以写 `tag` 和 `files`（路径到 `{sha256, size}` 的映射）。`license` 是 `{spdx, file}`：原仓库的 SPDX 许可证表达式，和它在原仓库里的许可证文件路径。
 - **换子模块**会让它上面每一层都出一个新的电路网表（7.5）。只为跑一次仿真做的电路网表，例如把某个子模块换成理想模型，照样写 `base`，但另起一个 `name`，例如 `sky130-razavi-ideal`：它自成一支，永远不会被当成原电路网表的新版（3.4、7.5）。
 
@@ -107,4 +108,7 @@ uses:
 files:
   netlist:
   - strongarm_comp.scs
+specifications:
+  targets:
+    tb_offset.offset: {max: 2}
 ```

@@ -86,8 +86,8 @@
           <tbody>
             <tr><td>TOA 0.1 正文与附录</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">14/14</span></td></tr>
             <tr><td>类型规格</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">6/6</span></td></tr>
-            <tr><td>术语表</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">100/100</span></td></tr>
-            <tr><td>网站页面</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">326/326</span></td></tr>
+            <tr><td>术语表</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">108/108</span></td></tr>
+            <tr><td>网站页面</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">336/336</span></td></tr>
             <tr><td>共用文案</td><td class="prog ok"><span class="bar"><span style="width:100.0%"></span></span><b>100%</b> <span class="faint">24/24</span></td></tr>
           </tbody>
         </table>
@@ -136,6 +136,7 @@ python scripts/i18n/status.py check      # 检查格式</code></pre>
 <tr><td lang="en"><b>document</b><div class="faint">the type doc</div></td><td lang="zh-CN">文档</td></tr>
 <tr><td lang="en"><b>draft</b></td><td lang="zh-CN">草稿</td></tr>
 <tr><td lang="en"><b>draft name</b></td><td lang="zh-CN">草稿名</td></tr>
+<tr><td lang="en"><b>entry file</b><div class="faint">of an assembled run (7.6)</div></td><td lang="zh-CN">顶层文件<div class="faint" lang="en">input.scs or input.sp, the only file the simulator is given. Not 入口文件, which is the manifest.</div></td></tr>
 <tr><td lang="en"><b>evidence</b></td><td lang="zh-CN">关键数据<div class="faint" lang="en">Key data kept in an evidence record (验证记录), under evidence/; not raw simulation data.</div></td></tr>
 <tr><td lang="en"><b>evidence record</b><div class="faint">the type evd</div></td><td lang="zh-CN">验证记录<div class="faint" lang="en">条 for counting: 一条验证记录. Its files under evidence/ are 关键数据. 证据 stays for evidence in the general sense, such as 时间的证据.</div></td></tr>
 <tr><td lang="en"><b>expanded tree</b></td><td lang="zh-CN">展开树</td></tr>
@@ -171,7 +172,9 @@ python scripts/i18n/status.py check      # 检查格式</code></pre>
 <tr><td lang="en"><b>object line</b></td><td lang="zh-CN">对象行</td></tr>
 <tr><td lang="en"><b>object name</b></td><td lang="zh-CN">对象名</td></tr>
 <tr><td lang="en"><b>prefix</b></td><td lang="zh-CN">前缀</td></tr>
+<tr><td lang="en"><b>preset</b><div class="faint">of a testbench</div></td><td lang="zh-CN">预设<div class="faint" lang="en">One set of conditions or a list of sets, each giving one evidence record.</div></td></tr>
 <tr><td lang="en"><b>previous head</b><div class="faint">the commit the library check compares with</div></td><td lang="zh-CN">基准</td></tr>
+<tr><td lang="en"><b>probe</b><div class="faint">of an interface</div></td><td lang="zh-CN">探针<div class="faint" lang="en">A named node inside a module that testbenches may observe; an evidence record says which net it is.</div></td></tr>
 <tr><td lang="en"><b>publication branch</b></td><td lang="zh-CN">发布分支</td></tr>
 <tr><td lang="en"><b>publish</b></td><td lang="zh-CN">发布</td></tr>
 <tr><td lang="en"><b>published</b></td><td lang="zh-CN">已发布</td></tr>
@@ -183,8 +186,10 @@ python scripts/i18n/status.py check      # 检查格式</code></pre>
 <tr><td lang="en"><b>reverse lookup</b></td><td lang="zh-CN">反查</td></tr>
 <tr><td lang="en"><b>seal</b></td><td lang="zh-CN">定稿</td></tr>
 <tr><td lang="en"><b>series</b><div class="faint">the generations of one design</div></td><td lang="zh-CN">一支<div class="faint" lang="en">分支 is a git branch.</div></td></tr>
+<tr><td lang="en"><b>set of conditions</b></td><td lang="zh-CN">一组条件<div class="faint" lang="en">parameters, options and models of one run; a list of sets is 一串条件.</div></td></tr>
 <tr><td lang="en"><b>sidecar file</b></td><td lang="zh-CN">旁挂文件</td></tr>
 <tr><td lang="en"><b>signed commit</b></td><td lang="zh-CN">签名的提交<div class="faint" lang="en">A commit signed with git&#x27;s SSH or GPG signing; it shows who put an object into a library (6.3).</div></td></tr>
+<tr><td lang="en"><b>socket</b><div class="faint">of a testbench</div></td><td lang="zh-CN">socket<div class="faint" lang="en">Kept as the field name in Chinese text: the subcircuit name a testbench uses for the block measured.</div></td></tr>
 <tr><td lang="en"><b>source</b></td><td lang="zh-CN">来源<div class="faint" lang="en">Where an object can be fetched. 来历 is lineage.</div></td></tr>
 <tr><td lang="en"><b>source list</b></td><td lang="zh-CN">来源表<div class="faint" lang="en">Any file ending in .source.jsonl.</div></td></tr>
 <tr><td lang="en"><b>stamps directory</b></td><td lang="zh-CN">时间戳目录<div class="faint" lang="en">The sidecar &lt;object name&gt;.stamps/ (4.3).</div></td></tr>
@@ -193,6 +198,8 @@ python scripts/i18n/status.py check      # 检查格式</code></pre>
 <tr><td lang="en"><b>subscribe</b></td><td lang="zh-CN">订阅</td></tr>
 <tr><td lang="en"><b>superseded</b></td><td lang="zh-CN">被取代</td></tr>
 <tr><td lang="en"><b>tag</b><div class="faint">the part of a draft name after draft-</div></td><td lang="zh-CN">标签</td></tr>
+<tr><td lang="en"><b>target</b><div class="faint">of a circuit (specifications.targets)</div></td><td lang="zh-CN">目标</td></tr>
+<tr><td lang="en"><b>test plan</b></td><td lang="zh-CN">测试计划<div class="faint" lang="en">A frozen library of an interface and its testbenches; no type of its own.</div></td></tr>
 <tr><td lang="en"><b>timestamp proof</b></td><td lang="zh-CN">时间戳证明<div class="faint" lang="en">A proof by a third party that an object name existed at a time, such as an OpenTimestamps .ots file (4.3).</div></td></tr>
 <tr><td lang="en"><b>type</b><div class="faint">of an object, named by its prefix</div></td><td lang="zh-CN">类型</td></tr>
 <tr><td lang="en"><b>type directory</b></td><td lang="zh-CN">类型目录</td></tr>

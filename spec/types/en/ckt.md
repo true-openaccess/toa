@@ -16,7 +16,7 @@ Besides the common fields (3.2.1):
 | `external` | may | a list | Other external files it needs but does not carry (3.5) |
 | `uses` | may | a mapping | The circuits of other interfaces it is built from (below) |
 | `parameters` | may | a mapping from names to numbers, strings or booleans | Parameters of its subcircuit and their defaults |
-| `specifications` | may | a mapping | What the author declares of it before any verification: supply, temperature, ranges of pins, topology |
+| `specifications` | may | a mapping | What the author declares of it before any verification: supply, temperature, ranges of pins, topology, targets |
 | `origin` | may | a mapping | Where it was taken from, for a design taken from a repository outside TOA (below) |
 
 - **`description`** (3.2.1) says what this design is.
@@ -52,6 +52,7 @@ Besides the common fields (3.2.1):
 
   The key is the subcircuit's name in the netlist: `[A-Za-z_][A-Za-z0-9_]{0,63}`.
 - **`specifications`:** free keys. `process` is a short name, such as `sky130`, of the form `[a-z][a-z0-9_-]{0,39}` (3.5). `vdd`, `temp` and each entry of `pins` are a number or a mapping of `min`, `nom`, `max`, `unit` and `description`.
+- **`specifications.targets`** are what the author aims for: a mapping from full metric names (`<name>.<id>`, see `tb`) to one target or a list of targets. A target is `{min, max, preset}`: at least one of `min` and `max`, and optionally `preset`, the name of the preset of that testbench under which the target holds; without `preset`, it holds under every preset. Targets are not results, which evidence records hold. A circuit does not change, so new targets make a new generation.
 - **`origin`:** `repo` (a repository such as `owner/name`), `commit` (40 hexadecimal digits), `path`, `license` and `authors` must be written; `tag` and `files` (a mapping from paths to `{sha256, size}`) may be. `license` is `{spdx, file}`: the SPDX licence expression of the original repository, and the path of its licence file there.
 - **Changing a submodule** gives a new circuit at every level above it (7.5). A circuit made only to run one simulation, such as one with an ideal model in place of a submodule, still writes `base`, but takes a `name` of its own, such as `sky130-razavi-ideal`: it starts a series of its own and is never taken for a newer version of the original (3.4, 7.5).
 
@@ -106,4 +107,7 @@ uses:
 files:
   netlist:
   - strongarm_comp.scs
+specifications:
+  targets:
+    tb_offset.offset: {max: 2}
 ```

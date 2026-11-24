@@ -133,6 +133,17 @@
         }
       }
     },
+    "probes": {
+      "type": "object",
+      "description": "The net of the circuit tested that each probe is, in this run.",
+      "propertyNames": {
+        "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,31}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^\\S{1,200}$"
+      }
+    },
     "environment": {
       "type": "object",
       "additionalProperties": false,
@@ -381,6 +392,7 @@
           "dut": true,
           "tbs": true,
           "conditions": true,
+          "probes": true,
           "environment": true,
           "metrics": true,
           "evidence": true

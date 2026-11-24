@@ -1,7 +1,7 @@
-<!-- translated from en/evd.md sha256:6cd3a4292a4c -->
+<!-- translated from en/evd.md sha256:931374a9cdb6 -->
 # 类型规格 `evd`：验证记录
 
-验证记录是某人考察一个设计得到的东西：考察的是哪个对象、怎么考察的、在什么条件下、得到了什么。前缀是 `evd`。它的 `kind` 说明是哪一种验证记录。`0.1` 版只定义一种，`sim`：一次仿真，即在一个电路网表上运行测试用例；以后的版本可以加别的种类，例如签核检查、硅片实测和表征。本规格需要 TOA `0.1` 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 `types/evd.schema.json`。
+验证记录是某人考察一个设计得到的东西：考察的是哪个对象、怎么考察的、在什么条件下、得到了什么。前缀是 `evd`。它的 `kind` 说明是哪一种验证记录。`0.1` 版只定义一种，`sim`：一次仿真，即在一个电路网表上运行测试用例；以后的版本可以加别的种类，例如签核检查、硅片实测和表征。结果是统计量的仿真，例如 Monte Carlo 仿真，不是 `sim`：以后的版本会为它定义一个种类。本规格需要 TOA `0.1` 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 `types/evd.schema.json`。
 
 ## 字段
 
@@ -21,6 +21,7 @@
 | `dut` | 必须 | 对象名；`0.1` 里前缀为 `ckt` | 被测的对象。`0.1` 里是一个电路网表；以后的版本可以允许别的类型 |
 | `tbs` | 必须 | 一个或多个前缀为 `tb` 的对象名的列表 | 运行的测试用例 |
 | `conditions` | 必须 | 映射 | 实际运行的条件，分三格（见下） |
+| `probes` | 测试用例列了探针时 | 探针名到网的映射 | 这次运行里，每个探针是被测电路网表的哪个网（见下） |
 | `environment` | 必须 | 映射 | 环境（见下） |
 | `metrics` | 必须 | 指标全名（`<name>.<id>`，见 `tb`）到数的映射 | 分析给出的每个指标的值。没得到的指标不写 |
 | `evidence` | 可以 | `{path, kind}` 的列表，可以加 `label` | `evidence/` 下的文件（见下） |
@@ -31,6 +32,7 @@
   - `parameters`：测试用例的 `parameters` 的取值，每个是单个数、字符串或布尔值，不能是列表；
   - `options`：仿真器和求解器的设置，例如 `temp`、`reltol` 或 `errpreset`；
   - `models`：所用模型文件的列表，每项有 `file`（不含 `/` 或 `\` 的文件名），可以有 `section`（一个名字或列表）、`version`、`match`（文件里必须都出现的字符串）、`process` 和 `sha256`（3.5）。
+- **`probes`** 给 `tbs` 里各测试用例列出的每个探针，写明 `dut` 所指电路网表里的一个网：它的子电路里的网，例如 `LP`；或者更下层的网，写成一路往下的实例名加网名，用 `.` 连起来，例如 `xlatch.LP`。它只写这些探针，不多不少。和 `dut`、`conditions` 一样，它是这次运行的输入：同一个模块定义的另一个电路网表，可以给同样的测试用例另外的网。
 - **`environment`：** 必须写 `simulator`，带 `name` 和 `version`，可以带 `command`：运行它的整条命令行，选项也在里面。可以写 `pdk`（`process`、`release`）、`analysis`（`python`、`packages`）、`system`（`os`、`cpu`、`threads`）和 `note`。`environment` 里不含本机路径、主机名或用户名。
 - **`evidence`：** 文件的 `kind` 是 `spectrum`、`curve`、`waveform`、`table` 或 `json`。它不是验证记录本身的 `kind`。
 - **`description`**（3.2.1）写读者还应当知道的事，例如某个指标为什么没得到。
@@ -71,6 +73,7 @@
 3. 找得到测试用例时，`metrics` 的每个键都是其中某个测试用例的某个指标的 `<name>.<id>`。
 4. 找得到对象时：`dut` 是一个电路网表；每个测试用例测的是 `dut` 的模块定义；`tree` 就是 `dut` 的展开树，每个文件哈希都一致。
 5. 一棵展开树里，每个模块定义只有一个电路网表：同一个模块定义的两个电路网表是同一个子电路的两份定义，仿真会拒绝。
+6. 找得到测试用例时，`probes` 写的恰好是它们列出的探针。
 
 ## 可读名
 
@@ -88,6 +91,7 @@ dut: ckt_1ec6249c0d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a
 tbs:
 - tb_ad96a1470e2d4c6b8a9f1e3d5c7b9a0e2f4d6c8b
 author: Alice Zhang
+probes: {latch_p: LP, latch_n: LM}
 conditions:
   parameters: {vdd: 1.8}
   options: {temp: 27}

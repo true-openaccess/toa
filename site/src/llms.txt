@@ -10,6 +10,7 @@
 - An object refers to others by their full names. Its `base` field names the objects it was derived from; `history.json` in the object carries its lineage.
 - An object not sealed yet is a draft, named like `ckt_draft-mine`. `toa seal` gives it the name of its contents.
 - A library is a directory of objects with a library list, `library.source.jsonl`. Beside each object, `<name>.source.jsonl` says where the objects it needs can be found. A library shared in public is a git repository; its publication branch is `main` by default, and its root `.gitattributes` holds `* -text`.
+- A name commits to its content, so results can be published before the design: a paper cites a circuit's name and the metrics of its evidence records, the objects are published later, and anyone can verify the names then. A reference to an object not yet published is reported as not found; the standard does not forbid it, though a public library may refuse it (3.3, 6.4). A timestamp proof in `<name>.stamps/` can date a name (4.3). A name shows only that the content has not changed, not that the results hold.
 
 ## Rules for agents
 

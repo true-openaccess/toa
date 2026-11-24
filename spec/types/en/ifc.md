@@ -12,6 +12,7 @@ Besides the common fields (3.2.1):
 | `name` | must | `[a-z][a-z0-9]{0,39}(-[a-z0-9]+)*` | The short name of the interface, such as `strongarm-comp`. Names need not be unique: two interfaces may share one |
 | `title` | must | a string of at most 200 characters | A title of one line. For other types it may be left out (3.2.1) |
 | `pins` | must | a list of one or more pins | Its pins, in the order of the subcircuit's ports |
+| `probes` | may | a list of `{name, description}` | Nodes inside the module that testbenches may observe (below) |
 
 Each pin:
 
@@ -24,6 +25,7 @@ Each pin:
 | `description` | may | a string | What it is for |
 
 - **A bus:** a pin of `width` N stands for N ports of the subcircuit that follow each other, in the order of the netlist. This standard does not say what the ports are called in a netlist, such as `LSB<5>` or `LSB_5`, nor which bit each is: tools match pins and ports by position, never by name. A tool that exports an interface should write a bus as one pin with `width`, not as one pin per bit.
+- **Probes** are nodes inside the module that testbenches may observe, such as the two nodes of a latch: `name` is of the form of a pin name, and `description`, which must be written, says what the node is. Like the pins, they are part of what the module promises: every circuit of the interface should have a net for each. Which net it is, neither the interface nor the circuit says: an evidence record says it for each run (`evd`), and testbenches name only the probe (`tb`).
 - An interface names no process and declares no external files (3.5).
 - `description`, `tags` and `base` may be written as for any type.
 
@@ -46,10 +48,10 @@ Each pin:
 
 ## Checks at sealing
 
-- The names of pins are unique, compared without regard to case.
+- The names of pins and probes together are unique, compared without regard to case.
 - When `symbol.rnl` is present, its terminals are the pins, and a tool that can read RNL checks it.
 - Every file other than `toa.yaml`, `symbol.rnl`, `README.md` and `LICENSE…` is an image that `README.md` refers to.
-- A correction to the text of an interface is a note (4.1), not a new interface. A new interface is made when its pins or its symbol change.
+- A correction to the text of an interface is a note (4.1), not a new interface. A new interface is made when its pins, its probes or its symbol change.
 
 ## Readable name
 
@@ -75,4 +77,7 @@ pins:
 - {name: outn, kind: digital, direction: out}
 - {name: vdd, kind: supply}
 - {name: vss, kind: ground}
+probes:
+- {name: latch_p, description: Positive node of the regenerative latch}
+- {name: latch_n, description: Negative node of the regenerative latch}
 ```

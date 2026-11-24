@@ -45,6 +45,7 @@ A frozen library adds:
 - **A workspace list may include the list of members directly,** by an include line whose `include` is its path in a library (5.1, 8.1). Groups and readable names are shown as for any source list.
 - **Fetching a frozen library** means fetching it, its members and the objects they need. The source list beside it lists them (5.2).
 - **The library list and a frozen library differ:** the library list changes, as objects are added, removed and marked; the list of members never changes, and only says which objects there were at one moment, and where to find them.
+- **A test plan** is a frozen library whose members are an interface and the testbenches that measure it, with circuits when needed. There is no type of its own: each testbench can be run alone, so the conditions they share are written in the presets of each.
 - Unlike a git tag, a frozen library is an object: it does not change once sealed, other objects can refer to it, it can take members from several libraries, and it does not depend on any one repository still being there.
 - **Source lists** follow frozen libraries further, through the objects of `members.source.jsonl` (5.2).
 

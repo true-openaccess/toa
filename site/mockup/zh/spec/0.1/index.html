@@ -144,7 +144,7 @@
           <h1>TOA 0.1（中文版）</h1>
           <p>定义 TOA 对象、命名、入口文件、来源表、库、工作区及操作，任何工具均可据此独立实现。</p>
           <div class="rev">
-            <span>尚未发布 · 2026-11-24 · 1102dc1</span>
+            <span>尚未发布 · 2026-11-24 · a32636d</span>
             <span class="faint">版本：<a href="../0.1/">0.1</a></span>
           </div>
           <ul class="downloads">
@@ -233,7 +233,7 @@
 </tr>
 <tr>
 <td>组装（assemble）</td>
-<td>把一个电路网表连同它的展开树变成一组可以直接仿真的文件（<a href="#7.6" class="ref">7.6</a>）</td>
+<td>把一个电路网表连同它的展开树变成一组可以直接仿真的文件，单独组装，或者和一个测试用例及一次运行的条件一起组装（<a href="#7.6" class="ref">7.6</a>）</td>
 </tr>
 <tr>
 <td>检查（check）</td>
@@ -1596,7 +1596,7 @@ library.source.jsonl</code></pre>
 <li><strong>验证记录不能走捷径：</strong> 验证记录测的是它那个电路网表原样的展开树，不能用某个子模块的别的版本代替树里写的那个（<code>evd</code> 类型规格）。</li>
 </ul>
 <h3 id="7.6"><span class="sec">7.6</span>组装<a href="#7.6" class="anchor" aria-label="Link to 7.6">#</a></h3>
-<p>组装把一个电路网表连同它的展开树变成一组可以直接仿真的文件。</p>
+<p>组装把一个电路网表连同它的展开树变成一组可以直接仿真的文件。运行测试用例时，工具把它和被测电路网表组装在一起，每组条件组装一次。</p>
 <ul>
 <li><p>按引用展开整棵树；同一个对象只展开一次；每个对象展开之前先核对（<a href="#7.4" class="ref">7.4</a>）。</p></li>
 <li><p>子电路重名时由工具改名。</p></li>
@@ -1621,6 +1621,77 @@ library.source.jsonl</code></pre>
 <li>对象的每个 <code>external</code>，和映射表的 <code>external</code> 里 <code>name</code> 相同的条目对上；条目写了 <code>process</code> 的，还要和这个外部文件的 <code>process</code>（没写的话，和它所在对象写的工艺）相同。</li>
 <li><code>match</code> 里的每个字符串都必须在它的文件里出现。</li>
 </ul></li>
+<li><p><strong>组装一次运行。</strong> 种类为 <code>sim</code> 的验证记录（<code>evd</code>），是在一组条件下把它的每个测试用例在被测电路网表上各运行一次得到的。对每个测试用例，工具写一个目录，里面有：</p>
+<ul>
+<li><code>tb/</code>：测试用例的文件，路径和在对象里一样；</li>
+<li><code>ckt/&lt;object name&gt;/</code>：展开树里每个电路网表的文件，路径和在对象里一样；</li>
+<li>顶层文件，也是交给仿真器的唯一文件：测试用例的第一份网表是 Spectre 的，叫 <code>input.scs</code>；是 SPICE 的，叫 <code>input.sp</code>。文件名以 <code>.scs</code> 结尾的网表是 Spectre 的，其余都是 SPICE 的，和 Spectre 自己读被包含的文件时一样。</li>
+</ul></li>
+<li><p><strong>顶层文件</strong> 按下面的顺序放这些内容，不放别的：</p>
+<ol type="1">
+<li>第一行：Spectre 写 <code>simulator lang=spectre</code>；SPICE 的第一行是标题，写一行注释；</li>
+<li>条件里的模型文件（<code>models</code>），按本机映射表给的文件，各带它的 section；</li>
+<li>展开树里各电路网表的网表，按 <code>lock.json</code> 里 <code>tree</code> 的顺序，所以被测电路网表在最前；每个电路网表按 <code>files.netlist</code> 的顺序；</li>
+<li>测试用例的第一份网表；</li>
+<li>这次运行的条件：测试用例各参数的值和仿真器的选项；</li>
+<li>SPICE 最后一行写 <code>.end</code>。</li>
+</ol></li>
+<li><p><strong>各行的写法：</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>行</th>
+<th>Spectre</th>
+<th>SPICE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型文件</td>
+<td><code>include "&lt;path&gt;"</code></td>
+<td><code>.include "&lt;path&gt;"</code></td>
+</tr>
+<tr>
+<td>带 section 的模型文件</td>
+<td><code>include "&lt;path&gt;" section=&lt;section&gt;</code>，每个 section 一行</td>
+<td><code>.lib "&lt;path&gt;" &lt;section&gt;</code>，每个 section 一行</td>
+</tr>
+<tr>
+<td>对象里的网表</td>
+<td><code>include "&lt;path&gt;"</code></td>
+<td><code>.include "&lt;path&gt;"</code></td>
+</tr>
+<tr>
+<td>参数</td>
+<td>一条语句 <code>parameters &lt;name&gt;=&lt;value&gt; …</code></td>
+<td>一条语句 <code>.param &lt;name&gt;=&lt;value&gt; …</code></td>
+</tr>
+<tr>
+<td>选项 <code>temp</code></td>
+<td>和别的选项写在一起</td>
+<td><code>.temp &lt;value&gt;</code></td>
+</tr>
+<tr>
+<td>别的选项</td>
+<td>一条语句 <code>toaConditions options &lt;name&gt;=&lt;value&gt; …</code></td>
+<td>一条语句 <code>.options &lt;name&gt;=&lt;value&gt; …</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>网表的路径相对于这个目录；模型文件的路径就是本机映射表里的路径。写的 section 是映射表的 <code>sections</code> 给条件里那个 section 对应的名字，没给的就照写条件里的 section。</li>
+<li>数写成十进制数，布尔值写成 <code>1</code> 或 <code>0</code>，字符串照原样写：作者按仿真器要的写法写它。</li>
+<li>测试用例的网表不声明它的参数，也不设置条件里的选项（<code>tb</code>）；声明或设置了的，工具停下。</li>
+<li>Spectre 的运行里，SPICE 的网表按文件名当 SPICE 读。SPICE 的运行里不能用 Spectre 的网表：工具停下。</li>
+</ul></li>
+<li><p><strong>被测块：</strong> 在目录里被测电路网表的网表副本里，它的子电路改用测试用例的 <code>socket</code> 里的名字；端口仍按模块定义的引脚顺序。树里别的子电路，名字和它重了、彼此重了、或和测试用例定义的子电路重了时，改名。</p></li>
+<li><p><strong>探针：</strong> 在测试用例的网表副本里，每个 <code>&lt;instance&gt;.&lt;probe&gt;</code>（<code>tb</code>）换成 <code>&lt;instance&gt;.&lt;net&gt;</code>，网取验证记录的 <code>probes</code> 给的那个。运行之前，工具核对每个这样的网都在被测电路网表里：是它的子电路里的网，或者对更下层的网，一路往下的实例和这个网都在。少了某个网，或者工具判断不了，就停下：绝不带着一个不知接到哪里的探针运行。</p></li>
+<li><p><strong>结果</strong> 按测试用例的 <code>analyze.results</code> 的格式写进目录 <code>&lt;results&gt;</code>，连同 <code>conditions.json</code>，然后调用分析脚本（<code>tb</code>）。</p></li>
 <li><p>工具不得自动执行对象里带的命令，不得自动安装对象里列的依赖（第 11 章）。</p></li>
 </ul>
 <h2 id="8"><span class="sec">8</span>工作区清单和索引<a href="#8" class="anchor" aria-label="Link to 8">#</a></h2>
@@ -2050,6 +2121,12 @@ library.source.jsonl</code></pre>
 <td>一个或多个引脚的列表</td>
 <td>它的引脚，按子电路端口的顺序</td>
 </tr>
+<tr>
+<td><code>probes</code></td>
+<td>可以</td>
+<td><code>{name, description}</code> 的列表</td>
+<td>测试用例可以观测的模块内部结点（见下）</td>
+</tr>
 </tbody>
 </table>
 <p>每个引脚：</p>
@@ -2103,6 +2180,7 @@ library.source.jsonl</code></pre>
 </table>
 <ul>
 <li><strong>总线：</strong> <code>width</code> 为 N 的引脚，代表子电路里前后相接的 N 个端口，按网表里的顺序。这些端口在网表里叫什么，例如 <code>LSB&lt;5&gt;</code> 或 <code>LSB_5</code>，各是哪一位，本标准都不规定：工具按位置对引脚和端口，从不按名字对。导出模块定义的工具应当把总线写成一个带 <code>width</code> 的引脚，不要每一位写一个。</li>
+<li><strong>探针</strong> 是测试用例可以观测的模块内部结点，例如锁存器的两个结点：<code>name</code> 的写法和引脚名一样，<code>description</code> 必须写，说明这是什么结点。探针和引脚一样，是这个模块对外的约定：这个模块定义的每个电路网表都应当有对应的网。是哪个网，模块定义和电路网表都不写：由验证记录在每次运行时写明（<code>evd</code>），测试用例只写探针名（<code>tb</code>）。</li>
 <li>模块定义不写工艺，也不声明外部文件（<a href="#3.5" class="ref">3.5</a>）。</li>
 <li><code>description</code>、<code>tags</code> 和 <code>base</code> 和任何类型一样可以写。</li>
 </ul>
@@ -2157,10 +2235,10 @@ library.source.jsonl</code></pre>
 </ul>
 <h3 class="type-spec" id="types-ifc-3">定稿时的检查</h3>
 <ul>
-<li>引脚名不重复，比较时不分大小写。</li>
+<li>引脚名和探针名合在一起不重复，比较时不分大小写。</li>
 <li>有 <code>symbol.rnl</code> 时，它的端子就是这些引脚；能读 RNL 的工具检查它。</li>
 <li>除 <code>toa.yaml</code>、<code>symbol.rnl</code>、<code>README.md</code> 和 <code>LICENSE…</code> 之外，每个文件都是 <code>README.md</code> 引用的图片。</li>
-<li>修正模块定义的文字是一条说明（<a href="#4.1" class="ref">4.1</a>），不是一个新的模块定义。引脚或符号变了才做新的模块定义。</li>
+<li>修正模块定义的文字是一条说明（<a href="#4.1" class="ref">4.1</a>），不是一个新的模块定义。引脚、探针或符号变了才做新的模块定义。</li>
 </ul>
 <h3 class="type-spec" id="types-ifc-4">可读名</h3>
 <p><code>ifc/&lt;name&gt;/</code>，例如 <code>ifc/strongarm-comp/ifc_945cdda7…/</code>（<a href="#6.2" class="ref">6.2</a>）。</p>
@@ -2180,7 +2258,10 @@ library.source.jsonl</code></pre>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> outp</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> digital</span><span class="kw">,</span><span class="at"> </span><span class="fu">direction</span><span class="kw">:</span><span class="at"> out</span><span class="kw">}</span></span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> outn</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> digital</span><span class="kw">,</span><span class="at"> </span><span class="fu">direction</span><span class="kw">:</span><span class="at"> out</span><span class="kw">}</span></span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> vdd</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> supply</span><span class="kw">}</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> vss</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> ground</span><span class="kw">}</span></span></code></pre></div>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> vss</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> ground</span><span class="kw">}</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="fu">probes</span><span class="kw">:</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> latch_p</span><span class="kw">,</span><span class="at"> </span><span class="fu">description</span><span class="kw">:</span><span class="at"> Positive node of the regenerative latch</span><span class="kw">}</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> latch_n</span><span class="kw">,</span><span class="at"> </span><span class="fu">description</span><span class="kw">:</span><span class="at"> Negative node of the regenerative latch</span><span class="kw">}</span></span></code></pre></div>
 <h2 class="type-spec" id="types-ckt">类型规格 <code>ckt</code>：电路网表</h2>
 <p>电路网表是一个模块定义的一种设计的一个版本：一份网表，连同它需要的文件。它引用自己所实现的模块定义，并通过 <code>uses</code> 引用它所用的其他模块定义的电路网表。前缀是 <code>ckt</code>。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/ckt.schema.json</code>。</p>
 <h3 class="type-spec" id="types-ckt-1">字段</h3>
@@ -2253,7 +2334,7 @@ library.source.jsonl</code></pre>
 <td><code>specifications</code></td>
 <td>可以</td>
 <td>映射</td>
-<td>作者在任何验证之前声明的情况：电源、温度、引脚范围、拓扑</td>
+<td>作者在任何验证之前声明的情况：电源、温度、引脚范围、拓扑、目标</td>
 </tr>
 <tr>
 <td><code>origin</code></td>
@@ -2354,6 +2435,7 @@ library.source.jsonl</code></pre>
 </table>
 <p>键是子电路在网表里的名字：<code>[A-Za-z_][A-Za-z0-9_]{0,63}</code>。</p></li>
 <li><p><strong><code>specifications</code>：</strong> 键自由。<code>process</code> 是一个短名字，例如 <code>sky130</code>，形如 <code>[a-z][a-z0-9_-]{0,39}</code>（<a href="#3.5" class="ref">3.5</a>）。<code>vdd</code>、<code>temp</code> 和 <code>pins</code> 的每一项是一个数，或由 <code>min</code>、<code>nom</code>、<code>max</code>、<code>unit</code>、<code>description</code> 组成的映射。</p></li>
+<li><p><strong><code>specifications.targets</code></strong> 是作者定的目标：从指标全名（<code>&lt;name&gt;.&lt;id&gt;</code>，见 <code>tb</code>）到一个目标或一串目标的映射。一个目标是 <code>{min, max, preset}</code>：<code>min</code> 和 <code>max</code> 至少写一个，可以写 <code>preset</code>，即那个测试用例里这个目标适用的预设名；不写 <code>preset</code> 时，对所有预设都适用。目标不是结果，结果在验证记录里。电路网表不会变，所以改目标就是出新的一代。</p></li>
 <li><p><strong><code>origin</code>：</strong> 必须写 <code>repo</code>（仓库，例如 <code>owner/name</code>）、<code>commit</code>（40 位十六进制数）、<code>path</code>、<code>license</code> 和 <code>authors</code>；可以写 <code>tag</code> 和 <code>files</code>（路径到 <code>{sha256, size}</code> 的映射）。<code>license</code> 是 <code>{spdx, file}</code>：原仓库的 SPDX 许可证表达式，和它在原仓库里的许可证文件路径。</p></li>
 <li><p><strong>换子模块</strong>会让它上面每一层都出一个新的电路网表（<a href="#7.5" class="ref">7.5</a>）。只为跑一次仿真做的电路网表，例如把某个子模块换成理想模型，照样写 <code>base</code>，但另起一个 <code>name</code>，例如 <code>sky130-razavi-ideal</code>：它自成一支，永远不会被当成原电路网表的新版（<a href="#3.4" class="ref">3.4</a>、<a href="#7.5" class="ref">7.5</a>）。</p></li>
 </ul>
@@ -2427,7 +2509,10 @@ library.source.jsonl</code></pre>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ckt</span><span class="kw">:</span><span class="at"> ckt_f1ede73af6ba50ae0621e34b2b6f6b946dbf1ff1</span></span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">files</span><span class="kw">:</span></span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">netlist</span><span class="kw">:</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> strongarm_comp.scs</span></span></code></pre></div>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> strongarm_comp.scs</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="fu">specifications</span><span class="kw">:</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">targets</span><span class="kw">:</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">tb_offset.offset</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">max</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span><span class="kw">}</span></span></code></pre></div>
 <h2 class="type-spec" id="types-tb">类型规格 <code>tb</code>：测试用例</h2>
 <p>测试用例是测量一个模块定义的一种方法的一个版本：一份网表、运行它的命令，以及把结果变成指标的分析脚本。任何人都可以给任何模块定义写测试用例，一个模块定义可以有很多测试用例。前缀是 <code>tb</code>。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/tb.schema.json</code>。</p>
 <h3 class="type-spec" id="types-tb-1">字段</h3>
@@ -2467,6 +2552,18 @@ library.source.jsonl</code></pre>
 <td>这个测试用例的名字，例如 <code>tb_static</code>。它的各代同名，这个名字也标出它们是哪一支（<a href="#3.4" class="ref">3.4</a>）。它是它的指标全名的第一部分</td>
 </tr>
 <tr>
+<td><code>socket</code></td>
+<td>必须</td>
+<td><code>[A-Za-z_][A-Za-z0-9_]{0,63}</code></td>
+<td>它的网表给被测块用的子电路名（见下）</td>
+</tr>
+<tr>
+<td><code>probes</code></td>
+<td>可以</td>
+<td>模块定义的探针名的列表</td>
+<td>它的网表用到的探针（见下）</td>
+</tr>
+<tr>
 <td><code>files</code></td>
 <td>必须</td>
 <td>映射</td>
@@ -2488,7 +2585,7 @@ library.source.jsonl</code></pre>
 <td><code>analyze</code></td>
 <td>必须</td>
 <td>映射</td>
-<td>分析脚本：必须写 <code>entry</code> 和 <code>python</code>（它需要的 Python 版本，例如 <code>'&gt;=3.10'</code>），可以写 <code>requirements</code></td>
+<td>分析脚本：必须写 <code>entry</code>、<code>python</code>（它需要的 Python 版本，例如 <code>'&gt;=3.10'</code>）和 <code>results</code>（见下），可以写 <code>requirements</code></td>
 </tr>
 <tr>
 <td><code>metrics</code></td>
@@ -2506,13 +2603,13 @@ library.source.jsonl</code></pre>
 <td><code>parameters</code></td>
 <td>可以</td>
 <td>映射</td>
-<td>测试用例自己的网表声明的参数，例如激励幅度、负载、电源；不是被测电路网表的参数。每个是 <code>{unit, description}</code></td>
+<td>测试用例自己的网表用到的参数，例如激励幅度、负载、电源；不是被测电路网表的参数。每个是 <code>{unit, description}</code></td>
 </tr>
 <tr>
 <td><code>presets</code></td>
 <td>可以</td>
-<td>映射</td>
-<td>有名字的几组条件，分 <code>parameters</code>、<code>options</code>、<code>models</code> 三格，写法和验证记录一样，只是 <code>parameters</code> 的值可以是列表：一次扫描，每个点出一条验证记录</td>
+<td>名字到一组条件或一串条件的映射</td>
+<td>有名字的运行条件（见下）</td>
 </tr>
 </tbody>
 </table>
@@ -2555,7 +2652,7 @@ library.source.jsonl</code></pre>
 <td><code>tolerance</code></td>
 <td>必须</td>
 <td><code>{abs}</code>、<code>{rel}</code> 或两者都有，数值</td>
-<td>两个结果相差多少仍算一致</td>
+<td>两个结果相差多少仍算一致（见下）</td>
 </tr>
 <tr>
 <td><code>description</code></td>
@@ -2566,7 +2663,12 @@ library.source.jsonl</code></pre>
 </tbody>
 </table>
 <ul>
-<li><strong>全名的含义不变。</strong> 在一个测试用例的各代里，指标名的含义永远不变；含义不同的指标换一个名字。设计的目标和电路网表 <code>uses</code> 里的要求，都用全名写。</li>
+<li><strong>被测块。</strong> 网表把被测块实例化成名为 <code>socket</code> 的子电路，例如 <code>socket: L3_comparator_V2</code>，自己不定义它。它的端口就是模块定义的引脚，按引脚的顺序，<code>width</code> 为 N 的引脚占 N 个端口。组装运行时，被测电路网表的子电路改用这个名字（<a href="#7.6" class="ref">7.6</a>）。不叫 <code>dut</code>，因为在验证记录里它是对象名。</li>
+<li><strong>探针。</strong> 网表里除了模块定义（<code>ifc</code>）的探针，不写被测块里面的任何东西；探针写成 <code>&lt;instance&gt;.&lt;probe&gt;</code>，<code>&lt;instance&gt;</code> 是 <code>socket</code> 的一个实例，例如 <code>I0.latch_p</code>。探针是电路网表里的哪个网，由验证记录在每次运行时写明（<code>evd</code>）；组装运行时，工具把探针换成那个网（<a href="#7.6" class="ref">7.6</a>）。所以测试用例不用改，就能在这个模块定义的每个电路网表上运行，不管电路网表里的网叫什么。</li>
+<li><strong><code>analyze.results</code></strong> 是分析脚本要读的结果格式：<code>psfascii</code>（PSF ASCII，Spectre 写出的一个目录）或 <code>nutascii</code>（SPICE 的 ASCII raw 文件，所有分析都在一个文件 <code>results.raw</code> 里）。以后的版本可以加别的格式。工具让仿真器按这个格式写结果；<code>run</code> 只是参考。</li>
+<li><strong>容差：</strong> 一个指标的两个结果 <code>a</code> 和 <code>b</code>，在 <code>|a − b| ≤ max(abs, rel × max(|a|, |b|))</code> 时算一致，没写的 <code>abs</code> 或 <code>rel</code> 算 0。两个结果都不当参考值。</li>
+<li><strong>预设。</strong> 一组条件分 <code>parameters</code>、<code>options</code>、<code>models</code> 三格，写法和验证记录的 <code>conditions</code> 一样（<code>evd</code>）：每个值都是单个的，不能是列表。一个预设是一组条件，或者一串条件；每组都完整写出，不从别的组或别的预设里取任何东西。每组给 <code>parameters</code> 里的每个参数一个值，不给别的参数。每组运行一次，出一条验证记录，所以扫描写成一串，每个点一组。</li>
+<li><strong>全名的含义不变。</strong> 在一个测试用例的各代里，指标名的含义永远不变；含义不同的指标换一个名字。电路网表的目标（<code>ckt</code> 的 <code>specifications.targets</code>）和电路网表 <code>uses</code> 里的要求，都用全名写。</li>
 <li><strong><code>description</code></strong>（<a href="#3.2.1" class="ref">3.2.1</a>）说这个测试用例测什么、怎么测。</li>
 </ul>
 <h3 class="type-spec" id="types-tb-2">文件</h3>
@@ -2612,7 +2714,9 @@ library.source.jsonl</code></pre>
 </tbody>
 </table>
 <ul>
+<li><strong>网表</strong> 不单独运行：里面没有模型文件，也没有被测块的电路网表；不声明 <code>parameters</code> 里的参数，也不设置预设设置的选项：这些由工具在每次运行时和条件一起写进去（<a href="#7.6" class="ref">7.6</a>）。SPICE 的网表里不写 <code>.end</code>。</li>
 <li><strong>分析脚本</strong>的调用方式是 <code>&lt;entry&gt; &lt;results&gt; &lt;output&gt;</code>。它从目录 <code>&lt;results&gt;</code> 读一组条件的仿真结果，在 <code>&lt;output&gt;</code> 里写一个文件 <code>metrics.json</code>（每个指标一个数，按 <code>id</code>）和一个目录 <code>evidence/</code>。</li>
+<li><strong><code>conditions.json</code>：</strong> 调用脚本之前，工具在 <code>&lt;results&gt;</code> 里写一个文件 <code>conditions.json</code>：一个 JSON 对象，放正在生成的验证记录的 <code>conditions</code>，有探针时再加上它的 <code>probes</code>。脚本可以用它们，例如取电源电压的一半作阈值。</li>
 <li><strong>它是别人的代码</strong>（第 11 章）。没有使用者同意，工具不得运行它；第一次运行某个版本之前，应当把它和它相对上一版的差别给使用者看；应当在单独的进程和目录里运行它。这不算隔离：没有审过的测试用例应当在容器或虚拟机里运行。</li>
 <li>文件可以用许可证文件头开头，和电路网表（<code>ckt</code>）一样。</li>
 <li><strong>来源表</strong> 会往下展开测试用例，沿 <code>ifc</code>（<a href="#5.2" class="ref">5.2</a>）。</li>
@@ -2621,8 +2725,12 @@ library.source.jsonl</code></pre>
 <ol type="1">
 <li><code>files</code> 里列出的每个文件、<code>entry</code> 和写了时的 <code>requirements</code> 都在对象里，<code>files</code> 里没有路径列两次。</li>
 <li>各指标的 <code>id</code> 不重复。</li>
-<li>找得到 <code>ifc</code> 时，它是一个模块定义。</li>
+<li>找得到 <code>ifc</code> 时，它是一个模块定义，<code>probes</code> 里的每个探针都是它的探针。</li>
 <li>网表遵守电路网表的网表规则（<code>ckt</code>，定稿时的检查，第 3 项）。</li>
+<li>网表实例化了名为 <code>socket</code> 的子电路，但没有定义这个名字的子电路。工具读得懂网表时，它的每个实例的端口数都等于模块定义的引脚数，按 <code>width</code> 计。</li>
+<li>网表里每个形如 <code>&lt;instance&gt;.&lt;name&gt;</code> 的名字，<code>&lt;instance&gt;</code> 是 <code>socket</code> 的实例的，<code>&lt;name&gt;</code> 都是 <code>probes</code> 里的一个探针。</li>
+<li>网表不声明 <code>parameters</code> 里的任何参数，也不设置预设设置的任何选项。</li>
+<li>每个预设的每组条件都遵守上面的规则。</li>
 </ol>
 <h3 class="type-spec" id="types-tb-4">可读名</h3>
 <p><code>tb/&lt;interface name&gt;/&lt;name&gt;.g&lt;generation&gt;/</code>，例如 <code>tb/strongarm-comp/tb_offset.g1/tb_…/</code>（<a href="#6.2" class="ref">6.2</a>）。代数就是它的 <code>history.json</code> 里写的那个（<a href="#3.4" class="ref">3.4</a>）。</p>
@@ -2633,24 +2741,33 @@ library.source.jsonl</code></pre>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ifc</span><span class="kw">:</span><span class="at"> ifc_945cdda7d9b4c0f6a2e1d3b5c7a9e0f1d2c3b4a5</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> tb_offset</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Input-referred offset by a slow ramp</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">files</span><span class="kw">:</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">netlist</span><span class="kw">:</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> tb.scs</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">simulators</span><span class="kw">:</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;21.1&#39;</span><span class="kw">}</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">run</span><span class="kw">:</span><span class="at"> spectre tb.scs +aps -format psfxl -raw psf</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="fu">analyze</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">entry</span><span class="kw">:</span><span class="at"> analyze.py</span><span class="kw">,</span><span class="at"> </span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;&gt;=3.10&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">requirements</span><span class="kw">:</span><span class="at"> requirements.txt</span><span class="kw">}</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">id</span><span class="kw">:</span><span class="at"> offset</span><span class="kw">,</span><span class="at"> </span><span class="fu">unit</span><span class="kw">:</span><span class="at"> mV</span><span class="kw">,</span><span class="at"> </span><span class="fu">better</span><span class="kw">:</span><span class="at"> lower</span><span class="kw">,</span><span class="at"> </span><span class="fu">tolerance</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">abs</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.2</span><span class="kw">}}</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span><span class="kw">:</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">unit</span><span class="kw">:</span><span class="at"> V</span><span class="kw">,</span><span class="at"> </span><span class="fu">description</span><span class="kw">:</span><span class="at"> Supply voltage</span><span class="kw">}</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">presets</span><span class="kw">:</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">nom</span><span class="kw">:</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span><span class="at"> </span><span class="kw">[{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> models.scs</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">}]</span></span></code></pre></div>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">socket</span><span class="kw">:</span><span class="at"> strongarm_comp</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">probes</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">latch_p</span><span class="kw">,</span><span class="at"> latch_</span><span class="ch">n</span><span class="kw">]</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">files</span><span class="kw">:</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">netlist</span><span class="kw">:</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> tb.scs</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">simulators</span><span class="kw">:</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;21.1&#39;</span><span class="kw">}</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">run</span><span class="kw">:</span><span class="at"> spectre input.scs +aps -format psfascii -raw psf</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">analyze</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">entry</span><span class="kw">:</span><span class="at"> analyze.py</span><span class="kw">,</span><span class="at"> </span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;&gt;=3.10&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">requirements</span><span class="kw">:</span><span class="at"> requirements.txt</span><span class="kw">,</span><span class="at"> </span><span class="fu">results</span><span class="kw">:</span><span class="at"> psfascii</span><span class="kw">}</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">id</span><span class="kw">:</span><span class="at"> offset</span><span class="kw">,</span><span class="at"> </span><span class="fu">unit</span><span class="kw">:</span><span class="at"> mV</span><span class="kw">,</span><span class="at"> </span><span class="fu">better</span><span class="kw">:</span><span class="at"> lower</span><span class="kw">,</span><span class="at"> </span><span class="fu">tolerance</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">abs</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.2</span><span class="kw">}}</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">unit</span><span class="kw">:</span><span class="at"> V</span><span class="kw">,</span><span class="at"> </span><span class="fu">description</span><span class="kw">:</span><span class="at"> Supply voltage</span><span class="kw">}</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="fu">presets</span><span class="kw">:</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">nom</span><span class="kw">:</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span><span class="at"> </span><span class="kw">[{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> models.scs</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">}]</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">supply</span><span class="kw">:</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.62</span><span class="kw">}</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span><span class="at"> </span><span class="kw">[{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> models.scs</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">}]</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.98</span><span class="kw">}</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span><span class="at"> </span><span class="kw">[{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> models.scs</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">}]</span></span></code></pre></div>
 <h2 class="type-spec" id="types-evd">类型规格 <code>evd</code>：验证记录</h2>
-<p>验证记录是某人考察一个设计得到的东西：考察的是哪个对象、怎么考察的、在什么条件下、得到了什么。前缀是 <code>evd</code>。它的 <code>kind</code> 说明是哪一种验证记录。<code>0.1</code> 版只定义一种，<code>sim</code>：一次仿真，即在一个电路网表上运行测试用例；以后的版本可以加别的种类，例如签核检查、硅片实测和表征。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/evd.schema.json</code>。</p>
+<p>验证记录是某人考察一个设计得到的东西：考察的是哪个对象、怎么考察的、在什么条件下、得到了什么。前缀是 <code>evd</code>。它的 <code>kind</code> 说明是哪一种验证记录。<code>0.1</code> 版只定义一种，<code>sim</code>：一次仿真，即在一个电路网表上运行测试用例；以后的版本可以加别的种类，例如签核检查、硅片实测和表征。结果是统计量的仿真，例如 Monte Carlo 仿真，不是 <code>sim</code>：以后的版本会为它定义一个种类。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/evd.schema.json</code>。</p>
 <h3 class="type-spec" id="types-evd-1">字段</h3>
 <p>除公共字段（<a href="#3.2.1" class="ref">3.2.1</a>）外，每条验证记录都有：</p>
 <table>
@@ -2722,6 +2839,12 @@ library.source.jsonl</code></pre>
 <td>实际运行的条件，分三格（见下）</td>
 </tr>
 <tr>
+<td><code>probes</code></td>
+<td>测试用例列了探针时</td>
+<td>探针名到网的映射</td>
+<td>这次运行里，每个探针是被测电路网表的哪个网（见下）</td>
+</tr>
+<tr>
 <td><code>environment</code></td>
 <td>必须</td>
 <td>映射</td>
@@ -2750,6 +2873,7 @@ library.source.jsonl</code></pre>
 <li><code>options</code>：仿真器和求解器的设置，例如 <code>temp</code>、<code>reltol</code> 或 <code>errpreset</code>；</li>
 <li><code>models</code>：所用模型文件的列表，每项有 <code>file</code>（不含 <code>/</code> 或 <code>\</code> 的文件名），可以有 <code>section</code>（一个名字或列表）、<code>version</code>、<code>match</code>（文件里必须都出现的字符串）、<code>process</code> 和 <code>sha256</code>（<a href="#3.5" class="ref">3.5</a>）。</li>
 </ul></li>
+<li><strong><code>probes</code></strong> 给 <code>tbs</code> 里各测试用例列出的每个探针，写明 <code>dut</code> 所指电路网表里的一个网：它的子电路里的网，例如 <code>LP</code>；或者更下层的网，写成一路往下的实例名加网名，用 <code>.</code> 连起来，例如 <code>xlatch.LP</code>。它只写这些探针，不多不少。和 <code>dut</code>、<code>conditions</code> 一样，它是这次运行的输入：同一个模块定义的另一个电路网表，可以给同样的测试用例另外的网。</li>
 <li><strong><code>environment</code>：</strong> 必须写 <code>simulator</code>，带 <code>name</code> 和 <code>version</code>，可以带 <code>command</code>：运行它的整条命令行，选项也在里面。可以写 <code>pdk</code>（<code>process</code>、<code>release</code>）、<code>analysis</code>（<code>python</code>、<code>packages</code>）、<code>system</code>（<code>os</code>、<code>cpu</code>、<code>threads</code>）和 <code>note</code>。<code>environment</code> 里不含本机路径、主机名或用户名。</li>
 <li><strong><code>evidence</code>：</strong> 文件的 <code>kind</code> 是 <code>spectrum</code>、<code>curve</code>、<code>waveform</code>、<code>table</code> 或 <code>json</code>。它不是验证记录本身的 <code>kind</code>。</li>
 <li><strong><code>description</code></strong>（<a href="#3.2.1" class="ref">3.2.1</a>）写读者还应当知道的事，例如某个指标为什么没得到。</li>
@@ -2847,6 +2971,7 @@ library.source.jsonl</code></pre>
 <li>找得到测试用例时，<code>metrics</code> 的每个键都是其中某个测试用例的某个指标的 <code>&lt;name&gt;.&lt;id&gt;</code>。</li>
 <li>找得到对象时：<code>dut</code> 是一个电路网表；每个测试用例测的是 <code>dut</code> 的模块定义；<code>tree</code> 就是 <code>dut</code> 的展开树，每个文件哈希都一致。</li>
 <li>一棵展开树里，每个模块定义只有一个电路网表：同一个模块定义的两个电路网表是同一个子电路的两份定义，仿真会拒绝。</li>
+<li>找得到测试用例时，<code>probes</code> 写的恰好是它们列出的探针。</li>
 </ol>
 <h3 class="type-spec" id="types-evd-5">可读名</h3>
 <p><code>evd/&lt;interface name&gt;/&lt;record label&gt;/</code>，标签是 <code>&lt;UTC time&gt;-&lt;short name&gt;</code>，例如 <code>evd/strongarm-comp/20261103T1200Z-wrap-off/evd_…/</code>（<a href="#6.2" class="ref">6.2</a>）。</p>
@@ -2859,16 +2984,17 @@ library.source.jsonl</code></pre>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tbs</span><span class="kw">:</span></span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> tb_ad96a1470e2d4c6b8a9f1e3d5c7b9a0e2f4d6c8b</span></span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> Alice Zhang</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">conditions</span><span class="kw">:</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">models</span><span class="kw">:</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> sky130.lib.spice</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;0.20.1&#39;</span><span class="kw">}</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="fu">environment</span><span class="kw">:</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">simulator</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;23.1.0&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">command</span><span class="kw">:</span><span class="at"> spectre tb.scs +aps</span><span class="kw">}</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">analysis</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;3.11.9&#39;</span><span class="kw">}</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">tb_offset.offset</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.7</span></span></code></pre></div>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">probes</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">latch_p</span><span class="kw">:</span><span class="at"> LP</span><span class="kw">,</span><span class="at"> </span><span class="fu">latch_n</span><span class="kw">:</span><span class="at"> LM</span><span class="kw">}</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">conditions</span><span class="kw">:</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">models</span><span class="kw">:</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> sky130.lib.spice</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;0.20.1&#39;</span><span class="kw">}</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">simulator</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;23.1.0&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">command</span><span class="kw">:</span><span class="at"> spectre tb.scs +aps</span><span class="kw">}</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">analysis</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;3.11.9&#39;</span><span class="kw">}</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">tb_offset.offset</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.7</span></span></code></pre></div>
 <h2 class="type-spec" id="types-doc">类型规格 <code>doc</code>：文档</h2>
 <p>文档是关于模块定义、电路网表、测试用例、验证记录或冻结库的文字：设计笔记、测试用例的使用说明、架构说明、参考资料。它的正文是对象的 <code>README.md</code>。前缀是 <code>doc</code>。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/doc.schema.json</code>。</p>
 <h3 class="type-spec" id="types-doc-1">字段</h3>
@@ -3043,6 +3169,7 @@ library.source.jsonl</code></pre>
 <li><strong>工作区清单可以直接包含成员表，</strong> 用一行包含行，<code>include</code> 写它在库里的路径（<a href="#5.1" class="ref">5.1</a>、<a href="#8.1" class="ref">8.1</a>）。分组和可读名照任何来源表一样显示。</li>
 <li><strong>取一个冻结库，</strong> 就是取它、它的成员和成员需要的对象。它旁边的来源表列出了这些对象（<a href="#5.2" class="ref">5.2</a>）。</li>
 <li><strong>库的清单和冻结库不同：</strong> 库的清单会变，对象会加进来、删掉、被标记；成员表永远不变，只说某一刻有哪些对象、到哪里找。</li>
+<li><strong>测试计划</strong> 是一个冻结库，成员是一个模块定义和测它的测试用例，需要时加上电路网表。它没有自己的类型：每个测试用例都要能单独运行，所以它们共用的条件写在各自的预设里。</li>
 <li>和 git 标签不同，冻结库是对象：定稿后不变，别的对象可以引用它，它可以从几个库里挑成员，也不依赖某一个仓库还在。</li>
 <li><strong>来源表</strong> 会往下展开冻结库，沿 <code>members.source.jsonl</code> 里的对象（<a href="#5.2" class="ref">5.2</a>）。</li>
 </ul>

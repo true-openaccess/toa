@@ -95,6 +95,28 @@
           }
         }
       }
+    },
+    "probes": {
+      "type": "array",
+      "description": "Named nodes inside the module that testbenches may observe.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "description"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,31}$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
     }
   }
 }

@@ -144,7 +144,7 @@
           <h1>TOA 0.1</h1>
           <p>Defines TOA objects, naming, manifests, source lists, libraries, workspaces, and operations—self-contained for any implementation.</p>
           <div class="rev">
-            <span>not released · 2026-11-24 · 1102dc1</span>
+            <span>not released · 2026-11-24 · a32636d</span>
             <span class="faint">Versions: <a href="../0.1/">0.1</a></span>
           </div>
           <ul class="downloads">
@@ -233,7 +233,7 @@
 </tr>
 <tr>
 <td>assemble</td>
-<td>Turn a circuit and its expanded tree into a set of files that can be simulated directly (<a href="#7.6" class="ref">7.6</a>)</td>
+<td>Turn a circuit and its expanded tree into a set of files that can be simulated directly, alone or with a testbench and the conditions of one run (<a href="#7.6" class="ref">7.6</a>)</td>
 </tr>
 <tr>
 <td>check</td>
@@ -1600,7 +1600,7 @@ library.source.jsonl</code></pre>
 <li><strong>There is no shortcut through evidence records:</strong> a record tests the expanded tree of its circuit as it is, and cannot use another version of a submodule in place of the one the tree names (<code>evd</code> type specification).</li>
 </ul>
 <h3 id="7.6"><span class="sec">7.6</span>Assembling<a href="#7.6" class="anchor" aria-label="Link to 7.6">#</a></h3>
-<p>Assembling turns a circuit, with its expanded tree, into a set of files that can be simulated directly.</p>
+<p>Assembling turns a circuit, with its expanded tree, into a set of files that can be simulated directly. To run a testbench, a tool assembles it together with the circuit tested, once for each set of conditions.</p>
 <ul>
 <li><p>The whole tree is expanded by references; each object is expanded once; each object is verified before it is expanded (<a href="#7.4" class="ref">7.4</a>).</p></li>
 <li><p>When subcircuits have the same name, the tool renames them.</p></li>
@@ -1625,6 +1625,77 @@ library.source.jsonl</code></pre>
 <li>Each <code>external</code> of an object is matched with the entry of <code>external</code> in the map that has the same <code>name</code>; an entry with <code>process</code> must also have the <code>process</code> of that external file (or else the process its object names).</li>
 <li>Every string of <code>match</code> must occur in its file.</li>
 </ul></li>
+<li><p><strong>Assembling a run.</strong> An evidence record of the kind <code>sim</code> (<code>evd</code>) is made by running each of its testbenches on the circuit tested under one set of conditions. For each testbench, the tool writes a directory holding:</p>
+<ul>
+<li><code>tb/</code>: the files of the testbench, at their paths in the object;</li>
+<li><code>ckt/&lt;object name&gt;/</code>: the files of each circuit of the expanded tree, at their paths in the object;</li>
+<li>the entry file, the only file the simulator is given: <code>input.scs</code> when the first netlist of the testbench is in Spectre, <code>input.sp</code> when it is in SPICE. A netlist whose name ends in <code>.scs</code> is in Spectre and any other is in SPICE, as Spectre itself reads included files.</li>
+</ul></li>
+<li><p><strong>The entry file</strong> holds these, in this order, and nothing else:</p>
+<ol type="1">
+<li>a first line: <code>simulator lang=spectre</code> in Spectre; in SPICE, whose first line is a title, a comment;</li>
+<li>the model files of the conditions (<code>models</code>), as the local file map gives them, each with its sections;</li>
+<li>the netlists of the circuits of the expanded tree, in the order of <code>tree</code> in <code>lock.json</code>, so the circuit tested comes first; for each circuit, the netlists of <code>files.netlist</code> in their order;</li>
+<li>the first netlist of the testbench;</li>
+<li>the conditions of the run: the values of the parameters of the testbench and the options of the simulator;</li>
+<li>in SPICE, a last line <code>.end</code>.</li>
+</ol></li>
+<li><p><strong>How the lines are written:</strong></p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Line</th>
+<th>Spectre</th>
+<th>SPICE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a model file</td>
+<td><code>include "&lt;path&gt;"</code></td>
+<td><code>.include "&lt;path&gt;"</code></td>
+</tr>
+<tr>
+<td>a model file with sections</td>
+<td><code>include "&lt;path&gt;" section=&lt;section&gt;</code>, one line per section</td>
+<td><code>.lib "&lt;path&gt;" &lt;section&gt;</code>, one line per section</td>
+</tr>
+<tr>
+<td>a netlist of an object</td>
+<td><code>include "&lt;path&gt;"</code></td>
+<td><code>.include "&lt;path&gt;"</code></td>
+</tr>
+<tr>
+<td>the parameters</td>
+<td>one statement <code>parameters &lt;name&gt;=&lt;value&gt; …</code></td>
+<td>one statement <code>.param &lt;name&gt;=&lt;value&gt; …</code></td>
+</tr>
+<tr>
+<td>the option <code>temp</code></td>
+<td>with the other options</td>
+<td><code>.temp &lt;value&gt;</code></td>
+</tr>
+<tr>
+<td>the other options</td>
+<td>one statement <code>toaConditions options &lt;name&gt;=&lt;value&gt; …</code></td>
+<td>one statement <code>.options &lt;name&gt;=&lt;value&gt; …</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The path of a netlist is relative to the directory; the path of a model file is the one in the local file map. The section written is the one that the <code>sections</code> of the map give for the section of the conditions, or that section itself when they give none.</li>
+<li>A number is written as a decimal number, a boolean as <code>1</code> or <code>0</code>, and a string as it is: the author writes it as the simulator wants it.</li>
+<li>The netlists of the testbench declare none of its parameters and set none of the options of the conditions (<code>tb</code>); when they do, the tool stops.</li>
+<li>A SPICE netlist in a Spectre run is read as SPICE, by its name. A Spectre netlist cannot be used in a SPICE run: the tool stops.</li>
+</ul></li>
+<li><p><strong>The block measured:</strong> in the copies of its netlists in the directory, the subcircuit of the circuit tested takes the name in <code>socket</code> of the testbench; its ports stay in the order of the pins of the interface. Other subcircuits of the tree are renamed when their names clash with it, with each other, or with subcircuits that the testbench defines.</p></li>
+<li><p><strong>Probes:</strong> in the copies of the netlists of the testbench, each <code>&lt;instance&gt;.&lt;probe&gt;</code> (<code>tb</code>) becomes <code>&lt;instance&gt;.&lt;net&gt;</code>, with the net that <code>probes</code> of the record gives. Before running, the tool checks that each such net is in the circuit tested: a net of its subcircuit, or, for a net further down, the instances down to it and the net. When a net is missing, or the tool cannot tell, it stops: it never runs with a probe that leads nowhere.</p></li>
+<li><p><strong>The results</strong> are written in the format of <code>analyze.results</code> of the testbench into a directory <code>&lt;results&gt;</code>, with <code>conditions.json</code>, and then the analysis script is called (<code>tb</code>).</p></li>
 <li><p>A tool must not run commands carried by objects on its own, and must not install dependencies that objects list on its own (chapter 11).</p></li>
 </ul>
 <h2 id="8"><span class="sec">8</span>Workspace list and index<a href="#8" class="anchor" aria-label="Link to 8">#</a></h2>
@@ -2059,6 +2130,12 @@ library.source.jsonl</code></pre>
 <td>a list of one or more pins</td>
 <td>Its pins, in the order of the subcircuit’s ports</td>
 </tr>
+<tr>
+<td><code>probes</code></td>
+<td>may</td>
+<td>a list of <code>{name, description}</code></td>
+<td>Nodes inside the module that testbenches may observe (below)</td>
+</tr>
 </tbody>
 </table>
 <p>Each pin:</p>
@@ -2112,6 +2189,7 @@ library.source.jsonl</code></pre>
 </table>
 <ul>
 <li><strong>A bus:</strong> a pin of <code>width</code> N stands for N ports of the subcircuit that follow each other, in the order of the netlist. This standard does not say what the ports are called in a netlist, such as <code>LSB&lt;5&gt;</code> or <code>LSB_5</code>, nor which bit each is: tools match pins and ports by position, never by name. A tool that exports an interface should write a bus as one pin with <code>width</code>, not as one pin per bit.</li>
+<li><strong>Probes</strong> are nodes inside the module that testbenches may observe, such as the two nodes of a latch: <code>name</code> is of the form of a pin name, and <code>description</code>, which must be written, says what the node is. Like the pins, they are part of what the module promises: every circuit of the interface should have a net for each. Which net it is, neither the interface nor the circuit says: an evidence record says it for each run (<code>evd</code>), and testbenches name only the probe (<code>tb</code>).</li>
 <li>An interface names no process and declares no external files (<a href="#3.5" class="ref">3.5</a>).</li>
 <li><code>description</code>, <code>tags</code> and <code>base</code> may be written as for any type.</li>
 </ul>
@@ -2166,10 +2244,10 @@ library.source.jsonl</code></pre>
 </ul>
 <h3 class="type-spec" id="types-ifc-3">Checks at sealing</h3>
 <ul>
-<li>The names of pins are unique, compared without regard to case.</li>
+<li>The names of pins and probes together are unique, compared without regard to case.</li>
 <li>When <code>symbol.rnl</code> is present, its terminals are the pins, and a tool that can read RNL checks it.</li>
 <li>Every file other than <code>toa.yaml</code>, <code>symbol.rnl</code>, <code>README.md</code> and <code>LICENSE…</code> is an image that <code>README.md</code> refers to.</li>
-<li>A correction to the text of an interface is a note (<a href="#4.1" class="ref">4.1</a>), not a new interface. A new interface is made when its pins or its symbol change.</li>
+<li>A correction to the text of an interface is a note (<a href="#4.1" class="ref">4.1</a>), not a new interface. A new interface is made when its pins, its probes or its symbol change.</li>
 </ul>
 <h3 class="type-spec" id="types-ifc-4">Readable name</h3>
 <p><code>ifc/&lt;name&gt;/</code>, for example <code>ifc/strongarm-comp/ifc_945cdda7…/</code> (<a href="#6.2" class="ref">6.2</a>).</p>
@@ -2189,7 +2267,10 @@ library.source.jsonl</code></pre>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> outp</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> digital</span><span class="kw">,</span><span class="at"> </span><span class="fu">direction</span><span class="kw">:</span><span class="at"> out</span><span class="kw">}</span></span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> outn</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> digital</span><span class="kw">,</span><span class="at"> </span><span class="fu">direction</span><span class="kw">:</span><span class="at"> out</span><span class="kw">}</span></span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> vdd</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> supply</span><span class="kw">}</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> vss</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> ground</span><span class="kw">}</span></span></code></pre></div>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> vss</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> ground</span><span class="kw">}</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="fu">probes</span><span class="kw">:</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> latch_p</span><span class="kw">,</span><span class="at"> </span><span class="fu">description</span><span class="kw">:</span><span class="at"> Positive node of the regenerative latch</span><span class="kw">}</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> latch_n</span><span class="kw">,</span><span class="at"> </span><span class="fu">description</span><span class="kw">:</span><span class="at"> Negative node of the regenerative latch</span><span class="kw">}</span></span></code></pre></div>
 <h2 class="type-spec" id="types-ckt">Type specification <code>ckt</code>: circuit</h2>
 <p>A circuit is one version of a design of an interface: a netlist with the files it needs. It refers to the interface it implements, and, through <code>uses</code>, to the circuits of other interfaces it is built from. The prefix is <code>ckt</code>. This specification needs the common rules of TOA <code>0.1</code> or later (chapters 2 to 8); the definition of its fields is <code>types/ckt.schema.json</code>.</p>
 <h3 class="type-spec" id="types-ckt-1">Fields</h3>
@@ -2262,7 +2343,7 @@ library.source.jsonl</code></pre>
 <td><code>specifications</code></td>
 <td>may</td>
 <td>a mapping</td>
-<td>What the author declares of it before any verification: supply, temperature, ranges of pins, topology</td>
+<td>What the author declares of it before any verification: supply, temperature, ranges of pins, topology, targets</td>
 </tr>
 <tr>
 <td><code>origin</code></td>
@@ -2368,6 +2449,7 @@ library.source.jsonl</code></pre>
 </table>
 <p>The key is the subcircuit’s name in the netlist: <code>[A-Za-z_][A-Za-z0-9_]{0,63}</code>.</p></li>
 <li><p><strong><code>specifications</code>:</strong> free keys. <code>process</code> is a short name, such as <code>sky130</code>, of the form <code>[a-z][a-z0-9_-]{0,39}</code> (<a href="#3.5" class="ref">3.5</a>). <code>vdd</code>, <code>temp</code> and each entry of <code>pins</code> are a number or a mapping of <code>min</code>, <code>nom</code>, <code>max</code>, <code>unit</code> and <code>description</code>.</p></li>
+<li><p><strong><code>specifications.targets</code></strong> are what the author aims for: a mapping from full metric names (<code>&lt;name&gt;.&lt;id&gt;</code>, see <code>tb</code>) to one target or a list of targets. A target is <code>{min, max, preset}</code>: at least one of <code>min</code> and <code>max</code>, and optionally <code>preset</code>, the name of the preset of that testbench under which the target holds; without <code>preset</code>, it holds under every preset. Targets are not results, which evidence records hold. A circuit does not change, so new targets make a new generation.</p></li>
 <li><p><strong><code>origin</code>:</strong> <code>repo</code> (a repository such as <code>owner/name</code>), <code>commit</code> (40 hexadecimal digits), <code>path</code>, <code>license</code> and <code>authors</code> must be written; <code>tag</code> and <code>files</code> (a mapping from paths to <code>{sha256, size}</code>) may be. <code>license</code> is <code>{spdx, file}</code>: the SPDX licence expression of the original repository, and the path of its licence file there.</p></li>
 <li><p><strong>Changing a submodule</strong> gives a new circuit at every level above it (<a href="#7.5" class="ref">7.5</a>). A circuit made only to run one simulation, such as one with an ideal model in place of a submodule, still writes <code>base</code>, but takes a <code>name</code> of its own, such as <code>sky130-razavi-ideal</code>: it starts a series of its own and is never taken for a newer version of the original (<a href="#3.4" class="ref">3.4</a>, <a href="#7.5" class="ref">7.5</a>).</p></li>
 </ul>
@@ -2446,7 +2528,10 @@ library.source.jsonl</code></pre>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ckt</span><span class="kw">:</span><span class="at"> ckt_f1ede73af6ba50ae0621e34b2b6f6b946dbf1ff1</span></span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">files</span><span class="kw">:</span></span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">netlist</span><span class="kw">:</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> strongarm_comp.scs</span></span></code></pre></div>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> strongarm_comp.scs</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="fu">specifications</span><span class="kw">:</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">targets</span><span class="kw">:</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">tb_offset.offset</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">max</span><span class="kw">:</span><span class="at"> </span><span class="dv">2</span><span class="kw">}</span></span></code></pre></div>
 <h2 class="type-spec" id="types-tb">Type specification <code>tb</code>: testbench</h2>
 <p>A testbench is one version of a way of measuring an interface: a netlist, the command that runs it, and an analysis script that turns the results into metrics. Anyone may write testbenches for any interface, and an interface may have many. The prefix is <code>tb</code>. This specification needs the common rules of TOA <code>0.1</code> or later (chapters 2 to 8); the definition of its fields is <code>types/tb.schema.json</code>.</p>
 <h3 class="type-spec" id="types-tb-1">Fields</h3>
@@ -2486,6 +2571,18 @@ library.source.jsonl</code></pre>
 <td>The name of the testbench, such as <code>tb_static</code>. Its generations share it, and it marks their series (<a href="#3.4" class="ref">3.4</a>). It is the first part of the full names of its metrics</td>
 </tr>
 <tr>
+<td><code>socket</code></td>
+<td>must</td>
+<td><code>[A-Za-z_][A-Za-z0-9_]{0,63}</code></td>
+<td>The name of the subcircuit that its netlist uses for the block measured (below)</td>
+</tr>
+<tr>
+<td><code>probes</code></td>
+<td>may</td>
+<td>a list of names of probes of the interface</td>
+<td>The probes its netlist names (below)</td>
+</tr>
+<tr>
 <td><code>files</code></td>
 <td>must</td>
 <td>a mapping</td>
@@ -2507,7 +2604,7 @@ library.source.jsonl</code></pre>
 <td><code>analyze</code></td>
 <td>must</td>
 <td>a mapping</td>
-<td>The analysis script: <code>entry</code> and <code>python</code> (the versions of Python it needs, such as <code>'&gt;=3.10'</code>) must be written, <code>requirements</code> may be</td>
+<td>The analysis script: <code>entry</code>, <code>python</code> (the versions of Python it needs, such as <code>'&gt;=3.10'</code>) and <code>results</code> (below) must be written, <code>requirements</code> may be</td>
 </tr>
 <tr>
 <td><code>metrics</code></td>
@@ -2525,13 +2622,13 @@ library.source.jsonl</code></pre>
 <td><code>parameters</code></td>
 <td>may</td>
 <td>a mapping</td>
-<td>The parameters that the testbench’s own netlist declares, such as the amplitude of a stimulus, a load or the supply; not those of the circuit measured. Each is <code>{unit, description}</code></td>
+<td>The parameters that the testbench’s own netlist uses, such as the amplitude of a stimulus, a load or the supply; not those of the circuit measured. Each is <code>{unit, description}</code></td>
 </tr>
 <tr>
 <td><code>presets</code></td>
 <td>may</td>
-<td>a mapping</td>
-<td>Named sets of conditions in the three slots <code>parameters</code>, <code>options</code> and <code>models</code>, as the evidence record writes them, except that a value of <code>parameters</code> may be a list: a sweep, run as one record per point</td>
+<td>a mapping from names to a set of conditions or a list of sets</td>
+<td>Named conditions to run it with (below)</td>
 </tr>
 </tbody>
 </table>
@@ -2574,7 +2671,7 @@ library.source.jsonl</code></pre>
 <td><code>tolerance</code></td>
 <td>must</td>
 <td><code>{abs}</code>, <code>{rel}</code> or both, numbers</td>
-<td>How far apart two results may be and still agree</td>
+<td>How far apart two results may be and still agree (below)</td>
 </tr>
 <tr>
 <td><code>description</code></td>
@@ -2585,7 +2682,12 @@ library.source.jsonl</code></pre>
 </tbody>
 </table>
 <ul>
-<li><strong>A full name keeps its meaning.</strong> Within the generations of one testbench, the meaning of a metric’s name never changes; a metric that means something else takes another name. Targets of a design, and the requirements in the <code>uses</code> of circuits, are written with full names.</li>
+<li><strong>The block measured.</strong> The netlist instantiates the block measured as a subcircuit named <code>socket</code>, such as <code>socket: L3_comparator_V2</code>, and does not define it. Its ports are the pins of the interface, in their order, a pin of <code>width</code> N giving N ports. When a run is assembled, the subcircuit of the circuit tested takes this name (<a href="#7.6" class="ref">7.6</a>). The name is not <code>dut</code>, which in an evidence record is an object name.</li>
+<li><strong>Probes.</strong> The netlist names nothing inside the block measured except the probes of the interface (<code>ifc</code>), each written as <code>&lt;instance&gt;.&lt;probe&gt;</code>, where <code>&lt;instance&gt;</code> is an instance of <code>socket</code>, such as <code>I0.latch_p</code>. Which net of a circuit a probe is, the evidence record says for each run (<code>evd</code>); when a run is assembled, the tool writes that net in place of the probe (<a href="#7.6" class="ref">7.6</a>). So the testbench runs unchanged on every circuit of the interface, whatever the circuit calls its nets.</li>
+<li><strong><code>analyze.results</code></strong> is the format of the results the analysis script reads: <code>psfascii</code> (PSF ASCII, a directory of files as Spectre writes it) or <code>nutascii</code> (the ASCII raw file of SPICE, one file <code>results.raw</code> holding every analysis). Later versions may allow others. The tool makes the simulator write its results in this format; <code>run</code> is only a reference.</li>
+<li><strong>Tolerance:</strong> two results <code>a</code> and <code>b</code> of a metric agree when <code>|a − b| ≤ max(abs, rel × max(|a|, |b|))</code>, an <code>abs</code> or <code>rel</code> not written counting as 0. Neither result is taken as the reference.</li>
+<li><strong>Presets.</strong> A set of conditions has the three slots <code>parameters</code>, <code>options</code> and <code>models</code>, written as the evidence record writes its <code>conditions</code> (<code>evd</code>): every value is single, never a list. A preset is one set, or a list of sets; each set is written in full, and takes nothing from another set or another preset. Each set gives a value to every parameter of <code>parameters</code>, and to no other. Each set is run once and gives one evidence record, so a sweep is written as a list with one set per point.</li>
+<li><strong>A full name keeps its meaning.</strong> Within the generations of one testbench, the meaning of a metric’s name never changes; a metric that means something else takes another name. The targets of a circuit (<code>specifications.targets</code> of <code>ckt</code>) and the requirements in the <code>uses</code> of circuits are written with full names.</li>
 <li><strong><code>description</code></strong> (<a href="#3.2.1" class="ref">3.2.1</a>) says what the testbench measures and how.</li>
 </ul>
 <h3 class="type-spec" id="types-tb-2">Files</h3>
@@ -2631,7 +2733,9 @@ library.source.jsonl</code></pre>
 </tbody>
 </table>
 <ul>
+<li><strong>The netlists</strong> are not run alone: they hold no model files and no circuit of the block measured, they do not declare the parameters of <code>parameters</code>, and they set none of the options that the presets set: the tool writes these with the conditions of each run (<a href="#7.6" class="ref">7.6</a>). A netlist in SPICE holds no <code>.end</code>.</li>
 <li><strong>The analysis script</strong> is called as <code>&lt;entry&gt; &lt;results&gt; &lt;output&gt;</code>. It reads the results of the simulations of one set of conditions from the directory <code>&lt;results&gt;</code>, and writes into <code>&lt;output&gt;</code> a file <code>metrics.json</code> (one number per metric, by <code>id</code>) and a directory <code>evidence/</code>.</li>
+<li><strong><code>conditions.json</code>:</strong> before calling the script, the tool writes into <code>&lt;results&gt;</code> a file <code>conditions.json</code>, a JSON object holding the <code>conditions</code> of the evidence record it is making, and its <code>probes</code> when it has any. The script may use them, for example for a threshold of half the supply.</li>
 <li><strong>It is someone else’s code</strong> (chapter 11). A tool must not run it without the user’s agreement, should show it, and its difference from the previous version, before running a version for the first time, and should run it in a process and directory of its own. This is no isolation: a testbench that has not been reviewed should run in a container or virtual machine.</li>
 <li>A file may start with a licence header, as for circuits (<code>ckt</code>).</li>
 <li><strong>Source lists</strong> follow testbenches further, through <code>ifc</code> (<a href="#5.2" class="ref">5.2</a>).</li>
@@ -2640,8 +2744,12 @@ library.source.jsonl</code></pre>
 <ol type="1">
 <li>Every file listed in <code>files</code>, the <code>entry</code> and, when written, the <code>requirements</code> exist in the object, and no path of <code>files</code> is listed twice.</li>
 <li>The <code>id</code>s of the metrics are unique.</li>
-<li>When <code>ifc</code> can be found, it is an interface.</li>
+<li>When <code>ifc</code> can be found, it is an interface, and every probe of <code>probes</code> is one of its probes.</li>
 <li>The netlists keep the rules for netlists of circuits (<code>ckt</code>, checks at sealing, item 3).</li>
+<li>The netlists instantiate a subcircuit named <code>socket</code> and define none of that name. When the tool can read them, every instance of it has as many ports as the interface has pins, counting <code>width</code>.</li>
+<li>Every name of the form <code>&lt;instance&gt;.&lt;name&gt;</code> in the netlists, where <code>&lt;instance&gt;</code> is an instance of <code>socket</code>, has a probe of <code>probes</code> as <code>&lt;name&gt;</code>.</li>
+<li>The netlists declare none of the parameters of <code>parameters</code>, and set none of the options that the presets set.</li>
+<li>Every set of every preset keeps the rules above.</li>
 </ol>
 <h3 class="type-spec" id="types-tb-4">Readable name</h3>
 <p><code>tb/&lt;interface name&gt;/&lt;name&gt;.g&lt;generation&gt;/</code>, for example <code>tb/strongarm-comp/tb_offset.g1/tb_…/</code> (<a href="#6.2" class="ref">6.2</a>). The generation is the one in its <code>history.json</code> (<a href="#3.4" class="ref">3.4</a>).</p>
@@ -2652,24 +2760,33 @@ library.source.jsonl</code></pre>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ifc</span><span class="kw">:</span><span class="at"> ifc_945cdda7d9b4c0f6a2e1d3b5c7a9e0f1d2c3b4a5</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> tb_offset</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Input-referred offset by a slow ramp</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">files</span><span class="kw">:</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">netlist</span><span class="kw">:</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> tb.scs</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">simulators</span><span class="kw">:</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;21.1&#39;</span><span class="kw">}</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">run</span><span class="kw">:</span><span class="at"> spectre tb.scs +aps -format psfxl -raw psf</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="fu">analyze</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">entry</span><span class="kw">:</span><span class="at"> analyze.py</span><span class="kw">,</span><span class="at"> </span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;&gt;=3.10&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">requirements</span><span class="kw">:</span><span class="at"> requirements.txt</span><span class="kw">}</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">id</span><span class="kw">:</span><span class="at"> offset</span><span class="kw">,</span><span class="at"> </span><span class="fu">unit</span><span class="kw">:</span><span class="at"> mV</span><span class="kw">,</span><span class="at"> </span><span class="fu">better</span><span class="kw">:</span><span class="at"> lower</span><span class="kw">,</span><span class="at"> </span><span class="fu">tolerance</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">abs</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.2</span><span class="kw">}}</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span><span class="kw">:</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">unit</span><span class="kw">:</span><span class="at"> V</span><span class="kw">,</span><span class="at"> </span><span class="fu">description</span><span class="kw">:</span><span class="at"> Supply voltage</span><span class="kw">}</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">presets</span><span class="kw">:</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">nom</span><span class="kw">:</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span><span class="at"> </span><span class="kw">[{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> models.scs</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">}]</span></span></code></pre></div>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">socket</span><span class="kw">:</span><span class="at"> strongarm_comp</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">probes</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">latch_p</span><span class="kw">,</span><span class="at"> latch_</span><span class="ch">n</span><span class="kw">]</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">files</span><span class="kw">:</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">netlist</span><span class="kw">:</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> tb.scs</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">simulators</span><span class="kw">:</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;21.1&#39;</span><span class="kw">}</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">run</span><span class="kw">:</span><span class="at"> spectre input.scs +aps -format psfascii -raw psf</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">analyze</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">entry</span><span class="kw">:</span><span class="at"> analyze.py</span><span class="kw">,</span><span class="at"> </span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;&gt;=3.10&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">requirements</span><span class="kw">:</span><span class="at"> requirements.txt</span><span class="kw">,</span><span class="at"> </span><span class="fu">results</span><span class="kw">:</span><span class="at"> psfascii</span><span class="kw">}</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">id</span><span class="kw">:</span><span class="at"> offset</span><span class="kw">,</span><span class="at"> </span><span class="fu">unit</span><span class="kw">:</span><span class="at"> mV</span><span class="kw">,</span><span class="at"> </span><span class="fu">better</span><span class="kw">:</span><span class="at"> lower</span><span class="kw">,</span><span class="at"> </span><span class="fu">tolerance</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">abs</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.2</span><span class="kw">}}</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">unit</span><span class="kw">:</span><span class="at"> V</span><span class="kw">,</span><span class="at"> </span><span class="fu">description</span><span class="kw">:</span><span class="at"> Supply voltage</span><span class="kw">}</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="fu">presets</span><span class="kw">:</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">nom</span><span class="kw">:</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span><span class="at"> </span><span class="kw">[{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> models.scs</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">}]</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">supply</span><span class="kw">:</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.62</span><span class="kw">}</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span><span class="at"> </span><span class="kw">[{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> models.scs</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">}]</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.98</span><span class="kw">}</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span><span class="at"> </span><span class="kw">[{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> models.scs</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">}]</span></span></code></pre></div>
 <h2 class="type-spec" id="types-evd">Type specification <code>evd</code>: evidence record</h2>
-<p>An evidence record is what someone got by examining a design: which object was examined, how, under which conditions, and what came out. The prefix is <code>evd</code>. Its <code>kind</code> says which kind of evidence it is. Version <code>0.1</code> defines one kind, <code>sim</code>: a simulation, in which testbenches were run on a circuit; later versions may add others, such as sign-off checks, measurements of silicon and characterisation. This specification needs the common rules of TOA <code>0.1</code> or later (chapters 2 to 8); the definition of its fields is <code>types/evd.schema.json</code>.</p>
+<p>An evidence record is what someone got by examining a design: which object was examined, how, under which conditions, and what came out. The prefix is <code>evd</code>. Its <code>kind</code> says which kind of evidence it is. Version <code>0.1</code> defines one kind, <code>sim</code>: a simulation, in which testbenches were run on a circuit; later versions may add others, such as sign-off checks, measurements of silicon and characterisation. A simulation whose results are statistics, such as a Monte Carlo simulation, is not a <code>sim</code>: a later version will define a kind for it. This specification needs the common rules of TOA <code>0.1</code> or later (chapters 2 to 8); the definition of its fields is <code>types/evd.schema.json</code>.</p>
 <h3 class="type-spec" id="types-evd-1">Fields</h3>
 <p>Besides the common fields (<a href="#3.2.1" class="ref">3.2.1</a>), every evidence record has:</p>
 <table>
@@ -2741,6 +2858,12 @@ library.source.jsonl</code></pre>
 <td>The conditions actually run, in three slots (below)</td>
 </tr>
 <tr>
+<td><code>probes</code></td>
+<td>when a testbench lists probes</td>
+<td>a mapping from probe names to nets</td>
+<td>The net of the circuit tested that each probe is, in this run (below)</td>
+</tr>
+<tr>
 <td><code>environment</code></td>
 <td>must</td>
 <td>a mapping</td>
@@ -2769,6 +2892,7 @@ library.source.jsonl</code></pre>
 <li><code>options</code>: settings of the simulator and solver, such as <code>temp</code>, <code>reltol</code> or <code>errpreset</code>;</li>
 <li><code>models</code>: a list of the model files used, each with <code>file</code> (a file name without <code>/</code> or <code>\</code>), and optionally <code>section</code> (a name or a list), <code>version</code>, <code>match</code> (strings that must all occur in the file), <code>process</code> and <code>sha256</code> (<a href="#3.5" class="ref">3.5</a>).</li>
 </ul></li>
+<li><strong><code>probes</code></strong> gives, for each probe that the testbenches of <code>tbs</code> list, a net of the circuit in <code>dut</code>: a net of its subcircuit, such as <code>LP</code>, or a net further down, written as the names of the instances down to it and the net, joined by <code>.</code>, such as <code>xlatch.LP</code>. It holds those probes and no others. Like <code>dut</code> and <code>conditions</code>, it is an input of the run: another circuit of the same interface may give other nets to the same testbenches.</li>
 <li><strong><code>environment</code>:</strong> <code>simulator</code> must be written, with <code>name</code> and <code>version</code>, and optionally <code>command</code>: the whole command line that ran it, options included. <code>pdk</code> (<code>process</code>, <code>release</code>), <code>analysis</code> (<code>python</code>, <code>packages</code>), <code>system</code> (<code>os</code>, <code>cpu</code>, <code>threads</code>) and <code>note</code> may be written. Nothing in <code>environment</code> holds a local path, a host name or a user name.</li>
 <li><strong><code>evidence</code>:</strong> the <code>kind</code> of a file is <code>spectrum</code>, <code>curve</code>, <code>waveform</code>, <code>table</code> or <code>json</code>. It is not the <code>kind</code> of the record.</li>
 <li><strong><code>description</code></strong> (<a href="#3.2.1" class="ref">3.2.1</a>) holds anything else a reader should know, such as why a metric is missing.</li>
@@ -2871,6 +2995,7 @@ library.source.jsonl</code></pre>
 <li>Every key of <code>metrics</code> is <code>&lt;name&gt;.&lt;id&gt;</code> of a metric of one of the testbenches, when they can be found.</li>
 <li>When the objects can be found: <code>dut</code> is a circuit; every testbench measures the interface of <code>dut</code>; <code>tree</code> is the expanded tree of <code>dut</code>, and every file hash agrees.</li>
 <li>Within one expanded tree, each interface has one circuit: two circuits of one interface are two definitions of the same subcircuit, which a simulation rejects.</li>
+<li>When the testbenches can be found, <code>probes</code> names exactly the probes they list.</li>
 </ol>
 <h3 class="type-spec" id="types-evd-5">Readable name</h3>
 <p><code>evd/&lt;interface name&gt;/&lt;record label&gt;/</code>, the label being <code>&lt;UTC time&gt;-&lt;short name&gt;</code>, for example <code>evd/strongarm-comp/20261103T1200Z-wrap-off/evd_…/</code> (<a href="#6.2" class="ref">6.2</a>).</p>
@@ -2883,16 +3008,17 @@ library.source.jsonl</code></pre>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tbs</span><span class="kw">:</span></span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> tb_ad96a1470e2d4c6b8a9f1e3d5c7b9a0e2f4d6c8b</span></span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> Alice Zhang</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">conditions</span><span class="kw">:</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">models</span><span class="kw">:</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> sky130.lib.spice</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;0.20.1&#39;</span><span class="kw">}</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="fu">environment</span><span class="kw">:</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">simulator</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;23.1.0&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">command</span><span class="kw">:</span><span class="at"> spectre tb.scs +aps</span><span class="kw">}</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">analysis</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;3.11.9&#39;</span><span class="kw">}</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">tb_offset.offset</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.7</span></span></code></pre></div>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">probes</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">latch_p</span><span class="kw">:</span><span class="at"> LP</span><span class="kw">,</span><span class="at"> </span><span class="fu">latch_n</span><span class="kw">:</span><span class="at"> LM</span><span class="kw">}</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">conditions</span><span class="kw">:</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">models</span><span class="kw">:</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> sky130.lib.spice</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;0.20.1&#39;</span><span class="kw">}</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">simulator</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;23.1.0&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">command</span><span class="kw">:</span><span class="at"> spectre tb.scs +aps</span><span class="kw">}</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">analysis</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;3.11.9&#39;</span><span class="kw">}</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">tb_offset.offset</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.7</span></span></code></pre></div>
 <h2 class="type-spec" id="types-doc">Type specification <code>doc</code>: document</h2>
 <p>A document is a text about interfaces, circuits, testbenches, records or frozen libraries: a design note, a guide to a testbench, an architecture, a reference. Its body is the <code>README.md</code> of the object. The prefix is <code>doc</code>. This specification needs the common rules of TOA <code>0.1</code> or later (chapters 2 to 8); the definition of its fields is <code>types/doc.schema.json</code>.</p>
 <h3 class="type-spec" id="types-doc-1">Fields</h3>
@@ -3083,6 +3209,7 @@ library.source.jsonl</code></pre>
 <li><strong>A workspace list may include the list of members directly,</strong> by an include line whose <code>include</code> is its path in a library (<a href="#5.1" class="ref">5.1</a>, <a href="#8.1" class="ref">8.1</a>). Groups and readable names are shown as for any source list.</li>
 <li><strong>Fetching a frozen library</strong> means fetching it, its members and the objects they need. The source list beside it lists them (<a href="#5.2" class="ref">5.2</a>).</li>
 <li><strong>The library list and a frozen library differ:</strong> the library list changes, as objects are added, removed and marked; the list of members never changes, and only says which objects there were at one moment, and where to find them.</li>
+<li><strong>A test plan</strong> is a frozen library whose members are an interface and the testbenches that measure it, with circuits when needed. There is no type of its own: each testbench can be run alone, so the conditions they share are written in the presets of each.</li>
 <li>Unlike a git tag, a frozen library is an object: it does not change once sealed, other objects can refer to it, it can take members from several libraries, and it does not depend on any one repository still being there.</li>
 <li><strong>Source lists</strong> follow frozen libraries further, through the objects of <code>members.source.jsonl</code> (<a href="#5.2" class="ref">5.2</a>).</li>
 </ul>

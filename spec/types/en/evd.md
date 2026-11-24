@@ -1,6 +1,6 @@
 # Type specification `evd`: evidence record
 
-An evidence record is what someone got by examining a design: which object was examined, how, under which conditions, and what came out. The prefix is `evd`. Its `kind` says which kind of evidence it is. Version `0.1` defines one kind, `sim`: a simulation, in which testbenches were run on a circuit; later versions may add others, such as sign-off checks, measurements of silicon and characterisation. This specification needs the common rules of TOA `0.1` or later (chapters 2 to 8); the definition of its fields is `types/evd.schema.json`.
+An evidence record is what someone got by examining a design: which object was examined, how, under which conditions, and what came out. The prefix is `evd`. Its `kind` says which kind of evidence it is. Version `0.1` defines one kind, `sim`: a simulation, in which testbenches were run on a circuit; later versions may add others, such as sign-off checks, measurements of silicon and characterisation. A simulation whose results are statistics, such as a Monte Carlo simulation, is not a `sim`: a later version will define a kind for it. This specification needs the common rules of TOA `0.1` or later (chapters 2 to 8); the definition of its fields is `types/evd.schema.json`.
 
 ## Fields
 
@@ -20,6 +20,7 @@ A record of the kind `sim` also has:
 | `dut` | must | an object name; in `0.1`, with the prefix `ckt` | The object tested. In `0.1` it is a circuit; later versions may allow other types |
 | `tbs` | must | a list of one or more object names with the prefix `tb` | The testbenches run |
 | `conditions` | must | a mapping | The conditions actually run, in three slots (below) |
+| `probes` | when a testbench lists probes | a mapping from probe names to nets | The net of the circuit tested that each probe is, in this run (below) |
 | `environment` | must | a mapping | The environment (below) |
 | `metrics` | must | a mapping from full metric names (`<name>.<id>`, see `tb`) to numbers | The value of each metric, as the analysis gave it. Metrics that were not obtained are left out |
 | `evidence` | may | a list of `{path, kind}`, with an optional `label` | Files under `evidence/` (below) |
@@ -30,6 +31,7 @@ A record of the kind `sim` also has:
   - `parameters`: values of the testbench's `parameters`, each a single number, string or boolean, never a list;
   - `options`: settings of the simulator and solver, such as `temp`, `reltol` or `errpreset`;
   - `models`: a list of the model files used, each with `file` (a file name without `/` or `\`), and optionally `section` (a name or a list), `version`, `match` (strings that must all occur in the file), `process` and `sha256` (3.5).
+- **`probes`** gives, for each probe that the testbenches of `tbs` list, a net of the circuit in `dut`: a net of its subcircuit, such as `LP`, or a net further down, written as the names of the instances down to it and the net, joined by `.`, such as `xlatch.LP`. It holds those probes and no others. Like `dut` and `conditions`, it is an input of the run: another circuit of the same interface may give other nets to the same testbenches.
 - **`environment`:** `simulator` must be written, with `name` and `version`, and optionally `command`: the whole command line that ran it, options included. `pdk` (`process`, `release`), `analysis` (`python`, `packages`), `system` (`os`, `cpu`, `threads`) and `note` may be written. Nothing in `environment` holds a local path, a host name or a user name.
 - **`evidence`:** the `kind` of a file is `spectrum`, `curve`, `waveform`, `table` or `json`. It is not the `kind` of the record.
 - **`description`** (3.2.1) holds anything else a reader should know, such as why a metric is missing.
@@ -70,6 +72,7 @@ For a record of the kind `sim`:
 3. Every key of `metrics` is `<name>.<id>` of a metric of one of the testbenches, when they can be found.
 4. When the objects can be found: `dut` is a circuit; every testbench measures the interface of `dut`; `tree` is the expanded tree of `dut`, and every file hash agrees.
 5. Within one expanded tree, each interface has one circuit: two circuits of one interface are two definitions of the same subcircuit, which a simulation rejects.
+6. When the testbenches can be found, `probes` names exactly the probes they list.
 
 ## Readable name
 
@@ -87,6 +90,7 @@ dut: ckt_1ec6249c0d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a
 tbs:
 - tb_ad96a1470e2d4c6b8a9f1e3d5c7b9a0e2f4d6c8b
 author: Alice Zhang
+probes: {latch_p: LP, latch_n: LM}
 conditions:
   parameters: {vdd: 1.8}
   options: {temp: 27}

@@ -34,6 +34,12 @@
    "note": "Written as the field name; 改自 in running text. Not the previous head of the library check (基准)."
   },
   {
+   "en": "block measured",
+   "term": "被测块",
+   "kind": "eda",
+   "note": "The block a testbench measures, instantiated as the subcircuit named in its socket."
+  },
+  {
    "en": "bus",
    "sense": "a pin with width",
    "term": "总线",
@@ -108,6 +114,13 @@
    "en": "draft name",
    "term": "草稿名",
    "kind": "toa"
+  },
+  {
+   "en": "entry file",
+   "sense": "of an assembled run (7.6)",
+   "term": "顶层文件",
+   "kind": "toa",
+   "note": "input.scs or input.sp, the only file the simulator is given. Not 入口文件, which is the manifest."
   },
   {
    "en": "evidence",
@@ -352,10 +365,24 @@
    "kind": "toa"
   },
   {
+   "en": "preset",
+   "sense": "of a testbench",
+   "term": "预设",
+   "kind": "toa",
+   "note": "One set of conditions or a list of sets, each giving one evidence record."
+  },
+  {
    "en": "previous head",
    "sense": "the commit the library check compares with",
    "term": "基准",
    "kind": "toa"
+  },
+  {
+   "en": "probe",
+   "sense": "of an interface",
+   "term": "探针",
+   "kind": "toa",
+   "note": "A named node inside a module that testbenches may observe; an evidence record says which net it is."
   },
   {
    "en": "process",
@@ -426,6 +453,12 @@
    "note": "分支 is a git branch."
   },
   {
+   "en": "set of conditions",
+   "term": "一组条件",
+   "kind": "toa",
+   "note": "parameters, options and models of one run; a list of sets is 一串条件."
+  },
+  {
    "en": "sidecar file",
    "term": "旁挂文件",
    "kind": "toa"
@@ -435,6 +468,13 @@
    "term": "签名的提交",
    "kind": "toa",
    "note": "A commit signed with git's SSH or GPG signing; it shows who put an object into a library (6.3)."
+  },
+  {
+   "en": "socket",
+   "sense": "of a testbench",
+   "term": "socket",
+   "kind": "toa",
+   "note": "Kept as the field name in Chinese text: the subcircuit name a testbench uses for the block measured."
   },
   {
    "en": "source",
@@ -492,6 +532,18 @@
    "sense": "the part of a draft name after draft-",
    "term": "标签",
    "kind": "toa"
+  },
+  {
+   "en": "target",
+   "sense": "of a circuit (specifications.targets)",
+   "term": "目标",
+   "kind": "toa"
+  },
+  {
+   "en": "test plan",
+   "term": "测试计划",
+   "kind": "toa",
+   "note": "A frozen library of an interface and its testbenches; no type of its own."
   },
   {
    "en": "testbench",
