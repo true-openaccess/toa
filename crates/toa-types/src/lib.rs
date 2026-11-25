@@ -11,12 +11,15 @@ mod doc;
 mod evd;
 mod frozen;
 mod ifc;
+pub mod mc;
 pub mod netlist;
 pub mod readable;
+pub mod reading;
 mod tb;
 mod v;
 
 pub use evd::{expand, TreeRow};
+pub use tb::{agree, METHODS, RESULTS, RUNS, SAMPLINGS, SEED_MAX};
 
 use toa_core::manifest::Node;
 use toa_core::Problem;
@@ -47,8 +50,10 @@ pub fn is_known(prefix: &str) -> bool {
 /// are shown as they are.
 pub const FORMS: &[&str] = &["ideal", "va", "rtl", "transistor", "passive", "gates", "composition", "mixed"];
 
-/// The one kind of evidence record `0.1` defines (`evd`, `kind`).
+/// The kind of evidence record of a simulation (`evd`, `kind`).
 pub const SIM: &str = "sim";
+/// The kind of evidence record of a Monte Carlo simulation (`evd`).
+pub const MC: &str = "mc";
 
 /// Whether source lists follow objects of this type further (5.2): interfaces, circuits,
 /// testbenches and frozen libraries are followed; evidence records, documents and types not known

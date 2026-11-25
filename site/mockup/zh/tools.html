@@ -59,9 +59,10 @@
           <li><a href="#build"><span class="n">1</span>从源码编译</a></li>
           <li><a href="#git"><span class="n">2</span>Git 使用方式</a></li>
           <li><a href="#library"><span class="n">3</span>发布库</a></li>
-          <li><a href="#commands"><span class="n">4</span>命令</a></li>
-          <li><a href="#options"><span class="n">5</span>选项和退出码</a></li>
-          <li><a href="#planned"><span class="n">6</span>计划中的命令</a></li>
+          <li><a href="#timestamps"><span class="n">4</span>给对象盖时间戳（建议）</a></li>
+          <li><a href="#commands"><span class="n">5</span>命令</a></li>
+          <li><a href="#options"><span class="n">6</span>选项和退出码</a></li>
+          <li><a href="#planned"><span class="n">7</span>计划中的命令</a></li>
         </ol>
       </div>
     </nav>
@@ -116,7 +117,26 @@ toa publish --commit  # 整理清单、提交并做库的检查
 git push              # 手动推送（toa 不推送）</code></pre>
         <p><code>toa seal</code> 前可用 <code>toa status</code> 查草稿，<code>--dry-run</code> 预览变更。</p>
 
-        <h2 id="commands"><span class="sec">4</span>命令</h2>
+        <h2 id="timestamps"><span class="sec">4</span>给对象盖时间戳（建议）</h2>
+        <p>时间戳证明能说明一个对象名最晚在某个时间已经存在，可以用来说明谁先公开。盖章时只发出哈希，所以对象公开之前就可以盖。<code>toa</code> 不做证明；建议用 OpenTimestamps 和它的客户端 <code>ots</code>（<code>pip3 install opentimestamps-client</code>），在库外面操作：</p>
+<pre><code>n=ckt_876f99c0ddb9fae4aabf6b8b3b7fd59de24e7e2b
+s=my-library/ckt/strongarm-comp/sky130-razavi.g1/$n.stamps
+# 对象名，不带换行
+printf '%s' "$n" &gt; name
+# 只发出哈希，写出 name.ots
+ots stamp name
+# 放在对象旁边，和对象一起发布
+mkdir -p "$s" &amp;&amp; cp name.ots "$s/20261125-btc.ots"
+# 几小时后：补全 name.ots
+ots upgrade name.ots
+# 换掉原来那份，再发布一次
+cp name.ots "$s/20261125-btc.ots"
+# 谁都能核对
+ots verify -f name "$s/20261125-btc.ots"</code></pre>
+        <p>不要钱，也不用注册。哈希进了比特币区块，证明才完整，要等几个小时；证明给出的时间精度也是几个小时。核对时用 <code>ots verify</code>，它从你自己的 Bitcoin Core 节点读区块（裁剪节点就够）；也可以用 <a href="https://opentimestamps.org">opentimestamps.org</a> 上的浏览器内核对，那就要信任这个网站。证明只说明名字那时已经存在，不说明对象是谁做的。</p>
+        <p>用别的证明也行，例如 RFC 3161 时间戳：标准不限制时间戳目录里放什么 (<a class="ref" href="spec/0.1/#4.3">4.3</a>).</p>
+
+        <h2 id="commands"><span class="sec">5</span>命令</h2>
         <p>同 <code>toa --help</code>；编号对应<a href="spec/0.1/">标准</a>章节。</p>
 
         <h3>对象</h3>
@@ -151,7 +171,7 @@ git push              # 手动推送（toa 不推送）</code></pre>
           </tbody>
         </table>
 
-        <h2 id="options"><span class="sec">5</span>选项和退出码</h2>
+        <h2 id="options"><span class="sec">6</span>选项和退出码</h2>
         <table>
           <tbody>
             <tr><td><code>--json</code></td><td>标准输出打印 JSON Lines，供脚本与 Agent 用。</td></tr>
@@ -171,7 +191,7 @@ git push              # 手动推送（toa 不推送）</code></pre>
           </tbody>
         </table>
 
-        <h2 id="planned"><span class="sec">6</span>计划中的命令</h2>
+        <h2 id="planned"><span class="sec">7</span>计划中的命令</h2>
         <p>尚未实现。<code>toa new</code> 实现之前，新草稿目录手工编写；要从已有对象出发，用 <code>toa derive</code>。</p>
         <table class="cmds">
           <tbody>

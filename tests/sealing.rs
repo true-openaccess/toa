@@ -370,3 +370,21 @@ fn the_same_files_without_a_declared_lineage_are_hinted_at() {
     assert_eq!(earlier, [alice.clone(), bob.clone()]);
     assert_eq!(object(&alice)["same_files"]["later"].as_array().unwrap().len(), 2);
 }
+
+#[test]
+fn an_interface_with_base_is_sealed() {
+    let home = temp("seal-ifc-home");
+    let lib = temp("seal-ifc-lib");
+    library(&home, &lib);
+    let g = support::system_git(&home);
+    write(&lib.join("ifc/x/ifc_draft-a/toa.yaml"), IP.as_bytes());
+    seal::seal(&g, &lib, &opts()).unwrap();
+    let first = only_dir(&lib.join("ifc/x"), "ifc_");
+    let second = IP.replace("title: X\n", &format!("base: [{first}]\ntitle: X, again\n"));
+    write(&lib.join("ifc/x2/ifc_draft-b/toa.yaml"), second.as_bytes());
+    // sealing checks the type: history.json, which it writes, is no file an interface may not hold
+    let r = seal::seal(&g, &lib, &opts()).unwrap_or_else(|e| panic!("{e:?}"));
+    assert_eq!(r.objects.len(), 1, "{:?}", r.notices);
+    let sealed = only_dir(&lib.join("ifc/x2"), "ifc_");
+    assert!(lib.join("ifc/x2").join(&sealed).join("history.json").is_file());
+}

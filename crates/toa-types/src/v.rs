@@ -77,6 +77,18 @@ impl V<'_> {
         x
     }
 
+    /// A whole number from `min` to `max`.
+    pub fn int(&mut self, n: &Node, at: &str, min: i64, max: i64) -> Option<i64> {
+        match n.value {
+            Value::Int(i) if (min..=max).contains(&i) => Some(i),
+            _ => {
+                let range = if max == i64::MAX { format!("{min} or more") } else { format!("from {min} to {max}") };
+                self.err("E_FIELD", at, format!("{} is a whole number, {range}", shown(at)));
+                None
+            }
+        }
+    }
+
     /// A list; the problem when it is not, or is shorter than `min`.
     pub fn list<'n>(&mut self, n: &'n Node, at: &str, min: usize) -> Option<&'n [Node]> {
         match n.as_seq() {

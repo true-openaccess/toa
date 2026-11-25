@@ -357,6 +357,70 @@
                     }
                   }
                 }
+              },
+              "statistics": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "method",
+                  "points",
+                  "sampling",
+                  "seed"
+                ],
+                "description": "How the samples of a Monte Carlo simulation are drawn and run (types/en/evd.md, the kind mc).",
+                "properties": {
+                  "method": {
+                    "enum": [
+                      "mismatch",
+                      "process",
+                      "both"
+                    ]
+                  },
+                  "points": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "sampling": {
+                    "enum": [
+                      "random",
+                      "lds",
+                      "lhs"
+                    ]
+                  },
+                  "seed": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2147483647
+                  },
+                  "first": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 1
+                  },
+                  "run": {
+                    "enum": [
+                      "each",
+                      "batch"
+                    ]
+                  }
+                },
+                "if": {
+                  "properties": {
+                    "sampling": {
+                      "const": "lhs"
+                    }
+                  },
+                  "required": [
+                    "sampling"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "first": {
+                      "const": 1
+                    }
+                  }
+                }
               }
             }
           },
@@ -421,6 +485,70 @@
                       "sha256": {
                         "type": "string",
                         "pattern": "^[0-9a-f]{64}$"
+                      }
+                    }
+                  }
+                },
+                "statistics": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "method",
+                    "points",
+                    "sampling",
+                    "seed"
+                  ],
+                  "description": "How the samples of a Monte Carlo simulation are drawn and run (types/en/evd.md, the kind mc).",
+                  "properties": {
+                    "method": {
+                      "enum": [
+                        "mismatch",
+                        "process",
+                        "both"
+                      ]
+                    },
+                    "points": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "sampling": {
+                      "enum": [
+                        "random",
+                        "lds",
+                        "lhs"
+                      ]
+                    },
+                    "seed": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 2147483647
+                    },
+                    "first": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "default": 1
+                    },
+                    "run": {
+                      "enum": [
+                        "each",
+                        "batch"
+                      ]
+                    }
+                  },
+                  "if": {
+                    "properties": {
+                      "sampling": {
+                        "const": "lhs"
+                      }
+                    },
+                    "required": [
+                      "sampling"
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "first": {
+                        "const": 1
                       }
                     }
                   }

@@ -34,6 +34,12 @@
    "note": "Written as the field name; 改自 in running text. Not the previous head of the library check (基准)."
   },
   {
+   "en": "bin",
+   "sense": "of Latin hypercube sampling",
+   "term": "分箱",
+   "kind": "eda"
+  },
+  {
    "en": "block measured",
    "term": "被测块",
    "kind": "eda",
@@ -245,6 +251,18 @@
    "note": "\"latest\": true on a line of a library list (5.2)."
   },
   {
+   "en": "Latin hypercube sampling",
+   "term": "拉丁超立方采样",
+   "kind": "eda"
+  },
+  {
+   "en": "launcher",
+   "sense": "local, of a simulator",
+   "term": "本机启动器",
+   "kind": "toa",
+   "note": "A sandbox, job scheduler or container that only starts the simulator; never written in a record."
+  },
+  {
    "en": "lenient reading",
    "term": "容错的读法",
    "kind": "toa"
@@ -305,6 +323,11 @@
    "kind": "toa"
   },
   {
+   "en": "low-discrepancy sequence",
+   "term": "低差异序列",
+   "kind": "eda"
+  },
+  {
    "en": "maintainer",
    "term": "维护者",
    "kind": "general"
@@ -316,9 +339,25 @@
    "note": "The file toa.yaml."
   },
   {
+   "en": "mean",
+   "term": "均值",
+   "kind": "general"
+  },
+  {
    "en": "metric",
    "term": "指标",
    "kind": "eda"
+  },
+  {
+   "en": "mismatch",
+   "term": "失配",
+   "kind": "eda"
+  },
+  {
+   "en": "Monte Carlo simulation",
+   "term": "Monte Carlo 仿真",
+   "kind": "eda",
+   "note": "Monte Carlo is kept in Latin letters; the evidence records of the kind mc."
   },
   {
    "en": "netlist",
@@ -427,6 +466,12 @@
    "kind": "toa"
   },
   {
+   "en": "reproduce",
+   "sense": "of a run",
+   "term": "复现",
+   "kind": "general"
+  },
+  {
    "en": "reserved form",
    "term": "保留的形式",
    "kind": "toa"
@@ -437,9 +482,28 @@
    "kind": "toa"
   },
   {
+   "en": "sample",
+   "sense": "of a Monte Carlo simulation",
+   "term": "样本",
+   "kind": "eda",
+   "note": "第 k 个样本 for sample k."
+  },
+  {
+   "en": "sampling",
+   "term": "采样",
+   "kind": "eda",
+   "note": "How the samples of a Monte Carlo simulation are drawn (statistics.sampling)."
+  },
+  {
    "en": "seal",
    "term": "定稿",
    "kind": "toa"
+  },
+  {
+   "en": "seed",
+   "sense": "of random numbers",
+   "term": "种子",
+   "kind": "eda"
   },
   {
    "en": "series",
@@ -506,6 +570,24 @@
    "term": "标准",
    "kind": "toa",
    "note": "本标准. The draft called it 规范; the folder stays spec/."
+  },
+  {
+   "en": "standard deviation",
+   "term": "标准差",
+   "kind": "general"
+  },
+  {
+   "en": "statistic",
+   "term": "统计量",
+   "kind": "general",
+   "note": "The field statistics of a set of conditions stays as the field name."
+  },
+  {
+   "en": "statistically consistent",
+   "sense": "of two Monte Carlo simulations",
+   "term": "统计上一致",
+   "kind": "toa",
+   "note": "Agreeing by statistics, not sample by sample; not a reproduction (复现)."
   },
   {
    "en": "strict reading",
@@ -594,6 +676,12 @@
    "kind": "toa"
   },
   {
+   "en": "variation",
+   "sense": "statistical, of a process or devices",
+   "term": "偏差",
+   "kind": "eda"
+  },
+  {
    "en": "verified",
    "sense": "the part of a history verified link by link",
    "term": "核对过的",
@@ -636,6 +724,11 @@
    "term": "工作区清单",
    "kind": "toa",
    "note": "The file workspace.source.jsonl. 库表 in earlier drafts."
+  },
+  {
+   "en": "yield",
+   "term": "良率",
+   "kind": "eda"
   }
  ]
 }

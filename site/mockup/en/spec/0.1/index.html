@@ -144,7 +144,7 @@
           <h1>TOA 0.1</h1>
           <p>Defines TOA objects, naming, manifests, source lists, libraries, workspaces, and operations—self-contained for any implementation.</p>
           <div class="rev">
-            <span>not released · 2026-11-24 · a32636d</span>
+            <span>not released · 2026-11-25 · d5316dd</span>
             <span class="faint">Versions: <a href="../0.1/">0.1</a></span>
           </div>
           <ul class="downloads">
@@ -1625,7 +1625,7 @@ library.source.jsonl</code></pre>
 <li>Each <code>external</code> of an object is matched with the entry of <code>external</code> in the map that has the same <code>name</code>; an entry with <code>process</code> must also have the <code>process</code> of that external file (or else the process its object names).</li>
 <li>Every string of <code>match</code> must occur in its file.</li>
 </ul></li>
-<li><p><strong>Assembling a run.</strong> An evidence record of the kind <code>sim</code> (<code>evd</code>) is made by running each of its testbenches on the circuit tested under one set of conditions. For each testbench, the tool writes a directory holding:</p>
+<li><p><strong>Assembling a run.</strong> An evidence record of the kind <code>sim</code> or <code>mc</code> (<code>evd</code>) is made by running each of its testbenches on the circuit tested under one set of conditions. For each testbench, the tool writes a directory holding:</p>
 <ul>
 <li><code>tb/</code>: the files of the testbench, at their paths in the object;</li>
 <li><code>ckt/&lt;object name&gt;/</code>: the files of each circuit of the expanded tree, at their paths in the object;</li>
@@ -1696,6 +1696,51 @@ library.source.jsonl</code></pre>
 <li><p><strong>The block measured:</strong> in the copies of its netlists in the directory, the subcircuit of the circuit tested takes the name in <code>socket</code> of the testbench; its ports stay in the order of the pins of the interface. Other subcircuits of the tree are renamed when their names clash with it, with each other, or with subcircuits that the testbench defines.</p></li>
 <li><p><strong>Probes:</strong> in the copies of the netlists of the testbench, each <code>&lt;instance&gt;.&lt;probe&gt;</code> (<code>tb</code>) becomes <code>&lt;instance&gt;.&lt;net&gt;</code>, with the net that <code>probes</code> of the record gives. Before running, the tool checks that each such net is in the circuit tested: a net of its subcircuit, or, for a net further down, the instances down to it and the net. When a net is missing, or the tool cannot tell, it stops: it never runs with a probe that leads nowhere.</p></li>
 <li><p><strong>The results</strong> are written in the format of <code>analyze.results</code> of the testbench into a directory <code>&lt;results&gt;</code>, with <code>conditions.json</code>, and then the analysis script is called (<code>tb</code>).</p></li>
+<li><p><strong>A Monte Carlo simulation</strong> (a record of the kind <code>mc</code>) is assembled and run as above, with these additions:</p>
+<ul>
+<li><p>Each sample is one simulation. With <code>run: each</code>, the tool runs each sample alone, as the first and only sample of its simulation. With <code>run: batch</code>, it runs all of them in one simulation and splits the results by sample. Sample k is what the first way gives (<code>evd</code>).</p></li>
+<li><p>In Spectre, in the copy of the first netlist of the testbench, the statements from its first analysis to its last, with the sweeps and other statements between them, are put inside the braces of one statement <code>toaMonteCarlo montecarlo &lt;parameters&gt; { … }</code>; the statements before and after them stay outside. When the tool cannot tell where the analyses are, it stops.</p></li>
+<li><p>Its parameters:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th><code>statistics</code></th>
+<th>Spectre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>method</code>: <code>mismatch</code>, <code>process</code> or <code>both</code></td>
+<td><code>variations=mismatch</code>, <code>variations=process</code> or <code>variations=all</code></td>
+</tr>
+<tr>
+<td><code>sampling</code>: <code>random</code>, <code>lds</code> or <code>lhs</code></td>
+<td><code>sampling=standard</code>, <code>sampling=lds</code> or <code>sampling=lhs</code>; with <code>lhs</code>, also <code>numbins=&lt;points&gt;</code></td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td><code>seed=&lt;seed&gt;</code></td>
+</tr>
+<tr>
+<td>the samples of the simulation</td>
+<td><code>firstrun=&lt;the number of its first sample&gt;</code> and <code>numruns=&lt;the number of its samples&gt;</code></td>
+</tr>
+<tr>
+<td>always</td>
+<td><code>donominal=no</code> and <code>savefamilyplots=yes</code></td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>The mismatch is applied to the block measured only.</strong> With <code>mismatch</code> or <code>both</code>, the statement also has <code>dut=[&lt;instance&gt; …]</code>, listing the instances of <code>socket</code> in the netlist: without it, Spectre would apply mismatch to the devices of the testbench as well.</p></li>
+<li><p>In SPICE, <code>0.1</code> defines no way of running a Monte Carlo simulation: the tool stops.</p></li>
+<li><p>The results of each sample go into a directory <code>&lt;results&gt;</code> of their own, under the names that a run without <code>statistics</code> gives them. With <code>batch</code>, Spectre names the files of sample k <code>toaMonteCarlo-&lt;k&gt;_&lt;name&gt;</code>, <code>&lt;k&gt;</code> perhaps with leading zeros, and <code>&lt;name&gt;</code> is the name without that prefix. A sample with no results is one whose simulation failed.</p></li>
+<li><p>In each, <code>conditions.json</code> holds the <code>conditions</code> with <code>statistics</code>, and <code>sample</code>; the analysis script is called once for each sample, as for any run.</p></li>
+<li><p>The tool then writes <code>evidence/samples.csv</code> and computes the statistics of <code>metrics</code> from it (<code>evd</code>).</p></li>
+</ul></li>
 <li><p>A tool must not run commands carried by objects on its own, and must not install dependencies that objects list on its own (chapter 11).</p></li>
 </ul>
 <h2 id="8"><span class="sec">8</span>Workspace list and index<a href="#8" class="anchor" aria-label="Link to 8">#</a></h2>
@@ -2214,6 +2259,11 @@ library.source.jsonl</code></pre>
 <td>The manifest</td>
 </tr>
 <tr>
+<td><code>history.json</code></td>
+<td>when <code>base</code> is written</td>
+<td>Its lineage, written by sealing (<a href="#3.4" class="ref">3.4</a>)</td>
+</tr>
+<tr>
 <td><code>symbol.rnl</code></td>
 <td>should</td>
 <td>The symbol of the interface in RNL <code>0.4</code>: a package named <code>&lt;name&gt;-sym</code> that draws the block; the netlists that use it apply it to their subcircuits. Circuits and testbenches that draw this block use this package rather than a copy of it</td>
@@ -2236,7 +2286,7 @@ library.source.jsonl</code></pre>
 </tbody>
 </table>
 <ul>
-<li><p>An interface holds no other files. Models, netlists and longer texts belong in circuits, testbenches and documents.</p></li>
+<li><p>Besides these, an interface holds no other files. Models, netlists and longer texts belong in circuits, testbenches and documents.</p></li>
 <li><p><strong>Which package draws a subcircuit is decided by references, not by the name of the package.</strong> In a circuit, the subcircuit it defines is drawn with the <code>symbol.rnl</code> of the interface in <code>ifc</code>, and the subcircuit of each item of <code>uses</code> with that of the item’s <code>ifc</code>; in a testbench, the block it measures is drawn with that of its <code>ifc</code>. A tool gives these files to RNL as the packages of those names. The name of the package cannot hold the name of the interface, because a file cannot hold the hash of its own object (<a href="#3.2.1" class="ref">3.2.1</a>).</p></li>
 <li><p><strong>Two interfaces may share a <code>name</code></strong> (above), and then their packages share a name too. When both occur in one expanded tree, RNL uses only one of the two packages, so a tool should warn of it. This does not make any object invalid.</p></li>
 <li><p><strong>The symbol goes with the interface.</strong> A new symbol gives a new interface, and the circuits that refer to the old one do not change with it. So the symbol should be drawn before the interface is sealed. To change it later, make a new interface whose <code>base</code> is the old one; a library may mark it <code>latest</code> (<a href="#5.2" class="ref">5.2</a>), and circuits follow it one by one, if their authors wish (<a href="#7.5" class="ref">7.5</a>).</p></li>
@@ -2598,7 +2648,7 @@ library.source.jsonl</code></pre>
 <td><code>run</code></td>
 <td>must</td>
 <td>a string</td>
-<td>The command that runs the simulation, as a reference; the user’s own setup may differ</td>
+<td>The command that runs the simulation, as a reference; the user’s own setup may differ. It is the simulator’s own command line, without a local launcher (<code>evd</code>)</td>
 </tr>
 <tr>
 <td><code>analyze</code></td>
@@ -2686,7 +2736,7 @@ library.source.jsonl</code></pre>
 <li><strong>Probes.</strong> The netlist names nothing inside the block measured except the probes of the interface (<code>ifc</code>), each written as <code>&lt;instance&gt;.&lt;probe&gt;</code>, where <code>&lt;instance&gt;</code> is an instance of <code>socket</code>, such as <code>I0.latch_p</code>. Which net of a circuit a probe is, the evidence record says for each run (<code>evd</code>); when a run is assembled, the tool writes that net in place of the probe (<a href="#7.6" class="ref">7.6</a>). So the testbench runs unchanged on every circuit of the interface, whatever the circuit calls its nets.</li>
 <li><strong><code>analyze.results</code></strong> is the format of the results the analysis script reads: <code>psfascii</code> (PSF ASCII, a directory of files as Spectre writes it) or <code>nutascii</code> (the ASCII raw file of SPICE, one file <code>results.raw</code> holding every analysis). Later versions may allow others. The tool makes the simulator write its results in this format; <code>run</code> is only a reference.</li>
 <li><strong>Tolerance:</strong> two results <code>a</code> and <code>b</code> of a metric agree when <code>|a − b| ≤ max(abs, rel × max(|a|, |b|))</code>, an <code>abs</code> or <code>rel</code> not written counting as 0. Neither result is taken as the reference.</li>
-<li><strong>Presets.</strong> A set of conditions has the three slots <code>parameters</code>, <code>options</code> and <code>models</code>, written as the evidence record writes its <code>conditions</code> (<code>evd</code>): every value is single, never a list. A preset is one set, or a list of sets; each set is written in full, and takes nothing from another set or another preset. Each set gives a value to every parameter of <code>parameters</code>, and to no other. Each set is run once and gives one evidence record, so a sweep is written as a list with one set per point.</li>
+<li><strong>Presets.</strong> A set of conditions has the three slots <code>parameters</code>, <code>options</code> and <code>models</code>, and, for a Monte Carlo simulation, a fourth, <code>statistics</code>, written as the evidence record writes its <code>conditions</code> (<code>evd</code>): every value is single, never a list. In a preset, <code>run</code> of <code>statistics</code> may be left out, the user then choosing how to run it. A preset is one set, or a list of sets; each set is written in full, and takes nothing from another set or another preset. Each set gives a value to every parameter of <code>parameters</code>, and to no other. Each set is run once and gives one evidence record, of the kind <code>mc</code> when it has <code>statistics</code> and <code>sim</code> when not, so a sweep is written as a list with one set per point.</li>
 <li><strong>A full name keeps its meaning.</strong> Within the generations of one testbench, the meaning of a metric’s name never changes; a metric that means something else takes another name. The targets of a circuit (<code>specifications.targets</code> of <code>ckt</code>) and the requirements in the <code>uses</code> of circuits are written with full names.</li>
 <li><strong><code>description</code></strong> (<a href="#3.2.1" class="ref">3.2.1</a>) says what the testbench measures and how.</li>
 </ul>
@@ -2734,8 +2784,8 @@ library.source.jsonl</code></pre>
 </table>
 <ul>
 <li><strong>The netlists</strong> are not run alone: they hold no model files and no circuit of the block measured, they do not declare the parameters of <code>parameters</code>, and they set none of the options that the presets set: the tool writes these with the conditions of each run (<a href="#7.6" class="ref">7.6</a>). A netlist in SPICE holds no <code>.end</code>.</li>
-<li><strong>The analysis script</strong> is called as <code>&lt;entry&gt; &lt;results&gt; &lt;output&gt;</code>. It reads the results of the simulations of one set of conditions from the directory <code>&lt;results&gt;</code>, and writes into <code>&lt;output&gt;</code> a file <code>metrics.json</code> (one number per metric, by <code>id</code>) and a directory <code>evidence/</code>.</li>
-<li><strong><code>conditions.json</code>:</strong> before calling the script, the tool writes into <code>&lt;results&gt;</code> a file <code>conditions.json</code>, a JSON object holding the <code>conditions</code> of the evidence record it is making, and its <code>probes</code> when it has any. The script may use them, for example for a threshold of half the supply.</li>
+<li><strong>The analysis script</strong> is called as <code>&lt;entry&gt; &lt;results&gt; &lt;output&gt;</code>. It reads the results of the simulations of one set of conditions, or of one sample of a Monte Carlo simulation, from the directory <code>&lt;results&gt;</code>, and writes into <code>&lt;output&gt;</code> a file <code>metrics.json</code> (one number per metric, by <code>id</code>) and a directory <code>evidence/</code>. In a Monte Carlo simulation it is called once for each sample, and needs nothing written for it (<a href="#7.6" class="ref">7.6</a>).</li>
+<li><strong><code>conditions.json</code>:</strong> before calling the script, the tool writes into <code>&lt;results&gt;</code> a file <code>conditions.json</code>, a JSON object holding the <code>conditions</code> of the evidence record it is making, its <code>probes</code> when it has any, and, for a sample of a Monte Carlo simulation, <code>sample</code>: the number of the sample. The script may use them, for example for a threshold of half the supply.</li>
 <li><strong>It is someone else’s code</strong> (chapter 11). A tool must not run it without the user’s agreement, should show it, and its difference from the previous version, before running a version for the first time, and should run it in a process and directory of its own. This is no isolation: a testbench that has not been reviewed should run in a container or virtual machine.</li>
 <li>A file may start with a licence header, as for circuits (<code>ckt</code>).</li>
 <li><strong>Source lists</strong> follow testbenches further, through <code>ifc</code> (<a href="#5.2" class="ref">5.2</a>).</li>
@@ -2786,7 +2836,7 @@ library.source.jsonl</code></pre>
 <span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
 <span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span><span class="at"> </span><span class="kw">[{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> models.scs</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">}]</span></span></code></pre></div>
 <h2 class="type-spec" id="types-evd">Type specification <code>evd</code>: evidence record</h2>
-<p>An evidence record is what someone got by examining a design: which object was examined, how, under which conditions, and what came out. The prefix is <code>evd</code>. Its <code>kind</code> says which kind of evidence it is. Version <code>0.1</code> defines one kind, <code>sim</code>: a simulation, in which testbenches were run on a circuit; later versions may add others, such as sign-off checks, measurements of silicon and characterisation. A simulation whose results are statistics, such as a Monte Carlo simulation, is not a <code>sim</code>: a later version will define a kind for it. This specification needs the common rules of TOA <code>0.1</code> or later (chapters 2 to 8); the definition of its fields is <code>types/evd.schema.json</code>.</p>
+<p>An evidence record is what someone got by examining a design: which object was examined, how, under which conditions, and what came out. The prefix is <code>evd</code>. Its <code>kind</code> says which kind of evidence it is. Version <code>0.1</code> defines two kinds: <code>sim</code>, a simulation, in which testbenches were run on a circuit; and <code>mc</code>, a Monte Carlo simulation, in which they were run on many samples of the statistical variations of the circuit. Later versions may add others, such as sign-off checks, measurements of silicon and characterisation. This specification needs the common rules of TOA <code>0.1</code> or later (chapters 2 to 8); the definition of its fields is <code>types/evd.schema.json</code>.</p>
 <h3 class="type-spec" id="types-evd-1">Fields</h3>
 <p>Besides the common fields (<a href="#3.2.1" class="ref">3.2.1</a>), every evidence record has:</p>
 <table>
@@ -2815,12 +2865,12 @@ library.source.jsonl</code></pre>
 <td><code>kind</code></td>
 <td>must</td>
 <td><code>[a-z][a-z0-9_-]{0,31}</code></td>
-<td>The kind of evidence. <code>0.1</code> defines only <code>sim</code></td>
+<td>The kind of evidence. <code>0.1</code> defines <code>sim</code> and <code>mc</code></td>
 </tr>
 </tbody>
 </table>
 <ul>
-<li><strong>A kind a tool does not know:</strong> the tool keeps the record and shows it as it is, and applies only the common rules (chapters 2 to 8) and the two fields above. Other kinds are defined by later revisions of this specification; this does not change what <code>sim</code> is.</li>
+<li><strong>A kind a tool does not know:</strong> the tool keeps the record and shows it as it is, and applies only the common rules (chapters 2 to 8) and the two fields above. Other kinds are defined by later revisions of this specification; this does not change what <code>sim</code> and <code>mc</code> are.</li>
 </ul>
 <p>A record of the kind <code>sim</code> also has:</p>
 <table>
@@ -2893,12 +2943,132 @@ library.source.jsonl</code></pre>
 <li><code>models</code>: a list of the model files used, each with <code>file</code> (a file name without <code>/</code> or <code>\</code>), and optionally <code>section</code> (a name or a list), <code>version</code>, <code>match</code> (strings that must all occur in the file), <code>process</code> and <code>sha256</code> (<a href="#3.5" class="ref">3.5</a>).</li>
 </ul></li>
 <li><strong><code>probes</code></strong> gives, for each probe that the testbenches of <code>tbs</code> list, a net of the circuit in <code>dut</code>: a net of its subcircuit, such as <code>LP</code>, or a net further down, written as the names of the instances down to it and the net, joined by <code>.</code>, such as <code>xlatch.LP</code>. It holds those probes and no others. Like <code>dut</code> and <code>conditions</code>, it is an input of the run: another circuit of the same interface may give other nets to the same testbenches.</li>
-<li><strong><code>environment</code>:</strong> <code>simulator</code> must be written, with <code>name</code> and <code>version</code>, and optionally <code>command</code>: the whole command line that ran it, options included. <code>pdk</code> (<code>process</code>, <code>release</code>), <code>analysis</code> (<code>python</code>, <code>packages</code>), <code>system</code> (<code>os</code>, <code>cpu</code>, <code>threads</code>) and <code>note</code> may be written. Nothing in <code>environment</code> holds a local path, a host name or a user name.</li>
+<li><strong><code>environment</code>:</strong> <code>simulator</code> must be written, with <code>name</code> and <code>version</code>, and optionally <code>command</code>: the simulator’s own command line that ran it, options included. A local launcher that only starts the simulator, such as a sandbox, a job scheduler or a container, is not part of it and is not written: like a local path, it belongs to the machine. <code>pdk</code> (<code>process</code>, <code>release</code>), <code>analysis</code> (<code>python</code>, <code>packages</code>), <code>system</code> (<code>os</code>, <code>cpu</code>, <code>threads</code>) and <code>note</code> may be written. Nothing in <code>environment</code> holds a local path, a host name or a user name.</li>
 <li><strong><code>evidence</code>:</strong> the <code>kind</code> of a file is <code>spectrum</code>, <code>curve</code>, <code>waveform</code>, <code>table</code> or <code>json</code>. It is not the <code>kind</code> of the record.</li>
 <li><strong><code>description</code></strong> (<a href="#3.2.1" class="ref">3.2.1</a>) holds anything else a reader should know, such as why a metric is missing.</li>
 </ul>
-<h3 class="type-spec" id="types-evd-2">The file <code>lock.json</code></h3>
-<p>Every record of the kind <code>sim</code> has a <code>lock.json</code> at its top (<a href="#3.3" class="ref">3.3</a>). It records the tree that was simulated, by name, with the SHA-256 of the files used, so that the record can be checked without a TOA tool as well. It is a JSON object:</p>
+<h3 class="type-spec" id="types-evd-2">The kind <code>mc</code></h3>
+<p>A record of the kind <code>mc</code> is a Monte Carlo simulation: its testbenches were run, under one set of conditions, on many samples of the statistical variations that the models describe. It has the fields of <code>sim</code> and keeps their rules, except for these two:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Requirement</th>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code></td>
+<td>must</td>
+<td>a mapping</td>
+<td>As for <code>sim</code>, with a fourth slot, <code>statistics</code>, which must be written (below)</td>
+</tr>
+<tr>
+<td><code>metrics</code></td>
+<td>must</td>
+<td>a mapping from full metric names to <code>{n, failed, mean, sigma, min, max}</code></td>
+<td>The statistics of each metric over the samples (below)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><strong><code>statistics</code></strong> says how the samples were drawn and run:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Requirement</th>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>method</code></td>
+<td>must</td>
+<td><code>mismatch</code>, <code>process</code> or <code>both</code></td>
+<td>The variations drawn: the mismatch between devices, the variation of the process, or both</td>
+</tr>
+<tr>
+<td><code>points</code></td>
+<td>must</td>
+<td>a whole number, 1 or more</td>
+<td>The number of samples</td>
+</tr>
+<tr>
+<td><code>sampling</code></td>
+<td>must</td>
+<td><code>random</code>, <code>lds</code> or <code>lhs</code></td>
+<td>How the samples are drawn: plain random, a low-discrepancy sequence, or Latin hypercube sampling</td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td>must</td>
+<td>a whole number from 1 to 2147483647</td>
+<td>The seed of the random numbers, as actually used; never left to a default</td>
+</tr>
+<tr>
+<td><code>first</code></td>
+<td>may</td>
+<td>a whole number, 1 or more; 1 when not written</td>
+<td>The number of the first sample. The samples are those from <code>first</code> to <code>first + points − 1</code></td>
+</tr>
+<tr>
+<td><code>run</code></td>
+<td>must</td>
+<td><code>each</code> or <code>batch</code></td>
+<td>How they were run (<a href="#7.6" class="ref">7.6</a>): <code>each</code>, one simulation for each sample; <code>batch</code>, all in one simulation</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>With <code>lhs</code>, the samples are spread over <code>points</code> bins, and <code>first</code> is 1.</li>
+<li>The statistical models are in the model files of <code>models</code>, as for any run.</li>
+</ul></li>
+<li><p><strong>Sample k</strong> is what a simulation of that sample alone gives, as a record with <code>first</code> k, <code>points</code> 1 and <code>run</code> <code>each</code> would hold it. A run with <code>batch</code> agrees with it within the tolerance of each metric, but need not be equal to it bit for bit.</p></li>
+<li><p><strong><code>metrics</code></strong> holds every metric of the testbenches, even one that no sample gave. For each, over the samples of the record:</p>
+<ul>
+<li><code>n</code> is the number of samples that gave the metric, and <code>failed</code> the number that did not, so that <code>n + failed</code> is <code>points</code>;</li>
+<li><code>mean</code>, <code>min</code> and <code>max</code> are written when <code>n</code> is 1 or more, and <code>sigma</code>, the standard deviation with <code>n − 1</code> as divisor, when <code>n</code> is 2 or more;</li>
+<li>the tool computes them from <code>samples.csv</code>, never the analysis script, so that they are computed alike everywhere. For a metric whose values are 0 or 1, such as a decision, <code>mean</code> is the fraction of samples that gave 1.</li>
+</ul></li>
+<li><p><strong><code>evidence/samples.csv</code></strong> must be in the record, listed in <code>evidence</code> with the kind <code>table</code>. It is a CSV file in UTF-8 whose lines end in LF:</p>
+<ul>
+<li>its first line is <code>sample</code> followed by the full name of each metric, in the order of <code>tbs</code> and of the <code>metrics</code> of each testbench;</li>
+<li>then comes one line for each sample, from <code>first</code> up: its number, then the value of each metric, left empty when the sample did not give it. A sample whose simulation failed has a line with every value empty;</li>
+<li>a value is written as a decimal number that reads back as the same number.</li>
+</ul></li>
+<li><p><strong>No yield is written.</strong> The targets are in the circuit (<code>specifications.targets</code> of <code>ckt</code>): anyone can hold <code>samples.csv</code> against them, and a new target needs no new run.</p></li>
+<li><p><strong>What the analysis script writes into <code>evidence/</code></strong> for each sample is not kept, except that the tool may keep it for some samples, each under <code>evidence/samples/&lt;k&gt;/</code>.</p></li>
+</ul>
+<h4 class="type-spec" id="types-evd-3">Comparing two Monte Carlo simulations</h4>
+<p>Two records of the kind <code>mc</code> with the same <code>tbs</code>, and the same <code>conditions</code> except for <code>first</code>, <code>points</code> and <code>run</code> in <code>statistics</code>, are compared in one of two ways:</p>
+<ul>
+<li><strong>Sample by sample,</strong> when they also have the same <code>dut</code> and <code>probes</code>, simulators of the same name and version, and, with <code>lhs</code>, the same <code>points</code>. Their netlists are then the same byte for byte, being fixed by <code>lock.json</code>, and so are their samples. Each sample that is in both records is compared metric by metric, by the tolerance of the metric (<code>tb</code>); a metric that one gives and the other does not is a difference. They reproduce each other when every sample compared agrees.</li>
+<li><strong>By statistics,</strong> otherwise. Another circuit gives other samples, even another extraction of the same circuit or its schematic against its extracted netlist; so may another version of the simulator. For each metric that both give with <code>n</code> of 2 or more, written below with 1 and 2 for the two records and <code>t</code> for the tolerance of the metric applied to the two values compared:
+<ul>
+<li>the means agree when <code>|mean₁ − mean₂| ≤ max(t, 3 × √(sigma₁²/n₁ + sigma₂²/n₂))</code>;</li>
+<li>the standard deviations agree when <code>|sigma₁ − sigma₂| ≤ max(t, 3 × √(sigma₁²/(2(n₁ − 1)) + sigma₂²/(2(n₂ − 1))))</code>;</li>
+<li>for a metric whose every value in both <code>samples.csv</code> is 0 or 1, only the means are compared, by the binomial distribution: they agree when <code>|mean₁ − mean₂| ≤ 3 × √(p(1 − p)(1/n₁ + 1/n₂))</code>, where <code>p = (n₁mean₁ + n₂mean₂)/(n₁ + n₂)</code>.</li>
+</ul>
+When every metric agrees so, the records are statistically consistent. A tool says so, and does not call it a reproduction.</li>
+</ul>
+<h3 class="type-spec" id="types-evd-4">The file <code>lock.json</code></h3>
+<p>Every record of the kind <code>sim</code> or <code>mc</code> has a <code>lock.json</code> at its top (<a href="#3.3" class="ref">3.3</a>). It records the tree that was simulated, by name, with the SHA-256 of the files used, so that the record can be checked without a TOA tool as well. It is a JSON object:</p>
 <table>
 <colgroup>
 <col style="width: 25%" />
@@ -2947,7 +3117,7 @@ library.source.jsonl</code></pre>
 <li>Any member may also have a <code>label</code> for people, which tools must not interpret.</li>
 <li>The names in <code>lock.json</code> are references (<a href="#3.3" class="ref">3.3</a>), so the name of the record fixes the whole tree.</li>
 </ul>
-<h3 class="type-spec" id="types-evd-3">Files</h3>
+<h3 class="type-spec" id="types-evd-5">Files</h3>
 <table>
 <colgroup>
 <col style="width: 33%" />
@@ -2969,7 +3139,7 @@ library.source.jsonl</code></pre>
 </tr>
 <tr>
 <td><code>lock.json</code></td>
-<td>must, for <code>sim</code></td>
+<td>must, for <code>sim</code> and <code>mc</code></td>
 <td>The tree simulated (above)</td>
 </tr>
 <tr>
@@ -2987,8 +3157,8 @@ library.source.jsonl</code></pre>
 <ul>
 <li><strong>Source lists</strong> do not follow evidence records further (<a href="#5.2" class="ref">5.2</a>). The source list beside a record lists what the record refers to; a record reached from another object brings nothing more.</li>
 </ul>
-<h3 class="type-spec" id="types-evd-4">Checks at sealing</h3>
-<p>For a record of the kind <code>sim</code>:</p>
+<h3 class="type-spec" id="types-evd-6">Checks at sealing</h3>
+<p>For a record of the kind <code>sim</code> or <code>mc</code>:</p>
 <ol type="1">
 <li><code>lock.json</code> keeps the format above, and its <code>dut</code> and testbenches agree with the manifest.</li>
 <li>Every <code>path</code> of <code>evidence</code> is a file under <code>evidence/</code> in the object.</li>
@@ -2997,10 +3167,16 @@ library.source.jsonl</code></pre>
 <li>Within one expanded tree, each interface has one circuit: two circuits of one interface are two definitions of the same subcircuit, which a simulation rejects.</li>
 <li>When the testbenches can be found, <code>probes</code> names exactly the probes they list.</li>
 </ol>
-<h3 class="type-spec" id="types-evd-5">Readable name</h3>
+<p>For a record of the kind <code>mc</code>, also:</p>
+<ol start="7" type="1">
+<li><code>statistics</code> keeps the rules above.</li>
+<li>For each metric, <code>n + failed</code> is <code>points</code>, and <code>mean</code>, <code>sigma</code>, <code>min</code> and <code>max</code> are written as <code>n</code> requires.</li>
+<li><code>evidence/samples.csv</code> keeps the format above, with one line for each sample, and its columns are the metrics of <code>metrics</code>. The <code>n</code> and <code>failed</code> of each metric agree with it.</li>
+</ol>
+<h3 class="type-spec" id="types-evd-7">Readable name</h3>
 <p><code>evd/&lt;interface name&gt;/&lt;record label&gt;/</code>, the label being <code>&lt;UTC time&gt;-&lt;short name&gt;</code>, for example <code>evd/strongarm-comp/20261103T1200Z-wrap-off/evd_…/</code> (<a href="#6.2" class="ref">6.2</a>).</p>
 <p>The readable name without the type directory and the slashes at its ends, such as <code>strongarm-comp/20261103T1200Z-wrap-off</code>, is the <code>label</code> a tool should write for the record in a source list (<a href="#5.1" class="ref">5.1</a>), and the name it should show for it. <code>&lt;interface name&gt;</code> is the <code>name</code> of the interface of the object in <code>dut</code>; when that cannot be found, the first 12 characters of the object name in <code>dut</code> stand for it. The record label is not in the manifest: the tool that creates the record takes the UTC time of its creation, written as <code>YYYYMMDDTHHMMZ</code>, and a short name from the user. A tool showing a record it did not create uses the <code>label</code> of its line in a source list, or else <code>&lt;interface name&gt;/</code> followed by the first 12 characters of the record’s name.</p>
-<h3 class="type-spec" id="types-evd-6">Example</h3>
+<h3 class="type-spec" id="types-evd-8">Example</h3>
 <div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> evd</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> MIT</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">kind</span><span class="kw">:</span><span class="at"> sim</span></span>
@@ -3015,10 +3191,32 @@ library.source.jsonl</code></pre>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">models</span><span class="kw">:</span></span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> sky130.lib.spice</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;0.20.1&#39;</span><span class="kw">}</span></span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">environment</span><span class="kw">:</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">simulator</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;23.1.0&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">command</span><span class="kw">:</span><span class="at"> spectre tb.scs +aps</span><span class="kw">}</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">simulator</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;23.1.0&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">command</span><span class="kw">:</span><span class="at"> spectre input.scs +aps</span><span class="kw">}</span></span>
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">analysis</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;3.11.9&#39;</span><span class="kw">}</span></span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
 <span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">tb_offset.offset</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.7</span></span></code></pre></div>
+<p>A Monte Carlo simulation of the same circuit:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> evd</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> MIT</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">kind</span><span class="kw">:</span><span class="at"> mc</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dut</span><span class="kw">:</span><span class="at"> ckt_1ec6249c0d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tbs</span><span class="kw">:</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> tb_ad96a1470e2d4c6b8a9f1e3d5c7b9a0e2f4d6c8b</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> Alice Zhang</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">probes</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">latch_p</span><span class="kw">:</span><span class="at"> LP</span><span class="kw">,</span><span class="at"> </span><span class="fu">latch_n</span><span class="kw">:</span><span class="at"> LM</span><span class="kw">}</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">conditions</span><span class="kw">:</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">models</span><span class="kw">:</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> sky130.lib.spice</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;0.20.1&#39;</span><span class="kw">}</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">statistics</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">method</span><span class="kw">:</span><span class="at"> mismatch</span><span class="kw">,</span><span class="at"> </span><span class="fu">points</span><span class="kw">:</span><span class="at"> </span><span class="dv">200</span><span class="kw">,</span><span class="at"> </span><span class="fu">sampling</span><span class="kw">:</span><span class="at"> lds</span><span class="kw">,</span><span class="at"> </span><span class="fu">seed</span><span class="kw">:</span><span class="at"> </span><span class="dv">12345</span><span class="kw">,</span><span class="at"> </span><span class="fu">run</span><span class="kw">:</span><span class="at"> batch</span><span class="kw">}</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">simulator</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;23.1.0&#39;</span><span class="kw">}</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">analysis</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;3.11.9&#39;</span><span class="kw">}</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">tb_offset.offset</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">n</span><span class="kw">:</span><span class="at"> </span><span class="dv">199</span><span class="kw">,</span><span class="at"> </span><span class="fu">failed</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span><span class="kw">,</span><span class="at"> </span><span class="fu">mean</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.08</span><span class="kw">,</span><span class="at"> </span><span class="fu">sigma</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.93</span><span class="kw">,</span><span class="at"> </span><span class="fu">min</span><span class="kw">:</span><span class="at"> </span><span class="fl">-5.12</span><span class="kw">,</span><span class="at"> </span><span class="fu">max</span><span class="kw">:</span><span class="at"> </span><span class="fl">5.47</span><span class="kw">}</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="fu">evidence</span><span class="kw">:</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">path</span><span class="kw">:</span><span class="at"> evidence/samples.csv</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> table</span><span class="kw">}</span></span></code></pre></div>
 <h2 class="type-spec" id="types-doc">Type specification <code>doc</code>: document</h2>
 <p>A document is a text about interfaces, circuits, testbenches, records or frozen libraries: a design note, a guide to a testbench, an architecture, a reference. Its body is the <code>README.md</code> of the object. The prefix is <code>doc</code>. This specification needs the common rules of TOA <code>0.1</code> or later (chapters 2 to 8); the definition of its fields is <code>types/doc.schema.json</code>.</p>
 <h3 class="type-spec" id="types-doc-1">Fields</h3>
@@ -3109,13 +3307,13 @@ library.source.jsonl</code></pre>
 <p><code>doc/&lt;interface name&gt;/&lt;short name&gt;/</code>, for example <code>doc/strongarm-comp/kickback-mitigation/doc_…/</code> (<a href="#6.2" class="ref">6.2</a>).</p>
 <p>The readable name without the type directory and the slashes at its ends, such as <code>strongarm-comp/kickback-mitigation</code>, is the <code>label</code> a tool should write for the document in a source list (<a href="#5.1" class="ref">5.1</a>), and the name it should show for it. <code>&lt;interface name&gt;</code> is the <code>name</code> of the first interface among <code>refs</code>; a document whose <code>refs</code> name no interface has no such level, as in <code>doc/kickback-mitigation/doc_…/</code>. The short name is not in the manifest: the tool that creates the document takes it from the user. A tool showing a document it did not create uses the <code>label</code> of its line in a source list, or else its title.</p>
 <h3 class="type-spec" id="types-doc-5">Example</h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> doc</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CC-BY-4.0</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Reducing kickback in StrongARM comparators</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tags</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">design-note</span><span class="kw">,</span><span class="at"> comparator</span><span class="kw">]</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">refs</span><span class="kw">:</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> ifc_945cdda7d9b4c0f6a2e1d3b5c7a9e0f1d2c3b4a5</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;2026-10-28&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> doc</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CC-BY-4.0</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Reducing kickback in StrongARM comparators</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tags</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">design-note</span><span class="kw">,</span><span class="at"> comparator</span><span class="kw">]</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">refs</span><span class="kw">:</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> ifc_945cdda7d9b4c0f6a2e1d3b5c7a9e0f1d2c3b4a5</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;2026-10-28&#39;</span></span></code></pre></div>
 <h2 class="type-spec" id="types-lib">Type specification <code>lib</code>: frozen library</h2>
 <p>A frozen library is a set of objects frozen as an object: a library as it was at one moment, such as one release of it, or a selection of objects from several libraries. It holds a list of its members in the format of a source list, and since it is an object, that list never changes. The prefix is <code>lib</code>. This specification needs the common rules of TOA <code>0.1</code> or later (chapters 2 to 8); the definition of its fields is <code>types/lib.schema.json</code>.</p>
 <ul>
@@ -3224,12 +3422,12 @@ library.source.jsonl</code></pre>
 <p><code>lib/&lt;name&gt;.g&lt;generation&gt;/</code>, for example <code>lib/toa-official.g3/lib_…/</code> (<a href="#6.2" class="ref">6.2</a>). The generation is the one in its <code>history.json</code> (<a href="#3.4" class="ref">3.4</a>). A frozen library has no interface level.</p>
 <p>The readable name without the type directory and the slashes at its ends, <code>&lt;name&gt;.g&lt;generation&gt;</code> such as <code>toa-official.g3</code>, is the <code>label</code> a tool should write for the frozen library in a source list (<a href="#5.1" class="ref">5.1</a>), and the name it should show for it.</p>
 <h3 class="type-spec" id="types-lib-7">Example</h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> lib</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CC0-1.0</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> toa-official</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> TOA official library, 2026-12</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">base</span><span class="kw">:</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> lib_3b9e5c1d7a2f4e6b8c0d9a1e3f5b7c9d2e4f6a8b</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> lib</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CC0-1.0</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> toa-official</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> TOA official library, 2026-12</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">base</span><span class="kw">:</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> lib_3b9e5c1d7a2f4e6b8c0d9a1e3f5b7c9d2e4f6a8b</span></span></code></pre></div>
 <p>and the first lines of its <code>members.source.jsonl</code>:</p>
 <pre class="text"><code>{&quot;toa&quot;: &quot;source/1&quot;}
 {&quot;object&quot;: &quot;ckt_1ec6249c0d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a&quot;, &quot;label&quot;: &quot;strongarm-comp/wrap-lee.g2&quot;, &quot;group&quot;: &quot;strongarm-comp&quot;, &quot;sources&quot;: [{&quot;git&quot;: &quot;https://example.org/toa-lib.git&quot;}]}

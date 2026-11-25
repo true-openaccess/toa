@@ -141,7 +141,7 @@ impl Journal {
 // ------------------------------------------------------------------ finding directories
 
 /// The drafts and object directories under a directory, at any depth (6.2). The insides of
-/// drafts, objects and notes directories, and `.git`, are not walked.
+/// drafts, objects, notes and stamps directories, and `.git`, are not walked.
 #[derive(Debug, Default)]
 pub struct Scan {
     pub drafts: Vec<PathBuf>,
@@ -167,7 +167,12 @@ fn walk(dir: &Path, out: &mut Scan, depth: usize) -> std::io::Result<()> {
             continue;
         }
         let Some(n) = e.file_name().to_str().map(str::to_string) else { continue };
-        if n == ".git" || n.ends_with(library_notes_suffix()) {
+        // nothing in a .notes or .stamps directory is an object or a draft (6.4 item 5)
+        if n == ".git"
+            || n.ends_with(library_notes_suffix())
+            || n.ends_with(toa_core::library::STAMPS_SUFFIX)
+            || is_run_directory(&e.path())
+        {
             continue;
         }
         match name::form(&n) {
@@ -178,6 +183,13 @@ fn walk(dir: &Path, out: &mut Scan, depth: usize) -> std::io::Result<()> {
         }
     }
     Ok(())
+}
+
+/// A directory that `toa assemble` or `toa run` wrote (7.6): it holds `lock.json` and an entry
+/// file. Its `ckt/<object name>/` are changed copies (renamed subcircuits), not objects, so the
+/// scan does not go into it.
+pub fn is_run_directory(d: &Path) -> bool {
+    d.join("lock.json").is_file() && (d.join("input.scs").is_file() || d.join("input.sp").is_file())
 }
 
 fn library_notes_suffix() -> &'static str {

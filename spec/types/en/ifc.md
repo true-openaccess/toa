@@ -34,12 +34,13 @@ Each pin:
 | File | Requirement | Content |
 |---|---|---|
 | `toa.yaml` | must | The manifest |
+| `history.json` | when `base` is written | Its lineage, written by sealing (3.4) |
 | `symbol.rnl` | should | The symbol of the interface in RNL `0.4`: a package named `<name>-sym` that draws the block; the netlists that use it apply it to their subcircuits. Circuits and testbenches that draw this block use this package rather than a copy of it |
 | `README.md` | may | More about the interface, for people |
 | images | may | Images that `README.md` shows, such as a block diagram or a timing diagram, referred to by relative paths |
 | `LICENSE…` | when `license` has a `LicenseRef-` | The text of the licence (3.2.2) |
 
-- An interface holds no other files. Models, netlists and longer texts belong in circuits, testbenches and documents.
+- Besides these, an interface holds no other files. Models, netlists and longer texts belong in circuits, testbenches and documents.
 
 - **Which package draws a subcircuit is decided by references, not by the name of the package.** In a circuit, the subcircuit it defines is drawn with the `symbol.rnl` of the interface in `ifc`, and the subcircuit of each item of `uses` with that of the item's `ifc`; in a testbench, the block it measures is drawn with that of its `ifc`. A tool gives these files to RNL as the packages of those names. The name of the package cannot hold the name of the interface, because a file cannot hold the hash of its own object (3.2.1).
 - **Two interfaces may share a `name`** (above), and then their packages share a name too. When both occur in one expanded tree, RNL uses only one of the two packages, so a tool should warn of it. This does not make any object invalid.

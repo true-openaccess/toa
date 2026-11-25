@@ -1,0 +1,33 @@
+type: tb
+license: CC0-1.0
+ifc: ifc_12ad57c51e8f36cac47a4b8a53f2949315f190f5
+base: [tb_da7445c069776f4e59f7a9c0ca974ed421b4205e]
+name: tb_offset
+title: Input-referred offset by a slow ramp
+socket: strongarm_comp
+files:
+  netlist:
+  - tb.scs
+simulators:
+- {name: spectre, version: '21.1'}
+run: spectre input.scs +aps -format psfascii -raw psf
+analyze: {entry: analyze.py, python: '>=3.10', results: psfascii}
+metrics:
+- {id: offset, unit: mV, better: lower, tolerance: {abs: 0.2}}
+parameters:
+  vdd: {unit: V, description: Supply voltage}
+presets:
+  nom:
+    parameters: {vdd: 1.8}
+    options: {temp: 27}
+    models:
+    - {file: sky130.lib.spice, section: tt, process: sky130}
+  supply:
+  - parameters: {vdd: 1.62}
+    options: {temp: 27}
+    models:
+    - {file: sky130.lib.spice, section: tt, process: sky130}
+  - parameters: {vdd: 1.98}
+    options: {temp: 27}
+    models:
+    - {file: sky130.lib.spice, section: tt, process: sky130}

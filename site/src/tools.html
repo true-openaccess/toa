@@ -47,9 +47,10 @@
           <li><a href="#build"><span class="n">1</span><en>Build from source</en></a></li>
           <li><a href="#git"><span class="n">2</span><en>Git integration</en></a></li>
           <li><a href="#library"><span class="n">3</span><en>Publishing a library</en></a></li>
-          <li><a href="#commands"><span class="n">4</span><en>Commands</en></a></li>
-          <li><a href="#options"><span class="n">5</span><en>Options and exit codes</en></a></li>
-          <li><a href="#planned"><span class="n">6</span><en>Planned commands</en></a></li>
+          <li><a href="#timestamps"><span class="n">4</span><en>Timestamping objects (suggested)</en></a></li>
+          <li><a href="#commands"><span class="n">5</span><en>Commands</en></a></li>
+          <li><a href="#options"><span class="n">6</span><en>Options and exit codes</en></a></li>
+          <li><a href="#planned"><span class="n">7</span><en>Planned commands</en></a></li>
         </ol>
       </div>
     </nav>
@@ -104,7 +105,26 @@ toa publish --commit  <en># update lists, commit, and run library check</en>
 git push              <en># push manually (toa never pushes)</en></code></pre>
         <p><en>Before <code>toa seal</code>, use <code>toa status</code> to list drafts and <code>--dry-run</code> to preview changes.</en></p>
 
-        <h2 id="commands"><span class="sec">4</span><en>Commands</en></h2>
+        <h2 id="timestamps"><span class="sec">4</span><en>Timestamping objects (suggested)</en></h2>
+        <p><en>A timestamp proof shows that an object name existed by some time, which helps show who published first. Only a hash is sent out, so an object can be stamped before it is public. <code>toa</code> makes no proofs; we suggest OpenTimestamps and its client <code>ots</code> (<code>pip3 install opentimestamps-client</code>), used outside the library:</en></p>
+<pre><code>n=ckt_876f99c0ddb9fae4aabf6b8b3b7fd59de24e7e2b
+s=my-library/ckt/strongarm-comp/sky130-razavi.g1/$n.stamps
+<en># the object name, with no line end</en>
+printf '%s' "$n" &gt; name
+<en># sends only a hash; writes name.ots</en>
+ots stamp name
+<en># publish it beside the object</en>
+mkdir -p "$s" &amp;&amp; cp name.ots "$s/20261125-btc.ots"
+<en># a few hours later: completes name.ots</en>
+ots upgrade name.ots
+<en># replace the first copy, publish again</en>
+cp name.ots "$s/20261125-btc.ots"
+<en># anyone can check it</en>
+ots verify -f name "$s/20261125-btc.ots"</code></pre>
+        <p><en>It costs nothing and needs no sign-up. A proof is complete after a few hours, once the hash is in a Bitcoin block, and the time it shows is precise to a few hours. To check it, use <code>ots verify</code>, which reads the block from a Bitcoin Core node of your own (a pruned node is enough), or the in-browser verifier at <a href="https://opentimestamps.org">opentimestamps.org</a>, trusting that site. A proof shows only that the name existed by then, not who made the object.</en></p>
+        <p><en>Other proofs work too, such as an RFC 3161 time-stamp token: the standard does not restrict what the stamps directory holds</en> (<a class="ref" href="{{href_spec}}#4.3">4.3</a>).</p>
+
+        <h2 id="commands"><span class="sec">5</span><en>Commands</en></h2>
         <p><en>Matches <code>toa --help</code>; numbers link to <a href="{{href_spec}}">standard</a> sections.</en></p>
 
         <h3><en>Objects</en></h3>
@@ -139,7 +159,7 @@ git push              <en># push manually (toa never pushes)</en></code></pre>
           </tbody>
         </table>
 
-        <h2 id="options"><span class="sec">5</span><en>Options and exit codes</en></h2>
+        <h2 id="options"><span class="sec">6</span><en>Options and exit codes</en></h2>
         <table>
           <tbody>
             <tr><td><code>--json</code></td><td><en>Emit JSON Lines to stdout for scripts and agents.</en></td></tr>
@@ -159,7 +179,7 @@ git push              <en># push manually (toa never pushes)</en></code></pre>
           </tbody>
         </table>
 
-        <h2 id="planned"><span class="sec">6</span><en>Planned commands</en></h2>
+        <h2 id="planned"><span class="sec">7</span><en>Planned commands</en></h2>
         <p><en>Not yet implemented. Until <code>toa new</code> is, write a new draft directory by hand; to start from an existing object, use <code>toa derive</code>.</en></p>
         <table class="cmds">
           <tbody>

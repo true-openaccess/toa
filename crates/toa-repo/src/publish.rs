@@ -619,8 +619,11 @@ pub fn publish(git: &dyn Git, dir: &Path, opts: &Options) -> Result<Published, S
     out.addresses = addresses.into_iter().collect();
     out.name_only = name_only.into_iter().collect();
 
-    // the commit, and the check once more before anything is pushed (7.2)
-    if opts.commit && !opts.dry_run && (!out.changed.is_empty() || !new.is_empty()) {
+    // the commit, and the check once more before anything is pushed (7.2); with it go the object
+    // directories the last commit holds and the work tree no longer does (toa remove, 6.5), and
+    // their sidecar files that are gone too: deletions only, nothing else of the work tree
+    let gone: Vec<String> = if opts.commit && !opts.dry_run { removed_since_head(git, &root) } else { Vec::new() };
+    if opts.commit && !opts.dry_run && (!out.changed.is_empty() || !new.is_empty() || !gone.is_empty()) {
         let msg =
             format!("Publish {} object(s): tidy source lists and write the library list (toa publish)", new.len());
         // what the commit holds: the lists changed, the objects published this time with their
@@ -645,11 +648,15 @@ pub fn publish(git: &dyn Git, dir: &Path, opts: &Options) -> Result<Published, S
                 paths.insert(format!("{p}{s}"));
             }
         }
+        paths.extend(gone.iter().cloned());
         for f in [".gitattributes", toa_core::library::LIBRARY_YAML, source::LIBRARY_LIST, source::LIBRARY_VOLUMES] {
             paths.insert(f.to_string());
         }
         // only what is here, or was in the last commit (a removal)
-        let at_head = |p: &str| git.object_at(&root, "HEAD", p).ok().flatten().is_some();
+        // (object_at takes a commit id, not a name such as HEAD)
+        let head_commit = git.resolve_commit(&root, "HEAD").ok().flatten();
+        let at_head =
+            |p: &str| head_commit.as_ref().is_some_and(|h| git.object_at(&root, h, p).ok().flatten().is_some());
         let paths: Vec<String> =
             paths.into_iter().filter(|p| std::fs::symlink_metadata(root.join(p)).is_ok() || at_head(p)).collect();
         out.committed = paths.clone();
@@ -664,6 +671,33 @@ pub fn publish(git: &dyn Git, dir: &Path, opts: &Options) -> Result<Published, S
         }
     }
     Ok(out)
+}
+
+/// The object directories of the last commit that are gone from the work tree, as `toa remove`
+/// leaves them, and those of their sidecar files (notes, timestamp proofs, source list) that are
+/// gone as well: paths relative to the root. A directory still there, even in part, is not
+/// one of them; nor is a sidecar file still there.
+fn removed_since_head(git: &dyn Git, root: &Path) -> Vec<String> {
+    let Ok(Some(head)) = git.resolve_commit(root, "HEAD") else { return Vec::new() };
+    let Ok(at_head) = library::objects_in(git, root, &head, library::Limits::default().max_entries) else {
+        return Vec::new();
+    };
+    let missing = |p: &str| std::fs::symlink_metadata(root.join(p)).is_err();
+    let tracked = |p: &str| git.object_at(root, &head, p).ok().flatten().is_some();
+    let mut out = Vec::new();
+    for p in at_head.values().flatten() {
+        if !missing(p) {
+            continue;
+        }
+        out.push(p.clone());
+        for s in [toa_core::library::NOTES_SUFFIX, toa_core::library::STAMPS_SUFFIX, source::SUFFIX] {
+            let side = format!("{p}{s}");
+            if missing(&side) && tracked(&side) {
+                out.push(side);
+            }
+        }
+    }
+    out
 }
 
 /// A commit made by the tool, with its signature and the library check of it (7.2).

@@ -257,9 +257,11 @@ fn whole_library(c: &mut Checker) {
         if lower == library::MODULES {
             c.report.problems.push(err("E_LIB_GITMODULES", "6.1", &e.path, "no .gitmodules anywhere"));
         }
-        // item 3: draft names as names, and names that start with one and a dot
+        // item 3: draft names as names, and names that start with one and a dot (inside a
+        // sidecar directory only the first: nothing there is a sidecar)
         let draft = name::form(&leaf) == Form::Draft
-            || library::sidecar_of(&leaf).is_some_and(|(b, _)| name::form(b) == Form::Draft);
+            || (!library::inside_sidecar_dir(&e.path)
+                && library::sidecar_of(&leaf).is_some_and(|(b, _)| name::form(b) == Form::Draft));
         if draft {
             c.report.problems.push(err("E_LIB_DRAFT", "2.4", &e.path, "a draft name on a publication branch"));
         }
@@ -463,7 +465,6 @@ fn object_files(c: &mut Checker, f: &Found) -> Files {
 
 /// Item 5: names outside objects, the path budget, sidecar names.
 fn outside_objects(c: &mut Checker) {
-    let mut stamps: Vec<String> = Vec::new();
     for i in 0..c.listing.len() {
         let e = c.listing[i].clone();
         if library::inside_object(&e.path, &c.found) {
@@ -492,6 +493,20 @@ fn outside_objects(c: &mut Checker) {
                 format!("{} characters; a path in a library has at most {}", e.path.len(), library::MAX_IN_LIBRARY),
             ));
         }
+        // inside a .notes or .stamps directory nothing is a sidecar, and nothing may be taken for
+        // an object: no directory there has an object name (a draft name is item 3, a file with
+        // an object name item 2)
+        if library::inside_sidecar_dir(&e.path) {
+            if e.is_tree() && name::is_object_name(leaf) {
+                c.report.problems.push(err(
+                    "E_LIB_SIDECAR",
+                    "6.4",
+                    &e.path,
+                    "an object name inside a .notes or .stamps directory: nothing in one is an object",
+                ));
+            }
+            continue;
+        }
         if let Some((base, kind)) = library::sidecar_of(leaf) {
             if name::form(base) != Form::Object {
                 continue; // a draft's, reported as item 3
@@ -509,32 +524,11 @@ fn outside_objects(c: &mut Checker) {
                     "a name that starts with an object name and a dot is a .notes directory, a .source.jsonl file, \
                      a .removed.json file or a .stamps directory",
                 ));
-            } else if kind == Some(Sidecar::Stamps) {
-                stamps.push(e.path.clone());
             }
         }
     }
-    // a stamps directory holds only regular files placed directly in it, each at most 64 KiB, named
-    // by 3.1 item 3 (4.3); what a proof says is not looked at
-    for dir in stamps {
-        let prefix = format!("{dir}/");
-        for e in c.listing.iter().filter(|e| e.path.starts_with(&prefix)) {
-            let rel = &e.path[prefix.len()..];
-            if rel.contains('/') {
-                continue; // inside a directory of the stamps directory, which is reported itself
-            }
-            if !e.is_regular_file() || tree::component_problem(rel, false).is_some() {
-                c.report.problems.push(err(
-                    "E_LIB_STAMPS",
-                    "4.3",
-                    &e.path,
-                    "a stamps directory holds only regular files placed directly in it, named by 3.1",
-                ));
-            } else if e.size.unwrap_or(u64::MAX) > library::MAX_STAMP {
-                c.report.problems.push(err("E_LIB_STAMPS", "4.3", &e.path, "a timestamp proof has at most 64 KiB"));
-            }
-        }
-    }
+    // what a stamps directory holds keeps only the rules of every path above (4.3, decisions
+    // 11-25): any proof, of any kind, size or name, in directories of its own too
 }
 
 /// The kind and size limit of a source list by its path in a library (5.2).
@@ -556,7 +550,12 @@ fn source_lists(c: &mut Checker) -> BTreeMap<String, String> {
     let lists: Vec<Listed> = c
         .listing
         .iter()
-        .filter(|e| e.is_blob() && e.leaf().ends_with(source::SUFFIX) && !library::inside_object(&e.path, &c.found))
+        .filter(|e| {
+            e.is_blob()
+                && e.leaf().ends_with(source::SUFFIX)
+                && !library::inside_object(&e.path, &c.found)
+                && !library::inside_sidecar_dir(&e.path)
+        })
         .cloned()
         .collect();
     let mut includes: BTreeMap<String, Vec<String>> = BTreeMap::new();
@@ -670,7 +669,7 @@ fn notes(c: &mut Checker, base: Option<&[Listed]>) {
         .listing
         .iter()
         .filter(|e| e.is_tree() && matches!(library::sidecar_of(e.leaf()), Some((_, Some(Sidecar::Notes)))))
-        .filter(|e| !library::inside_object(&e.path, &c.found))
+        .filter(|e| !library::inside_object(&e.path, &c.found) && !library::inside_sidecar_dir(&e.path))
         .cloned()
         .collect();
     for d in &dirs {
@@ -717,7 +716,7 @@ fn notes(c: &mut Checker, base: Option<&[Listed]>) {
         let Some((dir, file)) = e.path.rsplit_once('/') else { continue };
         let leaf = dir.rsplit('/').next().unwrap_or("");
         let Some((object, Some(Sidecar::Notes))) = library::sidecar_of(leaf) else { continue };
-        if !c.names.contains(object) {
+        if !c.names.contains(object) || library::inside_sidecar_dir(dir) {
             continue; // the object was removed; its notes may go with it
         }
         match seen.get(&(object.to_string(), file.to_string())) {
@@ -747,7 +746,9 @@ fn removals(c: &mut Checker, base: Option<&[Listed]>, new_commit: &str) {
         .filter(
             |e| matches!(library::sidecar_of(e.leaf()), Some((b, Some(Sidecar::Removal))) if name::is_object_name(b)),
         )
-        .filter(|e| !library::inside_object(&e.path, &c.found) && e.is_regular_file())
+        .filter(|e| {
+            !library::inside_object(&e.path, &c.found) && !library::inside_sidecar_dir(&e.path) && e.is_regular_file()
+        })
         .filter(|e| before.get(e.path.as_str()) != Some(&e.id.as_str()))
         .cloned()
         .collect();
@@ -898,7 +899,11 @@ fn lineage(c: &mut Checker, files: &BTreeMap<String, Files>) {
         .listing
         .iter()
         .filter_map(|e| match library::sidecar_of(e.leaf()) {
-            Some((b, Some(Sidecar::Removal))) if e.is_regular_file() && !library::inside_object(&e.path, &c.found) => {
+            Some((b, Some(Sidecar::Removal)))
+                if e.is_regular_file()
+                    && !library::inside_object(&e.path, &c.found)
+                    && !library::inside_sidecar_dir(&e.path) =>
+            {
                 Some((b.to_string(), e.clone()))
             }
             _ => None,

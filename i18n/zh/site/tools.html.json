@@ -64,5 +64,15 @@
   "Locate sources; list reverse references; check for newer generations.": "查找来源；反查引用方；检查新版。",
   "Rebuild the library list; attach a note; expand included source lists.": "单独重建库的清单；添加说明；展开来源表包含行。",
   "Install an optional check-only commit hook.": "安装可选的只读检查提交钩子。",
-  "Footer": "页脚"
+  "Footer": "页脚",
+  "Timestamping objects (suggested)": "给对象盖时间戳（建议）",
+  "A timestamp proof shows that an object name existed by some time, which helps show who published first. Only a hash is sent out, so an object can be stamped before it is public. <code>toa</code> makes no proofs; we suggest OpenTimestamps and its client <code>ots</code> (<code>pip3 install opentimestamps-client</code>), used outside the library:": "时间戳证明能说明一个对象名最晚在某个时间已经存在，可以用来说明谁先公开。盖章时只发出哈希，所以对象公开之前就可以盖。<code>toa</code> 不做证明；建议用 OpenTimestamps 和它的客户端 <code>ots</code>（<code>pip3 install opentimestamps-client</code>），在库外面操作：",
+  "# the object name, with no line end": "# 对象名，不带换行",
+  "# sends only a hash; writes name.ots": "# 只发出哈希，写出 name.ots",
+  "# publish it beside the object": "# 放在对象旁边，和对象一起发布",
+  "# a few hours later: completes name.ots": "# 几小时后：补全 name.ots",
+  "# replace the first copy, publish again": "# 换掉原来那份，再发布一次",
+  "# anyone can check it": "# 谁都能核对",
+  "It costs nothing and needs no sign-up. A proof is complete after a few hours, once the hash is in a Bitcoin block, and the time it shows is precise to a few hours. To check it, use <code>ots verify</code>, which reads the block from a Bitcoin Core node of your own (a pruned node is enough), or the in-browser verifier at <a href=\"https://opentimestamps.org\">opentimestamps.org</a>, trusting that site. A proof shows only that the name existed by then, not who made the object.": "不要钱，也不用注册。哈希进了比特币区块，证明才完整，要等几个小时；证明给出的时间精度也是几个小时。核对时用 <code>ots verify</code>，它从你自己的 Bitcoin Core 节点读区块（裁剪节点就够）；也可以用 <a href=\"https://opentimestamps.org\">opentimestamps.org</a> 上的浏览器内核对，那就要信任这个网站。证明只说明名字那时已经存在，不说明对象是谁做的。",
+  "Other proofs work too, such as an RFC 3161 time-stamp token: the standard does not restrict what the stamps directory holds": "用别的证明也行，例如 RFC 3161 时间戳：标准不限制时间戳目录里放什么"
 }

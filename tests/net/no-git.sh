@@ -16,7 +16,7 @@ for l in official lee alice official-chen; do
   grep -q "using the built-in git" "$LIBS/$l.err" || fail "$l: the user was not told the built-in git is used"
 done
 (cd "$LIBS" && "$TOA" index --offline --out "$LIBS/index-no-git") || fail "toa index"
-grep -q '"valid": 11' "$LIBS/index-no-git/index.json" || fail "the index does not have 11 valid objects"
+grep -q '"valid": 12' "$LIBS/index-no-git/index.json" || fail "the index does not have 12 valid objects"
 
 # asking for the system git: exit code 3
 set +e

@@ -252,22 +252,43 @@ fn a_copy_is_named_by_its_path() {
 
 #[test]
 fn the_library_check_looks_at_stamps_directories() {
-    // 4.3 and 6.4 item 5: only regular files placed directly in it, each at most 64 KiB, named by
-    // 3.1; what a proof says is not read
+    // 4.3 and 6.4 item 5: what a stamps directory holds keeps only the rules of every path of a
+    // library (decisions 11-25); what a proof says is not read
     let l = Lib::new("rm-stamps");
     let at = format!("ckt/comp/s.v2/{}", l.v2);
     write(&l.dir.join(format!("{at}.stamps/20261124-btc.ots")), b"a proof");
     write(&l.dir.join(format!("{at}.stamps/20261124-rfc.tsr")), &vec![0u8; 64 * 1024]);
     write(&l.dir.join(format!("{at}.stamps/20261124-any.unknown")), b"left as it is");
+    // nothing in a sidecar directory is a sidecar (6.4 item 5): names that start with an object
+    // name and a dot are free there, in a notes directory too
+    write(&l.dir.join(format!("{at}.stamps/{}.ots", l.v2)), b"a proof of the object name");
+    write(&l.dir.join(format!("{at}.stamps/{}.source.jsonl", l.v2)), b"not a source list");
+    write(&l.dir.join(format!("{at}.notes/{}.md", l.v2)), b"a note named by the object\n");
     let good = commit_all(&l.home, &l.dir, "stamps");
     let r = lib::check(l.reader().as_ref(), &l.dir, &good, None, &Default::default()).unwrap();
     assert!(r.problems.iter().all(|p| !p.is_error()), "{:#?}", r.problems);
+    let objects = r.objects;
 
+    // what a stamps directory holds is not restricted (decisions 11-25): large, in directories,
+    // any name the rules of every path allow
     write(&l.dir.join(format!("{at}.stamps/20261124-big.ots")), &vec![0u8; 64 * 1024 + 1]);
     write(&l.dir.join(format!("{at}.stamps/sub/x.ots")), b"in a directory");
+    write(&l.dir.join(format!("{at}.stamps/Proof_TSA.DER")), b"a proof of another kind");
+    // the rules of every path still hold in it
+    write(&l.dir.join(format!("{at}.stamps/sub/x y.ots")), b"a name no path may have");
+    // nor may anything there be taken for an object: a directory named as one is an error, and
+    // is not checked as an object
+    write(&l.dir.join(format!("{at}.stamps/copy/{}/toa.yaml", l.v1)), b"not an object\n");
     write(&l.dir.join(format!("ckt/comp/s.v1/{}.stamps", l.v1)), b"a file, not a directory");
     let bad = commit_all(&l.home, &l.dir, "bad stamps");
     let r = lib::check(l.reader().as_ref(), &l.dir, &bad, Some(&good), &Default::default()).unwrap();
+    assert_eq!(r.objects, objects, "nothing in a stamps directory is an object");
+    // nor for the tools that look for objects and drafts in a work tree
+    let scanned = seal::scan(&l.dir).unwrap();
+    assert!(
+        scanned.objects.iter().chain(&scanned.drafts).all(|p| !p.to_string_lossy().contains(".stamps")),
+        "{scanned:?}"
+    );
     let mut found: Vec<(String, String)> = r
         .problems
         .iter()
@@ -278,11 +299,44 @@ fn the_library_check_looks_at_stamps_directories() {
     assert_eq!(
         found,
         [
+            ("E_LIB_NAME".to_string(), "x y.ots".to_string()),
+            ("E_LIB_SIDECAR".to_string(), l.v1.clone()),
             ("E_LIB_SIDECAR".to_string(), format!("{}.stamps", l.v1)),
-            ("E_LIB_STAMPS".to_string(), "20261124-big.ots".to_string()),
-            ("E_LIB_STAMPS".to_string(), "sub".to_string()),
         ],
         "{:#?}",
         r.problems
     );
+}
+
+#[test]
+fn publishing_commits_what_was_removed() {
+    let l = Lib::new("rm-publish");
+    let at1 = format!("ckt/comp/s.v1/{}", l.v1);
+    let at2 = format!("ckt/comp/s.v2/{}", l.v2);
+    // one removed with a record, one without; something else of the work tree, not to be committed
+    remove::remove(l.reader().as_ref(), &l.dir, &l.v2, &Options { record: true, ..l.opts() }).unwrap();
+    remove::remove(l.reader().as_ref(), &l.dir, &l.v1, &l.opts()).unwrap();
+    write(&l.dir.join("scratch.txt"), b"not part of the library\n");
+    write(&l.dir.join(format!("ifc/comp/{}.notes/20261124-later.md", l.ip)), b"a note not yet committed\n");
+
+    let g = support::system_git(&l.home);
+    let o = publish::Options { to: Some(ADDRESS.into()), branch: "main".into(), commit: true, ..Default::default() };
+    let r = publish::publish(&g, &l.dir, &o).unwrap_or_else(|e| panic!("publishing: {e:?}"));
+    assert!(r.commit.is_some(), "{r:?}");
+    let errors: Vec<_> = r.check.iter().filter(|p| p.is_error()).collect();
+    assert!(errors.is_empty(), "{errors:#?}");
+
+    // the commit no longer holds the objects removed, nor their notes and source lists
+    let tree = git(&l.home, &l.dir, &["ls-tree", "-r", "--name-only", "HEAD"], None);
+    for gone in [&at1, &at2] {
+        for prefix in [format!("{gone}/"), format!("{gone}.notes/"), format!("{gone}.source.jsonl")] {
+            assert!(!tree.lines().any(|f| f.starts_with(&prefix)), "{prefix} is still in\n{tree}");
+        }
+    }
+    assert!(tree.lines().any(|f| f.starts_with(&format!("{at2}.removed"))), "the record is committed:\n{tree}");
+    // and nothing else of the work tree went with it
+    let status = git(&l.home, &l.dir, &["status", "--porcelain", "--untracked-files=all"], None);
+    assert!(status.contains("?? scratch.txt"), "{status}");
+    assert!(status.contains(".notes/20261124-later.md"), "{status}");
+    assert_eq!(status.lines().count(), 2, "{status}");
 }

@@ -1,5 +1,5 @@
-//! Type `evd`, the evidence record (`spec/types/en/evd.md`), with its `lock.json`. Only the kind
-//! `sim` is defined; a record of another kind is kept as it is.
+//! Type `evd`, the evidence record (`spec/types/en/evd.md`), with its `lock.json`. The kinds `sim`
+//! and `mc` are defined; a record of another kind is kept as it is.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -8,7 +8,7 @@ use serde_json::Value as J;
 use crate::tb::conditions;
 use crate::v::{self, V};
 use crate::{Lookup, Object};
-use toa_core::manifest::Node;
+use toa_core::manifest::{Node, Value};
 use toa_core::name::{self, Form};
 use toa_core::Problem;
 
@@ -17,7 +17,7 @@ pub(crate) fn check(o: &Object, lookup: &dyn Lookup, out: &mut Vec<Problem>) {
     let m = o.manifest;
     // the kind first: a kind not known here gets only the common rules and this field
     let Some(k) = m.get("kind") else {
-        v.err("E_FIELD_MISSING", "kind", "kind is required: the kind of evidence, sim in 0.1");
+        v.err("E_FIELD_MISSING", "kind", "kind is required: the kind of evidence, sim or mc in 0.1");
         return;
     };
     let Some(kind) =
@@ -25,11 +25,17 @@ pub(crate) fn check(o: &Object, lookup: &dyn Lookup, out: &mut Vec<Problem>) {
     else {
         return;
     };
-    if kind != crate::SIM {
+    if kind != crate::SIM && kind != crate::MC {
         return;
     }
-    let own = ["kind", "dut", "tbs", "conditions", "environment", "metrics", "evidence"];
-    if !v.fields(m, "", &crate::allowed(&own), &["kind", "dut", "tbs", "conditions", "environment", "metrics"]) {
+    let mc = kind == crate::MC;
+    let own = ["kind", "dut", "tbs", "conditions", "probes", "environment", "metrics", "evidence"];
+    let required: &[&str] = if mc {
+        &["kind", "dut", "tbs", "conditions", "environment", "metrics", "evidence"]
+    } else {
+        &["kind", "dut", "tbs", "conditions", "environment", "metrics"]
+    };
+    if !v.fields(m, "", &crate::allowed(&own), required) {
         return;
     }
     let dut = m.get("dut").and_then(|n| v.name(n, "dut", crate::CKT));
@@ -41,15 +47,66 @@ pub(crate) fn check(o: &Object, lookup: &dyn Lookup, out: &mut Vec<Problem>) {
             }
         }
     }
+    // 7. statistics, for mc only
+    let mut points: Option<i64> = None;
+    let mut first: i64 = 1;
     if let Some(c) = m.get("conditions") {
-        if v.fields(c, "conditions", &["parameters", "options", "models"], &[]) {
+        if v.fields(c, "conditions", &["parameters", "options", "models", "statistics"], &[]) {
             conditions(&mut v, c, "conditions", true);
+            match (c.get("statistics"), mc) {
+                (Some(_), false) => v.err(
+                    "E_FIELD",
+                    "conditions/statistics",
+                    "a record with statistics is a Monte Carlo simulation, of the kind mc",
+                ),
+                (None, true) => v.err(
+                    "E_FIELD_MISSING",
+                    "conditions/statistics",
+                    "a record of the kind mc says in statistics how its samples were drawn and run",
+                ),
+                (Some(st), true) => {
+                    points = st.get("points").and_then(|x| match x.value {
+                        Value::Int(i) if i >= 1 => Some(i),
+                        _ => None,
+                    });
+                    if let Some(Value::Int(f)) = st.get("first").map(|x| &x.value) {
+                        first = *f;
+                    }
+                }
+                (None, false) => {}
+            }
+        }
+    }
+    let mut probes: Vec<String> = Vec::new();
+    if let Some(n) = m.get("probes") {
+        match n.as_map() {
+            Some(map) => {
+                for (k, x) in map {
+                    let at = format!("probes/{}", k.text);
+                    if !crate::ifc::pin_name(&k.text) {
+                        v.err("E_FIELD", &at, "a probe name: [a-zA-Z][a-zA-Z0-9_]{0,31}");
+                    }
+                    if let Some(net) = v.string(x, &at) {
+                        if net.is_empty() || net.chars().count() > 200 || net.chars().any(char::is_whitespace) {
+                            v.err(
+                                "E_FIELD",
+                                &at,
+                                "a net: its name, or the instances down to it and its name joined by '.'",
+                            );
+                        }
+                    }
+                    probes.push(k.text.clone());
+                }
+            }
+            None => v.err("E_FIELD", "probes", "probes maps probe names to nets"),
         }
     }
     if let Some(e) = m.get("environment") {
         environment(&mut v, e);
     }
     let mut metric_names = Vec::new();
+    // for mc: the n and failed of each metric
+    let mut counts: Vec<(String, Option<(i64, i64)>)> = Vec::new();
     if let Some(n) = m.get("metrics") {
         match n.as_map() {
             Some(map) => {
@@ -58,10 +115,19 @@ pub(crate) fn check(o: &Object, lookup: &dyn Lookup, out: &mut Vec<Problem>) {
                     if !v::full_metric(&k.text) {
                         v.err("E_FIELD", &at, "a full metric name <testbench name>.<id>");
                     }
-                    v.number(x, &at);
+                    if mc {
+                        counts.push((k.text.clone(), mc_metric(&mut v, x, &at, points)));
+                    } else {
+                        v.number(x, &at);
+                    }
                     metric_names.push(k.text.clone());
                 }
             }
+            None if mc => v.err(
+                "E_FIELD",
+                "metrics",
+                "metrics is a mapping from full metric names to {n, failed, mean, sigma, min, max}",
+            ),
             None => v.err("E_FIELD", "metrics", "metrics is a mapping from full metric names to numbers"),
         }
     }
@@ -100,6 +166,10 @@ pub(crate) fn check(o: &Object, lookup: &dyn Lookup, out: &mut Vec<Problem>) {
     }
     let dut_ifc = dut_m.as_ref().and_then(|dm| dm.get("ifc").and_then(Node::as_str).map(str::to_string));
     let mut known_metrics: Option<BTreeSet<String>> = Some(BTreeSet::new());
+    // in the order of tbs and of the metrics of each testbench, when every testbench is found
+    let mut ordered_metrics: Option<Vec<String>> = Some(Vec::new());
+    // the probes the testbenches list, when every testbench is found
+    let mut listed_probes: Option<BTreeSet<String>> = Some(BTreeSet::new());
     for (i, t) in tbs.iter().enumerate() {
         match lookup.manifest(t) {
             Some(tm) => {
@@ -113,30 +183,176 @@ pub(crate) fn check(o: &Object, lookup: &dyn Lookup, out: &mut Vec<Problem>) {
                         );
                     }
                 }
+                if let Some(set) = listed_probes.as_mut() {
+                    for p in tm.get("probes").and_then(Node::as_seq).unwrap_or(&[]) {
+                        if let Some(p) = p.as_str() {
+                            set.insert(p.to_string());
+                        }
+                    }
+                }
                 let tname = tm.get("name").and_then(Node::as_str).unwrap_or("");
                 for mm in tm.get("metrics").and_then(Node::as_seq).unwrap_or(&[]) {
                     if let (Some(k), Some(set)) = (mm.get("id").and_then(Node::as_str), known_metrics.as_mut()) {
                         set.insert(format!("{tname}.{k}"));
+                        if let Some(o) = ordered_metrics.as_mut() {
+                            o.push(format!("{tname}.{k}"));
+                        }
                     }
                 }
             }
-            None => known_metrics = None,
+            None => {
+                known_metrics = None;
+                listed_probes = None;
+                ordered_metrics = None;
+            }
+        }
+    }
+    // 6. probes names exactly the probes the testbenches list
+    if let Some(want) = listed_probes {
+        let have: BTreeSet<String> = probes.iter().cloned().collect();
+        for p in want.difference(&have) {
+            v.err("E_EVD_PROBES", "probes", format!("the testbenches list the probe {p}, and probes gives it no net"));
+        }
+        for p in have.difference(&want) {
+            v.err("E_EVD_PROBES", &format!("probes/{p}"), format!("{p} is a probe no testbench of tbs lists"));
         }
     }
     // 3. every key of metrics is a metric of one of the testbenches
     if let Some(known) = known_metrics {
-        for k in metric_names {
-            if !known.contains(&k) {
+        for k in &metric_names {
+            if !known.contains(k) {
                 v.err("E_METRIC_UNKNOWN", &format!("metrics/{k}"), format!("{k} is no metric of the testbenches"));
             }
         }
+        // for mc, every metric of the testbenches, even one no sample gave
+        if mc {
+            for k in known.iter().filter(|k| !metric_names.contains(k)) {
+                v.err(
+                    "E_MC_METRIC",
+                    "metrics",
+                    format!("{k} is a metric of the testbenches: metrics holds it, with n 0 when no sample gave it"),
+                );
+            }
+        }
+    }
+    // 9. samples.csv
+    if mc {
+        samples_file(&mut v, o, m, points, first, &counts, ordered_metrics.as_deref());
     }
 
     // the file lock.json
     let mut l = V { out: v.out, section: "types/evd", file: "lock.json" };
     match o.lock {
-        None => l.err("E_LOCK_MISSING", "", "an evidence record of the kind sim has a lock.json (types/evd)"),
+        None => l.err("E_LOCK_MISSING", "", "an evidence record of the kind sim or mc has a lock.json (types/evd)"),
         Some(lock) => check_lock(&mut l, lock, dut.as_deref(), &tbs, lookup),
+    }
+}
+
+/// A metric of a record of the kind `mc` (check 8): `{n, failed, mean, sigma, min, max}`, with
+/// `n + failed` equal to `points`, and the others written as `n` requires. Its `n` and `failed`.
+fn mc_metric(v: &mut V, x: &Node, at: &str, points: Option<i64>) -> Option<(i64, i64)> {
+    if !v.fields(x, at, &["n", "failed", "mean", "sigma", "min", "max"], &["n", "failed"]) {
+        return None;
+    }
+    let n = x.get("n").and_then(|y| v.int(y, &v::join(at, "n"), 0, i64::MAX));
+    let failed = x.get("failed").and_then(|y| v.int(y, &v::join(at, "failed"), 0, i64::MAX));
+    for k in ["mean", "sigma", "min", "max"] {
+        if let Some(y) = x.get(k) {
+            if let Some(f) = v.number(y, &v::join(at, k)) {
+                if k == "sigma" && f < 0.0 {
+                    v.err("E_FIELD", &v::join(at, k), "sigma is 0 or more");
+                }
+            }
+        }
+    }
+    let (n, failed) = (n?, failed?);
+    if let Some(p) = points {
+        if n.checked_add(failed) != Some(p) {
+            v.err("E_MC_METRIC", at, format!("n + failed is {}, not points {p}", n.saturating_add(failed)));
+        }
+    }
+    for (k, want) in [("mean", n >= 1), ("min", n >= 1), ("max", n >= 1), ("sigma", n >= 2)] {
+        let has = x.get(k).is_some();
+        if want && !has {
+            let when = if k == "sigma" { "2 or more" } else { "1 or more" };
+            v.err("E_MC_METRIC", &v::join(at, k), format!("{k} is written when n is {when}"));
+        }
+        if !want && has {
+            v.err("E_MC_METRIC", &v::join(at, k), format!("{k} is not written when n is {n}"));
+        }
+    }
+    Some((n, failed))
+}
+
+/// Check 9: `evidence/samples.csv` is listed as a table, keeps its format, has one line for each
+/// sample from `first`, its columns are the metrics of `metrics` (in the order of the
+/// testbenches when they are known), and the `n` and `failed` of each metric agree with it.
+fn samples_file(
+    v: &mut V,
+    o: &Object,
+    m: &Node,
+    points: Option<i64>,
+    first: i64,
+    counts: &[(String, Option<(i64, i64)>)],
+    ordered: Option<&[String]>,
+) {
+    let listed = m.get("evidence").and_then(Node::as_seq).unwrap_or(&[]).iter().any(|e| {
+        e.get("path").and_then(Node::as_str) == Some(crate::mc::SAMPLES)
+            && e.get("kind").and_then(Node::as_str) == Some("table")
+    });
+    if !listed {
+        v.err("E_MC_SAMPLES", "evidence", "a record of the kind mc lists evidence/samples.csv with the kind table");
+    }
+    let Some(bytes) = o.bytes(crate::mc::SAMPLES) else {
+        v.err("E_MC_SAMPLES", crate::mc::SAMPLES, "a record of the kind mc has evidence/samples.csv");
+        return;
+    };
+    let s = match crate::mc::Samples::parse(bytes) {
+        Ok(s) => s,
+        Err(e) => {
+            V { out: v.out, section: "types/evd", file: crate::mc::SAMPLES }.err("E_MC_SAMPLES", "", e);
+            return;
+        }
+    };
+    let mut names: Vec<&String> = counts.iter().map(|(k, _)| k).collect();
+    let columns_ok = match ordered {
+        Some(o) => s.metrics.as_slice() == o,
+        None => {
+            let mut cols: Vec<&String> = s.metrics.iter().collect();
+            names.sort();
+            cols.sort();
+            names == cols
+        }
+    };
+    let mut f = V { out: v.out, section: "types/evd", file: crate::mc::SAMPLES };
+    if !columns_ok {
+        f.err(
+            "E_MC_SAMPLES",
+            "",
+            "its first line is sample and the full name of each metric, in the order of tbs and of the metrics of each testbench",
+        );
+        return;
+    }
+    if let Some(p) = points {
+        let want: Vec<i64> = (first..first.saturating_add(p)).collect();
+        let got: Vec<i64> = s.rows.iter().map(|r| r.0).collect();
+        if got != want {
+            let last = first.saturating_add(p) - 1;
+            f.err("E_MC_SAMPLES", "", format!("it has one line for each sample, from {first} to {last}, in order"));
+            return;
+        }
+    }
+    for (k, c) in counts {
+        let (Some((n, failed)), Some(col)) = (c, s.column(k)) else { continue };
+        let have = col.iter().flatten().count() as i64;
+        let miss = col.len() as i64 - have;
+        if (*n, *failed) != (have, miss) {
+            v.err(
+                "E_MC_SAMPLES",
+                &format!("metrics/{k}"),
+                format!("samples.csv gives {k} in {have} samples and not in {miss}; n is {n} and failed {failed}"),
+            );
+        }
     }
 }
 
@@ -513,6 +729,31 @@ mod tests {
     }
 
     #[test]
+    fn probes_are_those_the_testbenches_list() {
+        let mut objects = objects();
+        objects.0.insert(TB, format!("type: tb\nifc: {IP}\nname: tb_offset\nprobes: [latch_p, latch_n]\nfiles:\n  netlist: [tb.scs]\nanalyze: {{entry: a.py}}\nmetrics:\n- {{id: offset}}\n"));
+        let good = serde_json::json!([
+            {"path": "", "object": TOP, "ifc": IP, "files": {"top.scs": H}},
+            {"path": "latch", "object": SUB, "ifc": IP2, "files": {"sub.scs": H}}
+        ]);
+        let check = |probes: &str| -> Vec<&'static str> {
+            let text = format!(
+                "type: evd\nlicense: MIT\nkind: sim\ndut: {TOP}\ntbs: [{TB}]\n{probes}conditions: {{}}\n\
+                 environment:\n  simulator: {{name: spectre, version: '23.1'}}\nmetrics: {{}}\n"
+            );
+            let m = manifest::parse(text.as_bytes()).unwrap();
+            let lock = lock(good.clone());
+            crate::check("evd", &Object { manifest: &m, files: &[], lock: Some(&lock) }, &objects)
+                .iter()
+                .map(|p| p.code)
+                .collect()
+        };
+        assert_eq!(check("probes: {latch_p: LP, latch_n: latch.LM}\n"), Vec::<&str>::new());
+        assert_eq!(check("probes: {latch_p: LP, tail: 'a b'}\n"), ["E_FIELD", "E_EVD_PROBES", "E_EVD_PROBES"]);
+        assert_eq!(check(""), ["E_EVD_PROBES", "E_EVD_PROBES"]);
+    }
+
+    #[test]
     fn kinds() {
         let check = |text: &str| -> Vec<&'static str> {
             let m = manifest::parse(text.as_bytes()).unwrap();
@@ -531,5 +772,75 @@ mod tests {
              environment:\n  simulator: {{name: spectre, version: '23.1', options: {{temp: 27}}}}\nmetrics: {{}}\n"
         );
         assert_eq!(check(&text), ["E_FIELD", "E_FIELD_UNKNOWN", "E_LOCK_MISSING"]);
+    }
+
+    #[test]
+    fn monte_carlo() {
+        let mut objects = objects();
+        objects.0.insert(TB, format!("type: tb\nifc: {IP}\nname: tb_offset\nfiles:\n  netlist: [tb.scs]\nanalyze: {{entry: a.py}}\nmetrics:\n- {{id: offset}}\n- {{id: ok}}\n"));
+        let tree = serde_json::json!([
+            {"path": "", "object": TOP, "ifc": IP, "files": {"top.scs": H}},
+            {"path": "latch", "object": SUB, "ifc": IP2, "files": {"sub.scs": H}}
+        ]);
+        let lock = lock(tree);
+        let check = |statistics: &str, metrics: &str, csv: Option<&str>| -> Vec<&'static str> {
+            let text = format!(
+                "type: evd\nlicense: MIT\nkind: mc\ndut: {TOP}\ntbs: [{TB}]\nconditions:\n  parameters: {{vdd: 1.8}}\n{statistics}\
+                 environment:\n  simulator: {{name: spectre, version: '23.1'}}\nmetrics:\n{metrics}\
+                 evidence:\n- {{path: evidence/samples.csv, kind: table}}\n"
+            );
+            let m = manifest::parse(text.as_bytes()).unwrap();
+            let mut files = vec![("toa.yaml".to_string(), Vec::new())];
+            if let Some(c) = csv {
+                files.push(("evidence/samples.csv".to_string(), c.as_bytes().to_vec()));
+            }
+            crate::check("evd", &Object { manifest: &m, files: &files, lock: Some(&lock) }, &objects)
+                .iter()
+                .map(|p| p.code)
+                .collect()
+        };
+        let st = "  statistics: {method: mismatch, points: 3, sampling: lds, seed: 12345, first: 4, run: batch}\n";
+        let good =
+            "  tb_offset.offset: {'n': 2, failed: 1, mean: 0.5, sigma: 0.7071067811865476, min: 0.0, max: 1.0}\n  \
+                    tb_offset.ok: {'n': 1, failed: 2, mean: 1, min: 1, max: 1}\n";
+        let csv = "sample,tb_offset.offset,tb_offset.ok\n4,0.0,\n5,,\n6,1.0,1\n";
+        assert_eq!(check(st, good, Some(csv)), Vec::<&str>::new());
+        // 7. statistics: missing, or with values out of their range
+        assert_eq!(check("", good, Some(csv)), ["E_FIELD_MISSING"]);
+        assert_eq!(
+            check("  statistics: {method: all, points: 0, sampling: lhs, seed: 0, first: 2}\n", good, Some(csv)),
+            ["E_FIELD_MISSING", "E_FIELD", "E_FIELD", "E_FIELD", "E_FIELD"]
+        );
+        // 8. n + failed is points; mean, min, max and sigma as n requires
+        let bad = "  tb_offset.offset: {'n': 2, failed: 2, mean: 0.5, min: 0.0, max: 1.0}\n  \
+                   tb_offset.ok: {'n': 0, failed: 3, mean: 1}\n";
+        assert_eq!(
+            check(st, bad, Some(csv)),
+            ["E_MC_METRIC", "E_MC_METRIC", "E_MC_METRIC", "E_MC_SAMPLES", "E_MC_SAMPLES"]
+        );
+        // every metric of the testbenches
+        let one = "  tb_offset.offset: {'n': 2, failed: 1, mean: 0.5, sigma: 0.7, min: 0.0, max: 1.0}\n";
+        assert_eq!(
+            check(st, one, Some("sample,tb_offset.offset\n4,0.0\n5,\n6,1.0\n")),
+            ["E_MC_METRIC", "E_MC_SAMPLES"]
+        );
+        // 9. samples.csv: missing, a sample missing, n and failed not agreeing
+        assert_eq!(check(st, good, None), ["E_EVIDENCE", "E_MC_SAMPLES"]);
+        assert_eq!(check(st, good, Some("sample,tb_offset.offset,tb_offset.ok\n4,0.0,\n6,1.0,1\n")), ["E_MC_SAMPLES"]);
+        assert_eq!(
+            check(st, good, Some("sample,tb_offset.offset,tb_offset.ok\n4,0.0,\n5,2.0,\n6,1.0,1\n")),
+            ["E_MC_SAMPLES"]
+        );
+        // a sim record has no statistics
+        let text = format!(
+            "type: evd\nlicense: MIT\nkind: sim\ndut: {TOP}\ntbs: [{TB}]\nconditions:\n{st}\
+             environment:\n  simulator: {{name: spectre, version: '23.1'}}\nmetrics: {{}}\n"
+        );
+        let m = manifest::parse(text.as_bytes()).unwrap();
+        let codes: Vec<&str> = crate::check("evd", &Object { manifest: &m, files: &[], lock: Some(&lock) }, &objects)
+            .iter()
+            .map(|p| p.code)
+            .collect();
+        assert_eq!(codes, ["E_FIELD"]);
     }
 }

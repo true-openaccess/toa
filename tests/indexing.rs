@@ -61,9 +61,16 @@ fn an_index_of_one_library() {
     seal::seal(&g, &lib, &opts).unwrap();
     let v2 = dir_named(&lib.join("ckt/x/s.v2"), "ckt_");
     write(&lib.join(format!("ckt/x/s.v1/{v1}.notes/20261123-hello.md")), b"hello\n");
-    // timestamp proofs beside it (4.3): their names, kinds and sizes are recorded, not checked
+    // timestamp proofs beside it (4.3): their paths, kinds and sizes are recorded, not checked;
+    // any file, in directories of the stamps directory too (decisions 11-25)
     write(&lib.join(format!("ckt/x/s.v1/{v1}.stamps/20261124-btc.ots")), b"not checked");
     write(&lib.join(format!("ckt/x/s.v1/{v1}.stamps/20261124-tsa.tsr")), b"der");
+    write(&lib.join(format!("ckt/x/s.v1/{v1}.stamps/README")), b"how these were made\n");
+    write(&lib.join(format!("ckt/x/s.v1/{v1}.stamps/chain/1.OTS")), b"a proof in a directory");
+    // nothing in a sidecar directory is a sidecar or an object (6.4 item 5): a proof named by the
+    // object name, and a directory named as an object, which is listed as files, not indexed
+    write(&lib.join(format!("ckt/x/s.v1/{v1}.stamps/{v1}.ots")), b"ots");
+    write(&lib.join(format!("ckt/x/s.v1/{v1}.stamps/{v2}/toa.yaml")), b"type: ckt\n");
     // a label in the library list wins over the one beside the object; the list marks v2 latest
     let listed = format!(
         "{{\"toa\": \"source/1\"}}\n{{\"object\": \"{v2}\", \"label\": \"x/s.v2 from the list\", \"latest\": true, \"sources\": [{{\"local\": \"ckt/x/s.v2/{v2}\"}}]}}\n"
@@ -138,13 +145,24 @@ fn an_index_of_one_library() {
     assert_eq!(o1["first"]["signature"], Value::Null);
     assert_eq!(o1["locations"][0]["notes"][0]["text"], "hello\n");
     assert_eq!(o1["locations"][0]["notes"][0]["commit"], second.as_str());
-    assert_eq!(
-        o1["locations"][0]["stamps"],
-        serde_json::json!([
-            {"file": "20261124-btc.ots", "kind": "opentimestamps", "size": 11, "commit": second, "date": "2026-11-23T12:00:00Z"},
-            {"file": "20261124-tsa.tsr", "kind": "rfc3161", "size": 3, "commit": second, "date": "2026-11-23T12:00:00Z"}
-        ])
-    );
+    let mut stamps = vec![
+        ("20261124-btc.ots".to_string(), "opentimestamps", 11),
+        ("20261124-tsa.tsr".to_string(), "rfc3161", 3),
+        ("README".to_string(), "other", 20),
+        ("chain/1.OTS".to_string(), "opentimestamps", 22),
+        (format!("{v1}.ots"), "opentimestamps", 3),
+        (format!("{v2}/toa.yaml"), "other", 10),
+    ];
+    stamps.sort();
+    let stamps: Vec<Value> = stamps
+        .into_iter()
+        .map(|(file, kind, size)| {
+            serde_json::json!({"file": file, "kind": kind, "size": size, "commit": second, "date": "2026-11-23T12:00:00Z"})
+        })
+        .collect();
+    assert_eq!(o1["locations"][0]["stamps"], Value::Array(stamps));
+    // the directory named as v2 in the stamps directory is not a copy of v2
+    assert_eq!(object(&out, &v2)["locations"].as_array().unwrap().len(), 1);
     assert_eq!(object(&out, &v2)["locations"][0]["stamps"], serde_json::json!([]));
     assert!(o1["locations"][0]["source_list"].as_str().unwrap().ends_with(".source.jsonl"));
     assert_eq!(o2["locations"][0]["label"], "x/s.v2 from the list");

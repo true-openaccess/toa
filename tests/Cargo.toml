@@ -48,6 +48,10 @@ path = "removing.rs"
 name = "deriving"
 path = "deriving.rs"
 
+[[test]]
+name = "assembling"
+path = "assembling.rs"
+
 [dev-dependencies]
 toa-core.workspace = true
 toa-repo = { workspace = true, features = ["builtin-git"] }

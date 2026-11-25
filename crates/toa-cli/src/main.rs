@@ -9,6 +9,8 @@ use toa_core::problem::{has_errors, Problem};
 /// The version of the standard this tool implements.
 const STANDARD: &str = "0.1";
 
+mod runs;
+
 const USAGE: &str = "usage:
   toa hash [--sha256] DIR...   print the hash of each directory's files (2.2); a tree that is not
                                well-formed (3.1) has no hash
@@ -35,6 +37,54 @@ const USAGE: &str = "usage:
                                (default: here); the tag is TAG, else the manifest's name with _
                                as -, else from-<8 hex of the hash>. Refuses a tag taken here or
                                by a draft of the repository. It completes, or writes nothing
+  toa assemble TB CKT (--preset NAME[:INDEX] | --conditions FILE) [--probe PROBE=NET]...
+               [--sample K] [--map FILE] [--out DIR] [--dry-run] [--workspace FILE] [--offline]
+               [--allow-host HOST]... [--yes]
+                               assemble a run (7.6): the testbench TB on the circuit CKT (each a
+                               name or a directory) with its expanded tree, every object verified
+                               (7.4), for one set of conditions: a preset of the testbench (a list
+                               of sets needs :INDEX, from 0) or a file of {parameters, options,
+                               models}. Each probe the testbench lists needs --probe with its net
+                               in the circuit (a net of its subcircuit, or instances down to it
+                               and the net, joined by .), checked to be there. Model and external
+                               files come from the local file map (--map, else local-files.yaml
+                               beside the workspace list), match and sha256 checked. Writes DIR
+                               (default <testbench name>-<preset>): tb/, ckt/<object>/, input.scs
+                               or input.sp, lock.json; the circuit's subcircuit renamed to the
+                               socket, clashing ones renamed, probes replaced by their nets.
+                               Conditions with statistics are a Monte Carlo simulation: its
+                               analyses inside one toaMonteCarlo statement, for all its samples,
+                               or for sample K alone with --sample. Runs nothing. It completes,
+                               or writes nothing
+  toa run TB CKT (--preset NAME | --conditions FILE) [the options of assemble]
+          [--command CMD] [--launcher TEMPLATE] [--python EXE] [--agree SHA] [--no-analysis]
+          [--mc-run each|batch] [--evd-into LIB] [--license L] [--author A] [--short S]
+                               assemble and run (7.6, chapter 11): for each set of conditions (a
+                               preset that is a list gives DIR/<preset>-<index>), assemble, run the
+                               simulator (the command of run pointed at the entry file, results
+                               in analyze.results; --command replaces it, {input} is the entry
+                               file: it is recorded, so it must be the simulator's own command
+                               line, and a program that is not a simulator toa knows is warned
+                               of). --launcher says how this machine starts that command (a
+                               sandbox, a job scheduler) and is never recorded: {command} in it
+                               is the whole command, {args} the command without its program;
+                               with neither, it is a prefix. For example --launcher
+                               'my-sandbox --read-only /models {args}' or 'srun -n1'.
+                               Then write results/conditions.json, run the analysis script
+                               in a process of its own, in analysis/, with python (--python):
+                               only after the user agrees to it. Asked interactively, with the
+                               script or its difference from the version agreed before; without
+                               a terminal it needs --agree with the start of its SHA-256 (at least
+                               12 digits). Reads out/metrics.json and out/evidence/. With
+                               --evd-into, writes an evidence record draft into the library LIB
+                               (evd/<interface>/<stamp>-<short>/): conditions, probes,
+                               environment, metrics, evidence and lock.json; seal it when checked.
+                               Conditions with statistics are a Monte Carlo simulation (a record
+                               of the kind mc): its samples run each in a simulation of its own
+                               (DIR/runs/<k>) or all in one (batch), as the preset says or else
+                               --mc-run; the results of each split into DIR/samples/<k>/results,
+                               the analysis script called on each, then evidence/samples.csv and
+                               the statistics of each metric computed from it
   toa unseal NAME [--branch B] turn an object that is not published back into a draft, with the
                                unpublished objects that refer to it (7.1)
   toa status [--branch B]      list drafts, object directories whose content does not match their
@@ -309,6 +359,8 @@ fn main() -> ExitCode {
         "cat" => cat(args),
         "unseal" => unseal(&mut out, args),
         "derive" => derive(&mut out, args),
+        "assemble" => runs::assemble_cmd(&mut out, args),
+        "run" => runs::run_cmd(&mut out, args),
         "status" => status(&mut out, args),
         "remove" => remove(&mut out, args),
         other => usage_error(&format!("unknown command '{other}'")),

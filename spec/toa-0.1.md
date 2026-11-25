@@ -376,7 +376,7 @@ Beside an object directory, in the same parent directory, there may be four thin
 | `<object name>.removed.json` | The removal record: the object was removed from here (4.2) |
 | `<object name>.stamps/` | The stamps directory: proofs from third parties that the object name existed at a time (4.3) |
 
-- **No other name may start with `<object name>.`**
+- **No other name may start with `<object name>.`** This holds for the directories of the library itself, not within a notes or stamps directory, where no name is taken as a sidecar file. Within those two directories no name, at any level, is an object name, so nothing in them is taken for an object; draft names are kept out of them as out of every place (2.4).
 - **They must be regular directories and regular files,** not symbolic links. A source list and a removal record are at most 1 MiB each.
 - **When an object is kept several times in a library,** each copy may have sidecar files of its own. 4.1 says how their notes relate.
 - A library may hold sidecar files of an object without the object itself. A removal record is such a file; other sidecar files may then be anywhere.
@@ -425,21 +425,13 @@ After an object has been removed from a library (6.5), a file may be left where 
 
 ### 4.3 Timestamp proofs
 
-A library may keep beside an object proofs, made by third parties, that the object name existed at some time. This standard requires none.
+A library may keep beside an object proofs, made by third parties, that the object name existed at some time. This standard requires none, and does not say which kinds of proof may be kept.
 
-- **The directory:** `<object name>.stamps/`, holding only regular files placed directly in it, each at most 64 KiB. A file name keeps item 3 of 3.1, and should be written `<date>-<short name>.<extension>`, such as `20261124-btc.ots`.
-- **What is stamped is the object name:** its ASCII bytes, with no line end. A proof made for a name holds for that object wherever it is kept.
-- **The extension says what kind of proof a file is:**
-
-  | Extension | Proof |
-  |---|---|
-  | `.ots` | An OpenTimestamps proof |
-  | `.tsr` | A time-stamp token of RFC 3161, in DER |
-
-  Other extensions may be used. A tool that does not know one leaves the file as it is.
-- **Proofs may be added, replaced or removed at any time;** an OpenTimestamps proof, for example, is replaced by its completed form once it is anchored. Nothing else in a library depends on them.
-- **A tool checks a proof itself,** against the service it names. The library check looks only at the names, kinds and sizes of the files (6.4, item 5). What a proof shows, and what it does not, is said in chapter 11.
+- **The directory:** `<object name>.stamps/`. What it holds keeps only the rules that every path outside objects keeps, the names of its levels and the path budget (6.2), and those of every sidecar directory: no name in it is an object name or a draft name (above).
+- **Proofs may be added, replaced or removed at any time.** Nothing else in a library depends on them. A tool leaves a file it does not know as it is.
+- **A tool checks a proof itself,** against the service that made it. The library check looks at the stamps directory only as at any other path (6.4, item 5). What a proof shows, and what it does not, is said in chapter 11.
 - **When an object is kept several times in a library,** each copy may have a stamps directory; together they count as one. A draft has none, since its name is not yet fixed.
+- **A recommendation, not a requirement:** stamp the object name, its ASCII bytes with no line end, with OpenTimestamps, and name the file by its date and its kind, such as `20261124-btc.ots`; once the proof is anchored, replace it by its completed form. A proof made for a name holds for that object wherever it is kept. Other proofs, such as a time-stamp token of RFC 3161, may be kept as well.
 
 ## 5 Source lists
 
@@ -670,7 +662,7 @@ A source list is a file whose name ends in `.source.jsonl`. It lists some TOA ob
    - an object name is not the name of anything other than a directory.
 3. **No draft names** (the places of 2.4).
 4. **The files of every object:** `toa.yaml` keeps the syntax of 3.2, its common fields are valid and its `type` is the prefix; `lock.json` and `members.source.jsonl`, where present, keep 3.3; `history.json` is written the one way and agrees with `base`, and its `generation` with the parent where the parent is in the library (3.4); every item of `base` has the prefix of the object.
-5. **Outside objects:** the rules on the names of every level; the path budget; names that start with an object name and a dot are only of four kinds: the `.notes` directory, the regular file `.source.jsonl`, the regular file `.removed.json` and the `.stamps` directory, which holds only regular files placed directly in it, each at most 64 KiB, named by item 3 of 3.1 (4.3).
+5. **Outside objects:** the rules on the names of every level; the path budget; outside `.notes` and `.stamps` directories, names that start with an object name and a dot are only of four kinds: the `.notes` directory, the regular file `.source.jsonl`, the regular file `.removed.json` and the `.stamps` directory; within those directories, no name at any level is an object name (chapter 4).
 6. **Source lists** (every file outside object directories whose name ends in `.source.jsonl`; a file inside an object directory is content of the object, not a source list; a `members.source.jsonl` at the top of an object is checked by item 4): within the size limits; valid when read strictly (5.1); no `local` source beside an object; the `local` sources of the library list and its volumes are paths relative to the library; an include line without `sources` points to a list in this commit; every list under `library.source/` is included from `library.source.jsonl`, within 8 levels. `latest` marks keep 5.2: every marked object is in this library and not removed, and of two marked objects of one series, neither is in the `history` of the other. Where lists point is not checked.
 7. **Notes directories:** only regular `.md` files placed directly in them, each at most 256 KiB; notes of the same name beside copies of the same object have the same content; compared with the previous head, no note (known by object name and file name) was changed or removed, except the notes of removed objects.
 8. **Removal records are true:** every removal record added or changed keeps 4.2 and is true. Objects that disappeared need not leave a record, and existing records need not stay.
@@ -832,7 +824,7 @@ Assembling turns a circuit, with its expanded tree, into a set of files that can
   - The process an object names (in `0.1`, the `specifications.process` of a circuit) is looked up by name under `process` in the map.
   - Each `external` of an object is matched with the entry of `external` in the map that has the same `name`; an entry with `process` must also have the `process` of that external file (or else the process its object names).
   - Every string of `match` must occur in its file.
-- **Assembling a run.** An evidence record of the kind `sim` (`evd`) is made by running each of its testbenches on the circuit tested under one set of conditions. For each testbench, the tool writes a directory holding:
+- **Assembling a run.** An evidence record of the kind `sim` or `mc` (`evd`) is made by running each of its testbenches on the circuit tested under one set of conditions. For each testbench, the tool writes a directory holding:
   - `tb/`: the files of the testbench, at their paths in the object;
   - `ckt/<object name>/`: the files of each circuit of the expanded tree, at their paths in the object;
   - the entry file, the only file the simulator is given: `input.scs` when the first netlist of the testbench is in Spectre, `input.sp` when it is in SPICE. A netlist whose name ends in `.scs` is in Spectre and any other is in SPICE, as Spectre itself reads included files.
@@ -861,6 +853,24 @@ Assembling turns a circuit, with its expanded tree, into a set of files that can
 - **The block measured:** in the copies of its netlists in the directory, the subcircuit of the circuit tested takes the name in `socket` of the testbench; its ports stay in the order of the pins of the interface. Other subcircuits of the tree are renamed when their names clash with it, with each other, or with subcircuits that the testbench defines.
 - **Probes:** in the copies of the netlists of the testbench, each `<instance>.<probe>` (`tb`) becomes `<instance>.<net>`, with the net that `probes` of the record gives. Before running, the tool checks that each such net is in the circuit tested: a net of its subcircuit, or, for a net further down, the instances down to it and the net. When a net is missing, or the tool cannot tell, it stops: it never runs with a probe that leads nowhere.
 - **The results** are written in the format of `analyze.results` of the testbench into a directory `<results>`, with `conditions.json`, and then the analysis script is called (`tb`).
+- **A Monte Carlo simulation** (a record of the kind `mc`) is assembled and run as above, with these additions:
+  - Each sample is one simulation. With `run: each`, the tool runs each sample alone, as the first and only sample of its simulation. With `run: batch`, it runs all of them in one simulation and splits the results by sample. Sample k is what the first way gives (`evd`).
+  - In Spectre, in the copy of the first netlist of the testbench, the statements from its first analysis to its last, with the sweeps and other statements between them, are put inside the braces of one statement `toaMonteCarlo montecarlo <parameters> { … }`; the statements before and after them stay outside. When the tool cannot tell where the analyses are, it stops.
+  - Its parameters:
+
+    | `statistics` | Spectre |
+    |---|---|
+    | `method`: `mismatch`, `process` or `both` | `variations=mismatch`, `variations=process` or `variations=all` |
+    | `sampling`: `random`, `lds` or `lhs` | `sampling=standard`, `sampling=lds` or `sampling=lhs`; with `lhs`, also `numbins=<points>` |
+    | `seed` | `seed=<seed>` |
+    | the samples of the simulation | `firstrun=<the number of its first sample>` and `numruns=<the number of its samples>` |
+    | always | `donominal=no` and `savefamilyplots=yes` |
+
+  - **The mismatch is applied to the block measured only.** With `mismatch` or `both`, the statement also has `dut=[<instance> …]`, listing the instances of `socket` in the netlist: without it, Spectre would apply mismatch to the devices of the testbench as well.
+  - In SPICE, `0.1` defines no way of running a Monte Carlo simulation: the tool stops.
+  - The results of each sample go into a directory `<results>` of their own, under the names that a run without `statistics` gives them. With `batch`, Spectre names the files of sample k `toaMonteCarlo-<k>_<name>`, `<k>` perhaps with leading zeros, and `<name>` is the name without that prefix. A sample with no results is one whose simulation failed.
+  - In each, `conditions.json` holds the `conditions` with `statistics`, and `sample`; the analysis script is called once for each sample, as for any run.
+  - The tool then writes `evidence/samples.csv` and computes the statistics of `metrics` from it (`evd`).
 - A tool must not run commands carried by objects on its own, and must not install dependencies that objects list on its own (chapter 11).
 
 ## 8 Workspace list and index
@@ -1008,7 +1018,6 @@ The limits set throughout this standard, gathered for implementers. Where this t
 | `lock.json` | 1 MiB | 3.3 |
 | A note | 256 KiB | 4.1 |
 | A source list beside an object; a removal record | 1 MiB each | 4 |
-| A timestamp proof | 64 KiB | 4.3 |
 | `reason` of a removal record | 1,000 characters | 4.2 |
 | Sources in a removal record | 3 | 4.2 |
 | A line of a source list | 64 KiB | 5.1 |

@@ -64,8 +64,6 @@ pub enum Sidecar {
 pub const NOTES_SUFFIX: &str = ".notes";
 pub const REMOVED_SUFFIX: &str = ".removed.json";
 pub const STAMPS_SUFFIX: &str = ".stamps";
-/// The largest timestamp proof (4.3).
-pub const MAX_STAMP: u64 = 64 * 1024;
 pub const MAX_NOTE: u64 = 256 * 1024;
 pub const MAX_REMOVAL: u64 = 1024 * 1024;
 pub const MAX_REASON: usize = 1000;
@@ -86,6 +84,14 @@ pub fn sidecar_of(leaf: &str) -> Option<(&str, Option<Sidecar>)> {
         _ => None,
     };
     Some((base, kind))
+}
+
+/// Whether a path is inside a `.notes` or `.stamps` directory (at any depth): nothing in one is
+/// read as an object, a draft's sidecar or a sidecar (6.4 item 5, decisions 11-25), so `<object
+/// name>.ots` may be a proof there. Whether the path is inside an object is for the caller.
+pub fn inside_sidecar_dir(path: &str) -> bool {
+    let Some((dirs, _)) = path.rsplit_once('/') else { return false };
+    dirs.split('/').any(|c| matches!(sidecar_of(c), Some((_, Some(Sidecar::Notes | Sidecar::Stamps)))))
 }
 
 /// An object directory found in a listing.
@@ -117,7 +123,8 @@ pub fn objects(listing: &[Listed]) -> Vec<Found> {
             out[k].members.push(i);
             continue;
         }
-        if e.is_tree() && name::is_object_name(e.leaf()) {
+        // a directory of a sidecar directory named as an object is not one (6.4 item 5)
+        if e.is_tree() && name::is_object_name(e.leaf()) && !inside_sidecar_dir(&e.path) {
             by_path.insert(e.path.clone(), out.len());
             out.push(Found {
                 path: e.path.clone(),

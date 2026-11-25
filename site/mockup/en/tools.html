@@ -59,9 +59,10 @@
           <li><a href="#build"><span class="n">1</span>Build from source</a></li>
           <li><a href="#git"><span class="n">2</span>Git integration</a></li>
           <li><a href="#library"><span class="n">3</span>Publishing a library</a></li>
-          <li><a href="#commands"><span class="n">4</span>Commands</a></li>
-          <li><a href="#options"><span class="n">5</span>Options and exit codes</a></li>
-          <li><a href="#planned"><span class="n">6</span>Planned commands</a></li>
+          <li><a href="#timestamps"><span class="n">4</span>Timestamping objects (suggested)</a></li>
+          <li><a href="#commands"><span class="n">5</span>Commands</a></li>
+          <li><a href="#options"><span class="n">6</span>Options and exit codes</a></li>
+          <li><a href="#planned"><span class="n">7</span>Planned commands</a></li>
         </ol>
       </div>
     </nav>
@@ -116,7 +117,26 @@ toa publish --commit  # update lists, commit, and run library check
 git push              # push manually (toa never pushes)</code></pre>
         <p>Before <code>toa seal</code>, use <code>toa status</code> to list drafts and <code>--dry-run</code> to preview changes.</p>
 
-        <h2 id="commands"><span class="sec">4</span>Commands</h2>
+        <h2 id="timestamps"><span class="sec">4</span>Timestamping objects (suggested)</h2>
+        <p>A timestamp proof shows that an object name existed by some time, which helps show who published first. Only a hash is sent out, so an object can be stamped before it is public. <code>toa</code> makes no proofs; we suggest OpenTimestamps and its client <code>ots</code> (<code>pip3 install opentimestamps-client</code>), used outside the library:</p>
+<pre><code>n=ckt_876f99c0ddb9fae4aabf6b8b3b7fd59de24e7e2b
+s=my-library/ckt/strongarm-comp/sky130-razavi.g1/$n.stamps
+# the object name, with no line end
+printf '%s' "$n" &gt; name
+# sends only a hash; writes name.ots
+ots stamp name
+# publish it beside the object
+mkdir -p "$s" &amp;&amp; cp name.ots "$s/20261125-btc.ots"
+# a few hours later: completes name.ots
+ots upgrade name.ots
+# replace the first copy, publish again
+cp name.ots "$s/20261125-btc.ots"
+# anyone can check it
+ots verify -f name "$s/20261125-btc.ots"</code></pre>
+        <p>It costs nothing and needs no sign-up. A proof is complete after a few hours, once the hash is in a Bitcoin block, and the time it shows is precise to a few hours. To check it, use <code>ots verify</code>, which reads the block from a Bitcoin Core node of your own (a pruned node is enough), or the in-browser verifier at <a href="https://opentimestamps.org">opentimestamps.org</a>, trusting that site. A proof shows only that the name existed by then, not who made the object.</p>
+        <p>Other proofs work too, such as an RFC 3161 time-stamp token: the standard does not restrict what the stamps directory holds (<a class="ref" href="spec/0.1/#4.3">4.3</a>).</p>
+
+        <h2 id="commands"><span class="sec">5</span>Commands</h2>
         <p>Matches <code>toa --help</code>; numbers link to <a href="spec/0.1/">standard</a> sections.</p>
 
         <h3>Objects</h3>
@@ -151,7 +171,7 @@ git push              # push manually (toa never pushes)</code></pre>
           </tbody>
         </table>
 
-        <h2 id="options"><span class="sec">5</span>Options and exit codes</h2>
+        <h2 id="options"><span class="sec">6</span>Options and exit codes</h2>
         <table>
           <tbody>
             <tr><td><code>--json</code></td><td>Emit JSON Lines to stdout for scripts and agents.</td></tr>
@@ -171,7 +191,7 @@ git push              # push manually (toa never pushes)</code></pre>
           </tbody>
         </table>
 
-        <h2 id="planned"><span class="sec">6</span>Planned commands</h2>
+        <h2 id="planned"><span class="sec">7</span>Planned commands</h2>
         <p>Not yet implemented. Until <code>toa new</code> is, write a new draft directory by hand; to start from an existing object, use <code>toa derive</code>.</p>
         <table class="cmds">
           <tbody>

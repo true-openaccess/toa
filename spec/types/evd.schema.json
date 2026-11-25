@@ -53,7 +53,7 @@
     "kind": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9_-]{0,31}$",
-      "description": "The kind of evidence; 0.1 defines only sim."
+      "description": "The kind of evidence; 0.1 defines sim and mc."
     },
     "dut": {
       "type": "string",
@@ -127,6 +127,71 @@
               "sha256": {
                 "type": "string",
                 "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        },
+        "statistics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "points",
+            "sampling",
+            "seed",
+            "run"
+          ],
+          "description": "How the samples of a Monte Carlo simulation are drawn and run (types/en/evd.md, the kind mc).",
+          "properties": {
+            "method": {
+              "enum": [
+                "mismatch",
+                "process",
+                "both"
+              ]
+            },
+            "points": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sampling": {
+              "enum": [
+                "random",
+                "lds",
+                "lhs"
+              ]
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "first": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "run": {
+              "enum": [
+                "each",
+                "batch"
+              ]
+            }
+          },
+          "if": {
+            "properties": {
+              "sampling": {
+                "const": "lhs"
+              }
+            },
+            "required": [
+              "sampling"
+            ]
+          },
+          "then": {
+            "properties": {
+              "first": {
+                "const": 1
               }
             }
           }
@@ -225,7 +290,10 @@
         "pattern": "^tb_[a-z0-9_]{1,36}\\.[a-zA-Z][a-zA-Z0-9_]{0,31}$"
       },
       "additionalProperties": {
-        "type": "number"
+        "type": [
+          "number",
+          "object"
+        ]
       }
     },
     "evidence": {
@@ -261,7 +329,7 @@
   },
   "$defs": {
     "lock": {
-      "description": "The file lock.json of an evidence record of the kind sim (types/en/evd.md).",
+      "description": "The file lock.json of an evidence record of the kind sim or mc (types/en/evd.md).",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -380,6 +448,7 @@
           "environment",
           "metrics"
         ],
+        "additionalProperties": false,
         "properties": {
           "type": true,
           "license": true,
@@ -391,13 +460,174 @@
           "kind": true,
           "dut": true,
           "tbs": true,
-          "conditions": true,
+          "conditions": {
+            "not": {
+              "required": [
+                "statistics"
+              ]
+            }
+          },
           "probes": true,
           "environment": true,
-          "metrics": true,
+          "metrics": {
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
           "evidence": true
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "mc"
+          }
         },
-        "additionalProperties": false
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "dut",
+          "tbs",
+          "conditions",
+          "environment",
+          "metrics",
+          "evidence"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "type": true,
+          "license": true,
+          "author": true,
+          "base": true,
+          "title": true,
+          "description": true,
+          "tags": true,
+          "kind": true,
+          "dut": true,
+          "tbs": true,
+          "conditions": {
+            "required": [
+              "statistics"
+            ]
+          },
+          "probes": true,
+          "environment": true,
+          "metrics": {
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "n",
+                "failed"
+              ],
+              "description": "The statistics of a metric over the samples: mean, min and max when n >= 1, sigma (divisor n - 1) when n >= 2.",
+              "properties": {
+                "n": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "failed": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "mean": {
+                  "type": "number"
+                },
+                "sigma": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "n": {
+                        "const": 0
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "mean": false,
+                      "sigma": false,
+                      "min": false,
+                      "max": false
+                    }
+                  },
+                  "else": {
+                    "required": [
+                      "mean",
+                      "min",
+                      "max"
+                    ]
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "n": {
+                        "minimum": 2
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "sigma"
+                    ]
+                  },
+                  "else": {
+                    "properties": {
+                      "sigma": false
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "evidence": {
+            "contains": {
+              "properties": {
+                "path": {
+                  "const": "evidence/samples.csv"
+                },
+                "kind": {
+                  "const": "table"
+                }
+              },
+              "required": [
+                "path",
+                "kind"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "enum": [
+              "sim",
+              "mc"
+            ]
+          }
+        },
+        "required": [
+          "kind"
+        ]
       },
       "else": {
         "description": "A kind this specification does not define: only the common rules and kind are checked."

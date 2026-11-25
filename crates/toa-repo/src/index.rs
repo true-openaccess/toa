@@ -64,11 +64,14 @@ struct Note {
     text: Option<String>,
 }
 
-/// A timestamp proof beside a copy (4.3): only its name, kind and size; the proof is not checked.
+/// A file of the timestamp proofs beside a copy (4.3): only its path, kind and size; the proof is
+/// not checked, and what the directory holds is not restricted.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 struct Stamp {
+    /// Relative to the `.stamps/` directory, `/` between levels.
     file: String,
-    /// By the extension: `opentimestamps` (`.ots`), `rfc3161` (`.tsr`), else `other`.
+    /// A hint guessed from the extension of its name: `opentimestamps` (`.ots`), `rfc3161`
+    /// (`.tsr`), else `other`.
     kind: String,
     size: u64,
     /// The commit that added the file, and its committer date.
@@ -467,12 +470,13 @@ impl Indexer<'_> {
                 });
             }
             let stamps_dir = format!("{}{}/", f.path, lib::STAMPS_SUFFIX);
-            let stamps: Vec<Stamp> = listing
+            let mut stamps: Vec<Stamp> = listing
                 .iter()
-                .filter(|e| e.is_blob() && e.path.starts_with(&stamps_dir) && !e.path[stamps_dir.len()..].contains('/'))
+                .filter(|e| e.is_blob() && e.path.starts_with(&stamps_dir))
                 .map(|e| {
                     let file = e.path[stamps_dir.len()..].to_string();
-                    let ext = file.rsplit_once('.').map(|(_, x)| x.to_ascii_lowercase()).unwrap_or_default();
+                    let leaf = file.rsplit('/').next().unwrap_or("");
+                    let ext = leaf.rsplit_once('.').map(|(_, x)| x.to_ascii_lowercase()).unwrap_or_default();
                     let kind = match ext.as_str() {
                         "ots" => "opentimestamps",
                         "tsr" => "rfc3161",
@@ -488,6 +492,7 @@ impl Indexer<'_> {
                     }
                 })
                 .collect();
+            stamps.sort_by(|a, b| a.file.cmp(&b.file));
             let list = format!("{}{}", f.path, source::SUFFIX);
             let label = labels.get(&f.name).cloned().or_else(|| {
                 let e = by_path.get(list.as_str()).filter(|e| e.is_blob())?;
@@ -528,7 +533,11 @@ impl Indexer<'_> {
         for e in &listing {
             let leaf = e.leaf();
             let Some((base, Some(Sidecar::Removal))) = lib::sidecar_of(leaf) else { continue };
-            if !name::is_object_name(base) || !e.is_regular_file() || found.iter().any(|f| inside(&e.path, &f.path)) {
+            if !name::is_object_name(base)
+                || !e.is_regular_file()
+                || lib::inside_sidecar_dir(&e.path)
+                || found.iter().any(|f| inside(&e.path, &f.path))
+            {
                 continue;
             }
             let bytes = self.git.read_blob(&repo, &e.id, lib::MAX_REMOVAL).unwrap_or_default();

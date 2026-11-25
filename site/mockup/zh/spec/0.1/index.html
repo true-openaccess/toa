@@ -144,7 +144,7 @@
           <h1>TOA 0.1（中文版）</h1>
           <p>定义 TOA 对象、命名、入口文件、来源表、库、工作区及操作，任何工具均可据此独立实现。</p>
           <div class="rev">
-            <span>尚未发布 · 2026-11-24 · a32636d</span>
+            <span>尚未发布 · 2026-11-25 · d5316dd</span>
             <span class="faint">版本：<a href="../0.1/">0.1</a></span>
           </div>
           <ul class="downloads">
@@ -1621,7 +1621,7 @@ library.source.jsonl</code></pre>
 <li>对象的每个 <code>external</code>，和映射表的 <code>external</code> 里 <code>name</code> 相同的条目对上；条目写了 <code>process</code> 的，还要和这个外部文件的 <code>process</code>（没写的话，和它所在对象写的工艺）相同。</li>
 <li><code>match</code> 里的每个字符串都必须在它的文件里出现。</li>
 </ul></li>
-<li><p><strong>组装一次运行。</strong> 种类为 <code>sim</code> 的验证记录（<code>evd</code>），是在一组条件下把它的每个测试用例在被测电路网表上各运行一次得到的。对每个测试用例，工具写一个目录，里面有：</p>
+<li><p><strong>组装一次运行。</strong> 种类为 <code>sim</code> 或 <code>mc</code> 的验证记录（<code>evd</code>），是在一组条件下把它的每个测试用例在被测电路网表上各运行一次得到的。对每个测试用例，工具写一个目录，里面有：</p>
 <ul>
 <li><code>tb/</code>：测试用例的文件，路径和在对象里一样；</li>
 <li><code>ckt/&lt;object name&gt;/</code>：展开树里每个电路网表的文件，路径和在对象里一样；</li>
@@ -1692,6 +1692,51 @@ library.source.jsonl</code></pre>
 <li><p><strong>被测块：</strong> 在目录里被测电路网表的网表副本里，它的子电路改用测试用例的 <code>socket</code> 里的名字；端口仍按模块定义的引脚顺序。树里别的子电路，名字和它重了、彼此重了、或和测试用例定义的子电路重了时，改名。</p></li>
 <li><p><strong>探针：</strong> 在测试用例的网表副本里，每个 <code>&lt;instance&gt;.&lt;probe&gt;</code>（<code>tb</code>）换成 <code>&lt;instance&gt;.&lt;net&gt;</code>，网取验证记录的 <code>probes</code> 给的那个。运行之前，工具核对每个这样的网都在被测电路网表里：是它的子电路里的网，或者对更下层的网，一路往下的实例和这个网都在。少了某个网，或者工具判断不了，就停下：绝不带着一个不知接到哪里的探针运行。</p></li>
 <li><p><strong>结果</strong> 按测试用例的 <code>analyze.results</code> 的格式写进目录 <code>&lt;results&gt;</code>，连同 <code>conditions.json</code>，然后调用分析脚本（<code>tb</code>）。</p></li>
+<li><p><strong>Monte Carlo 仿真</strong>（种类为 <code>mc</code> 的验证记录）照上面组装和运行，另外：</p>
+<ul>
+<li><p>每个样本是一次仿真。<code>run: each</code> 时，工具单独跑每个样本，它是那次仿真的第一个、也是唯一一个样本。<code>run: batch</code> 时，工具在一次仿真里跑完全部样本，再把结果按样本拆开。第 k 个样本以第一种跑法的结果为准（<code>evd</code>）。</p></li>
+<li><p>Spectre 里，在测试用例第一份网表的副本里，从第一条分析语句到最后一条，连同其间的扫描和别的语句，放进一条语句 <code>toaMonteCarlo montecarlo &lt;parameters&gt; { … }</code> 的大括号里；之前和之后的语句留在外面。工具判断不了分析语句在哪里时，停下。</p></li>
+<li><p>这条语句的参数：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th><code>statistics</code></th>
+<th>Spectre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>method</code>：<code>mismatch</code>、<code>process</code> 或 <code>both</code></td>
+<td><code>variations=mismatch</code>、<code>variations=process</code> 或 <code>variations=all</code></td>
+</tr>
+<tr>
+<td><code>sampling</code>：<code>random</code>、<code>lds</code> 或 <code>lhs</code></td>
+<td><code>sampling=standard</code>、<code>sampling=lds</code> 或 <code>sampling=lhs</code>；用 <code>lhs</code> 时另加 <code>numbins=&lt;points&gt;</code></td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td><code>seed=&lt;seed&gt;</code></td>
+</tr>
+<tr>
+<td>这次仿真的样本</td>
+<td><code>firstrun=&lt;the number of its first sample&gt;</code> 和 <code>numruns=&lt;the number of its samples&gt;</code></td>
+</tr>
+<tr>
+<td>总是</td>
+<td><code>donominal=no</code> 和 <code>savefamilyplots=yes</code></td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>失配只加在被测块上。</strong> 用 <code>mismatch</code> 或 <code>both</code> 时，这条语句还有 <code>dut=[&lt;instance&gt; …]</code>，列出网表里 <code>socket</code> 的各个实例：不写的话，Spectre 也会给测试用例里的器件加失配。</p></li>
+<li><p>SPICE 里，<code>0.1</code> 没有定义怎样跑 Monte Carlo 仿真：工具停下。</p></li>
+<li><p>每个样本的结果放进它自己的目录 <code>&lt;results&gt;</code>，文件名和没有 <code>statistics</code> 的运行一样。用 <code>batch</code> 时，Spectre 把第 k 个样本的文件命名为 <code>toaMonteCarlo-&lt;k&gt;_&lt;name&gt;</code>，<code>&lt;k&gt;</code> 可能带前导零，去掉这个前缀就是 <code>&lt;name&gt;</code>。没有结果的样本，就是仿真失败的样本。</p></li>
+<li><p>每个目录里，<code>conditions.json</code> 放带 <code>statistics</code> 的 <code>conditions</code> 和 <code>sample</code>；分析脚本每个样本调用一次，和任何运行一样。</p></li>
+<li><p>然后工具写 <code>evidence/samples.csv</code>，再从它算出 <code>metrics</code> 的统计量（<code>evd</code>）。</p></li>
+</ul></li>
 <li><p>工具不得自动执行对象里带的命令，不得自动安装对象里列的依赖（第 11 章）。</p></li>
 </ul>
 <h2 id="8"><span class="sec">8</span>工作区清单和索引<a href="#8" class="anchor" aria-label="Link to 8">#</a></h2>
@@ -2205,6 +2250,11 @@ library.source.jsonl</code></pre>
 <td>入口文件</td>
 </tr>
 <tr>
+<td><code>history.json</code></td>
+<td>写了 <code>base</code> 时</td>
+<td>它的来历，由定稿写出（<a href="#3.4" class="ref">3.4</a>）</td>
+</tr>
+<tr>
 <td><code>symbol.rnl</code></td>
 <td>应当</td>
 <td>这个模块定义的 RNL <code>0.4</code> 符号：一个名为 <code>&lt;name&gt;-sym</code> 的包，画出这个模块；由使用它的网表把它用在子电路上。画这个模块的电路网表和测试用例用这个包，不另抄一份</td>
@@ -2227,7 +2277,7 @@ library.source.jsonl</code></pre>
 </tbody>
 </table>
 <ul>
-<li>模块定义里不放别的文件。模型、网表和较长的文字放进电路网表、测试用例和文档。</li>
+<li>除了这些，模块定义里不放别的文件。模型、网表和较长的文字放进电路网表、测试用例和文档。</li>
 <li><strong>用哪个包画一个子电路，由引用决定，不看包名。</strong> 在电路网表里，它定义的子电路用 <code>ifc</code> 所指模块定义的 <code>symbol.rnl</code> 画，<code>uses</code> 每一项的子电路用这一项的 <code>ifc</code> 所指模块定义的画；在测试用例里，被测的模块用它的 <code>ifc</code> 所指模块定义的画。工具把这些文件作为这些名字的包交给 RNL。包名里放不进模块定义的名字，因为文件不能包含自己所在对象的哈希（<a href="#3.2.1" class="ref">3.2.1</a>）。</li>
 <li><strong>两个模块定义可以有相同的 <code>name</code></strong>（见上），这时它们的包也同名。两者出现在同一棵展开树里时，RNL 只用其中一个包，所以工具应当给警告。这不让任何对象不合格。</li>
 <li><strong>符号随模块定义走。</strong> 符号变了就是一个新的模块定义，指向旧模块定义的电路网表不跟着变。所以符号应当在模块定义定稿前画好。以后真要改，就做一个 <code>base</code> 指向旧模块定义的新模块定义；库可以给它标 <code>latest</code>（<a href="#5.2" class="ref">5.2</a>），电路网表的作者愿意的话再逐个跟进（<a href="#7.5" class="ref">7.5</a>）。</li>
@@ -2579,7 +2629,7 @@ library.source.jsonl</code></pre>
 <td><code>run</code></td>
 <td>必须</td>
 <td>字符串</td>
-<td>运行仿真的命令，供参考；使用者自己的环境可以不同</td>
+<td>运行仿真的命令，供参考；使用者自己的环境可以不同。它是仿真器自己的命令行，不带本机启动器（<code>evd</code>）</td>
 </tr>
 <tr>
 <td><code>analyze</code></td>
@@ -2667,7 +2717,7 @@ library.source.jsonl</code></pre>
 <li><strong>探针。</strong> 网表里除了模块定义（<code>ifc</code>）的探针，不写被测块里面的任何东西；探针写成 <code>&lt;instance&gt;.&lt;probe&gt;</code>，<code>&lt;instance&gt;</code> 是 <code>socket</code> 的一个实例，例如 <code>I0.latch_p</code>。探针是电路网表里的哪个网，由验证记录在每次运行时写明（<code>evd</code>）；组装运行时，工具把探针换成那个网（<a href="#7.6" class="ref">7.6</a>）。所以测试用例不用改，就能在这个模块定义的每个电路网表上运行，不管电路网表里的网叫什么。</li>
 <li><strong><code>analyze.results</code></strong> 是分析脚本要读的结果格式：<code>psfascii</code>（PSF ASCII，Spectre 写出的一个目录）或 <code>nutascii</code>（SPICE 的 ASCII raw 文件，所有分析都在一个文件 <code>results.raw</code> 里）。以后的版本可以加别的格式。工具让仿真器按这个格式写结果；<code>run</code> 只是参考。</li>
 <li><strong>容差：</strong> 一个指标的两个结果 <code>a</code> 和 <code>b</code>，在 <code>|a − b| ≤ max(abs, rel × max(|a|, |b|))</code> 时算一致，没写的 <code>abs</code> 或 <code>rel</code> 算 0。两个结果都不当参考值。</li>
-<li><strong>预设。</strong> 一组条件分 <code>parameters</code>、<code>options</code>、<code>models</code> 三格，写法和验证记录的 <code>conditions</code> 一样（<code>evd</code>）：每个值都是单个的，不能是列表。一个预设是一组条件，或者一串条件；每组都完整写出，不从别的组或别的预设里取任何东西。每组给 <code>parameters</code> 里的每个参数一个值，不给别的参数。每组运行一次，出一条验证记录，所以扫描写成一串，每个点一组。</li>
+<li><strong>预设。</strong> 一组条件分 <code>parameters</code>、<code>options</code>、<code>models</code> 三格，Monte Carlo 仿真还有第四格 <code>statistics</code>，写法和验证记录的 <code>conditions</code> 一样（<code>evd</code>）：每个值都是单个的，不能是列表。预设里可以不写 <code>statistics</code> 的 <code>run</code>，由使用者决定怎样跑。一个预设是一组条件，或者一串条件；每组都完整写出，不从别的组或别的预设里取任何东西。每组给 <code>parameters</code> 里的每个参数一个值，不给别的参数。每组运行一次，出一条验证记录：有 <code>statistics</code> 的出种类为 <code>mc</code> 的记录，没有的出 <code>sim</code>。所以扫描写成一串，每个点一组。</li>
 <li><strong>全名的含义不变。</strong> 在一个测试用例的各代里，指标名的含义永远不变；含义不同的指标换一个名字。电路网表的目标（<code>ckt</code> 的 <code>specifications.targets</code>）和电路网表 <code>uses</code> 里的要求，都用全名写。</li>
 <li><strong><code>description</code></strong>（<a href="#3.2.1" class="ref">3.2.1</a>）说这个测试用例测什么、怎么测。</li>
 </ul>
@@ -2715,8 +2765,8 @@ library.source.jsonl</code></pre>
 </table>
 <ul>
 <li><strong>网表</strong> 不单独运行：里面没有模型文件，也没有被测块的电路网表；不声明 <code>parameters</code> 里的参数，也不设置预设设置的选项：这些由工具在每次运行时和条件一起写进去（<a href="#7.6" class="ref">7.6</a>）。SPICE 的网表里不写 <code>.end</code>。</li>
-<li><strong>分析脚本</strong>的调用方式是 <code>&lt;entry&gt; &lt;results&gt; &lt;output&gt;</code>。它从目录 <code>&lt;results&gt;</code> 读一组条件的仿真结果，在 <code>&lt;output&gt;</code> 里写一个文件 <code>metrics.json</code>（每个指标一个数，按 <code>id</code>）和一个目录 <code>evidence/</code>。</li>
-<li><strong><code>conditions.json</code>：</strong> 调用脚本之前，工具在 <code>&lt;results&gt;</code> 里写一个文件 <code>conditions.json</code>：一个 JSON 对象，放正在生成的验证记录的 <code>conditions</code>，有探针时再加上它的 <code>probes</code>。脚本可以用它们，例如取电源电压的一半作阈值。</li>
+<li><strong>分析脚本</strong>的调用方式是 <code>&lt;entry&gt; &lt;results&gt; &lt;output&gt;</code>。它从目录 <code>&lt;results&gt;</code> 读一组条件的仿真结果，或 Monte Carlo 仿真里一个样本的结果，在 <code>&lt;output&gt;</code> 里写一个文件 <code>metrics.json</code>（每个指标一个数，按 <code>id</code>）和一个目录 <code>evidence/</code>。Monte Carlo 仿真里，每个样本调用它一次，它不用为此另写什么（<a href="#7.6" class="ref">7.6</a>）。</li>
+<li><strong><code>conditions.json</code>：</strong> 调用脚本之前，工具在 <code>&lt;results&gt;</code> 里写一个文件 <code>conditions.json</code>：一个 JSON 对象，放正在生成的验证记录的 <code>conditions</code>，有探针时再加上它的 <code>probes</code>；Monte Carlo 仿真的一个样本，还有 <code>sample</code>：这个样本的序号。脚本可以用它们，例如取电源电压的一半作阈值。</li>
 <li><strong>它是别人的代码</strong>（第 11 章）。没有使用者同意，工具不得运行它；第一次运行某个版本之前，应当把它和它相对上一版的差别给使用者看；应当在单独的进程和目录里运行它。这不算隔离：没有审过的测试用例应当在容器或虚拟机里运行。</li>
 <li>文件可以用许可证文件头开头，和电路网表（<code>ckt</code>）一样。</li>
 <li><strong>来源表</strong> 会往下展开测试用例，沿 <code>ifc</code>（<a href="#5.2" class="ref">5.2</a>）。</li>
@@ -2767,7 +2817,7 @@ library.source.jsonl</code></pre>
 <span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
 <span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">models</span><span class="kw">:</span><span class="at"> </span><span class="kw">[{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> models.scs</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">}]</span></span></code></pre></div>
 <h2 class="type-spec" id="types-evd">类型规格 <code>evd</code>：验证记录</h2>
-<p>验证记录是某人考察一个设计得到的东西：考察的是哪个对象、怎么考察的、在什么条件下、得到了什么。前缀是 <code>evd</code>。它的 <code>kind</code> 说明是哪一种验证记录。<code>0.1</code> 版只定义一种，<code>sim</code>：一次仿真，即在一个电路网表上运行测试用例；以后的版本可以加别的种类，例如签核检查、硅片实测和表征。结果是统计量的仿真，例如 Monte Carlo 仿真，不是 <code>sim</code>：以后的版本会为它定义一个种类。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/evd.schema.json</code>。</p>
+<p>验证记录是某人考察一个设计得到的东西：考察的是哪个对象、怎么考察的、在什么条件下、得到了什么。前缀是 <code>evd</code>。它的 <code>kind</code> 说明是哪一种验证记录。<code>0.1</code> 版定义两种：<code>sim</code>，一次仿真，即在一个电路网表上运行测试用例；<code>mc</code>，一次 Monte Carlo 仿真，即在电路网表统计偏差的许多样本上运行测试用例。以后的版本可以加别的种类，例如签核检查、硅片实测和表征。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/evd.schema.json</code>。</p>
 <h3 class="type-spec" id="types-evd-1">字段</h3>
 <p>除公共字段（<a href="#3.2.1" class="ref">3.2.1</a>）外，每条验证记录都有：</p>
 <table>
@@ -2796,12 +2846,12 @@ library.source.jsonl</code></pre>
 <td><code>kind</code></td>
 <td>必须</td>
 <td><code>[a-z][a-z0-9_-]{0,31}</code></td>
-<td>验证记录的种类。<code>0.1</code> 只定义了 <code>sim</code></td>
+<td>验证记录的种类。<code>0.1</code> 定义了 <code>sim</code> 和 <code>mc</code></td>
 </tr>
 </tbody>
 </table>
 <ul>
-<li><strong>工具不认识的种类：</strong> 工具照原样保留和显示这条验证记录，只按公共规则（第 2 到 8 章）和上面两个字段检查。别的种类由本规格以后的修订定义；这不改变 <code>sim</code> 是什么。</li>
+<li><strong>工具不认识的种类：</strong> 工具照原样保留和显示这条验证记录，只按公共规则（第 2 到 8 章）和上面两个字段检查。别的种类由本规格以后的修订定义；这不改变 <code>sim</code> 和 <code>mc</code> 是什么。</li>
 </ul>
 <p>种类为 <code>sim</code> 的验证记录还有：</p>
 <table>
@@ -2874,12 +2924,132 @@ library.source.jsonl</code></pre>
 <li><code>models</code>：所用模型文件的列表，每项有 <code>file</code>（不含 <code>/</code> 或 <code>\</code> 的文件名），可以有 <code>section</code>（一个名字或列表）、<code>version</code>、<code>match</code>（文件里必须都出现的字符串）、<code>process</code> 和 <code>sha256</code>（<a href="#3.5" class="ref">3.5</a>）。</li>
 </ul></li>
 <li><strong><code>probes</code></strong> 给 <code>tbs</code> 里各测试用例列出的每个探针，写明 <code>dut</code> 所指电路网表里的一个网：它的子电路里的网，例如 <code>LP</code>；或者更下层的网，写成一路往下的实例名加网名，用 <code>.</code> 连起来，例如 <code>xlatch.LP</code>。它只写这些探针，不多不少。和 <code>dut</code>、<code>conditions</code> 一样，它是这次运行的输入：同一个模块定义的另一个电路网表，可以给同样的测试用例另外的网。</li>
-<li><strong><code>environment</code>：</strong> 必须写 <code>simulator</code>，带 <code>name</code> 和 <code>version</code>，可以带 <code>command</code>：运行它的整条命令行，选项也在里面。可以写 <code>pdk</code>（<code>process</code>、<code>release</code>）、<code>analysis</code>（<code>python</code>、<code>packages</code>）、<code>system</code>（<code>os</code>、<code>cpu</code>、<code>threads</code>）和 <code>note</code>。<code>environment</code> 里不含本机路径、主机名或用户名。</li>
+<li><strong><code>environment</code>：</strong> 必须写 <code>simulator</code>，带 <code>name</code> 和 <code>version</code>，可以带 <code>command</code>：运行它的仿真器自己的命令行，选项也在里面。只负责启动仿真器的本机启动器，例如沙箱、作业调度或容器，不算在里面，也不写：它和本机路径一样，属于这台机器。可以写 <code>pdk</code>（<code>process</code>、<code>release</code>）、<code>analysis</code>（<code>python</code>、<code>packages</code>）、<code>system</code>（<code>os</code>、<code>cpu</code>、<code>threads</code>）和 <code>note</code>。<code>environment</code> 里不含本机路径、主机名或用户名。</li>
 <li><strong><code>evidence</code>：</strong> 文件的 <code>kind</code> 是 <code>spectrum</code>、<code>curve</code>、<code>waveform</code>、<code>table</code> 或 <code>json</code>。它不是验证记录本身的 <code>kind</code>。</li>
 <li><strong><code>description</code></strong>（<a href="#3.2.1" class="ref">3.2.1</a>）写读者还应当知道的事，例如某个指标为什么没得到。</li>
 </ul>
-<h3 class="type-spec" id="types-evd-2">文件 <code>lock.json</code></h3>
-<p>种类为 <code>sim</code> 的验证记录，顶层都有一个 <code>lock.json</code>（<a href="#3.3" class="ref">3.3</a>）。它按名字记下仿真的那棵树，连同所用文件的 SHA-256，让没有 TOA 工具也能核对这条验证记录。它是一个 JSON 对象：</p>
+<h3 class="type-spec" id="types-evd-2">种类 <code>mc</code></h3>
+<p>种类为 <code>mc</code> 的验证记录是一次 Monte Carlo 仿真：在一组条件下，把它的测试用例在模型所描述的统计偏差的许多样本上运行。它有 <code>sim</code> 的字段，也遵守那些规则，只有下面两个字段不同：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conditions</code></td>
+<td>必须</td>
+<td>映射</td>
+<td>和 <code>sim</code> 一样，另加第四格 <code>statistics</code>，必须写（见下）</td>
+</tr>
+<tr>
+<td><code>metrics</code></td>
+<td>必须</td>
+<td>指标全名到 <code>{n, failed, mean, sigma, min, max}</code> 的映射</td>
+<td>每个指标在各样本上的统计量（见下）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><strong><code>statistics</code></strong> 写明样本怎样抽取、怎样运行：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>字段</th>
+<th>要求</th>
+<th>取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>method</code></td>
+<td>必须</td>
+<td><code>mismatch</code>、<code>process</code> 或 <code>both</code></td>
+<td>抽取哪种偏差：器件之间的失配、工艺的偏差，或两者都有</td>
+</tr>
+<tr>
+<td><code>points</code></td>
+<td>必须</td>
+<td>整数，至少为 1</td>
+<td>样本数</td>
+</tr>
+<tr>
+<td><code>sampling</code></td>
+<td>必须</td>
+<td><code>random</code>、<code>lds</code> 或 <code>lhs</code></td>
+<td>样本怎样抽取：普通随机、低差异序列，或拉丁超立方采样</td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td>必须</td>
+<td>1 到 2147483647 的整数</td>
+<td>随机数的种子，写实际用的那个；不能留给默认值</td>
+</tr>
+<tr>
+<td><code>first</code></td>
+<td>可以</td>
+<td>整数，至少为 1；不写时为 1</td>
+<td>第一个样本的序号。样本是从 <code>first</code> 到 <code>first + points − 1</code> 的那些</td>
+</tr>
+<tr>
+<td><code>run</code></td>
+<td>必须</td>
+<td><code>each</code> 或 <code>batch</code></td>
+<td>怎样运行的（<a href="#7.6" class="ref">7.6</a>）：<code>each</code>，每个样本一次仿真；<code>batch</code>，全部样本在一次仿真里</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>用 <code>lhs</code> 时，样本分在 <code>points</code> 个分箱里，<code>first</code> 为 1。</li>
+<li>统计模型在 <code>models</code> 的模型文件里，和任何运行一样。</li>
+</ul></li>
+<li><p><strong>第 k 个样本</strong> 是单独仿真这一个样本得到的结果，也就是 <code>first</code> 为 k、<code>points</code> 为 1、<code>run</code> 为 <code>each</code> 的记录里会写的结果。用 <code>batch</code> 跑出的结果和它在每个指标的容差之内一致，但不必逐位相同。</p></li>
+<li><p><strong><code>metrics</code></strong> 写测试用例的每个指标，没有一个样本得到的指标也写。每个指标在这条记录的各样本上：</p>
+<ul>
+<li><code>n</code> 是得到了这个指标的样本数，<code>failed</code> 是没得到的样本数，所以 <code>n + failed</code> 就是 <code>points</code>；</li>
+<li><code>n</code> 至少为 1 时写 <code>mean</code>、<code>min</code> 和 <code>max</code>；<code>n</code> 至少为 2 时写 <code>sigma</code>，即以 <code>n − 1</code> 为除数的标准差；</li>
+<li>它们由工具从 <code>samples.csv</code> 算出，不由分析脚本算，这样各处的算法一致。取值为 0 或 1 的指标，例如判决，<code>mean</code> 就是得到 1 的样本所占的比例。</li>
+</ul></li>
+<li><p><strong><code>evidence/samples.csv</code></strong> 必须在记录里，并在 <code>evidence</code> 里列出，种类为 <code>table</code>。它是 UTF-8 编码、行尾为 LF 的 CSV 文件：</p>
+<ul>
+<li>第一行是 <code>sample</code>，后面是各指标的全名，按 <code>tbs</code> 的顺序和各测试用例 <code>metrics</code> 的顺序；</li>
+<li>之后每个样本一行，从 <code>first</code> 起：先是它的序号，然后是各指标的值，这个样本没得到的指标留空。仿真失败的样本也有一行，所有值都空；</li>
+<li>值写成十进制数，读回来是同一个数。</li>
+</ul></li>
+<li><p><strong>不记良率。</strong> 目标在电路网表里（<code>ckt</code> 的 <code>specifications.targets</code>）：谁都可以拿 <code>samples.csv</code> 对着目标算，目标改了也不用重跑。</p></li>
+<li><p><strong>分析脚本为每个样本写进 <code>evidence/</code> 的东西</strong> 不保留；工具可以为个别样本保留，各放在 <code>evidence/samples/&lt;k&gt;/</code> 下。</p></li>
+</ul>
+<h4 class="type-spec" id="types-evd-3">比较两次 Monte Carlo 仿真</h4>
+<p>两条种类为 <code>mc</code> 的验证记录，<code>tbs</code> 相同，<code>conditions</code> 除了 <code>statistics</code> 里的 <code>first</code>、<code>points</code> 和 <code>run</code> 都相同时，按下面两种方式之一比较：</p>
+<ul>
+<li><strong>逐样本比，</strong> 条件是两者还有相同的 <code>dut</code> 和 <code>probes</code>，仿真器的名字和版本相同，用 <code>lhs</code> 时 <code>points</code> 也相同。这时它们的网表由 <code>lock.json</code> 固定，逐字节相同，样本也就相同。两条记录都有的每个样本，逐个指标按该指标的容差比较（<code>tb</code>）；一边得到、另一边没得到的指标算不一致。比较的每个样本都一致时，两条记录互相复现。</li>
+<li><strong>比统计量，</strong> 其余情况都这样比。换一个电路网表，样本就不同，哪怕是同一个电路重新提取，或者原理图对提取出的网表；仿真器换了版本也可能不同。对两边的 <code>n</code> 都至少为 2 的每个指标（下面用 1 和 2 分别表示两条记录，<code>t</code> 是把该指标的容差用在所比的两个值上得到的界限）：
+<ul>
+<li>均值一致，当 <code>|mean₁ − mean₂| ≤ max(t, 3 × √(sigma₁²/n₁ + sigma₂²/n₂))</code>；</li>
+<li>标准差一致，当 <code>|sigma₁ − sigma₂| ≤ max(t, 3 × √(sigma₁²/(2(n₁ − 1)) + sigma₂²/(2(n₂ − 1))))</code>；</li>
+<li>在两边的 <code>samples.csv</code> 里取值全是 0 或 1 的指标，只比均值，按二项分布：当 <code>|mean₁ − mean₂| ≤ 3 × √(p(1 − p)(1/n₁ + 1/n₂))</code> 时一致，其中 <code>p = (n₁mean₁ + n₂mean₂)/(n₁ + n₂)</code>。</li>
+</ul>
+每个指标都这样一致时，两条记录统计上一致。工具这样说明，不称之为复现。</li>
+</ul>
+<h3 class="type-spec" id="types-evd-4">文件 <code>lock.json</code></h3>
+<p>种类为 <code>sim</code> 或 <code>mc</code> 的验证记录，顶层都有一个 <code>lock.json</code>（<a href="#3.3" class="ref">3.3</a>）。它按名字记下仿真的那棵树，连同所用文件的 SHA-256，让没有 TOA 工具也能核对这条验证记录。它是一个 JSON 对象：</p>
 <table>
 <colgroup>
 <col style="width: 25%" />
@@ -2928,7 +3098,7 @@ library.source.jsonl</code></pre>
 <li>任何成员都可以另带一个给人看的 <code>label</code>，工具不得解读它。</li>
 <li><code>lock.json</code> 里的名字是引用（<a href="#3.3" class="ref">3.3</a>），所以验证记录的名字固定了整棵树。</li>
 </ul>
-<h3 class="type-spec" id="types-evd-3">文件</h3>
+<h3 class="type-spec" id="types-evd-5">文件</h3>
 <table>
 <thead>
 <tr>
@@ -2945,7 +3115,7 @@ library.source.jsonl</code></pre>
 </tr>
 <tr>
 <td><code>lock.json</code></td>
-<td><code>sim</code> 必须</td>
+<td><code>sim</code> 和 <code>mc</code> 必须</td>
 <td>仿真的那棵树（见上）</td>
 </tr>
 <tr>
@@ -2963,8 +3133,8 @@ library.source.jsonl</code></pre>
 <ul>
 <li><strong>来源表</strong> 不往下展开验证记录（<a href="#5.2" class="ref">5.2</a>）。验证记录旁边的来源表列出验证记录引用的对象；从别的对象引到的验证记录不再多带什么。</li>
 </ul>
-<h3 class="type-spec" id="types-evd-4">定稿时的检查</h3>
-<p>种类为 <code>sim</code> 的验证记录：</p>
+<h3 class="type-spec" id="types-evd-6">定稿时的检查</h3>
+<p>种类为 <code>sim</code> 或 <code>mc</code> 的验证记录：</p>
 <ol type="1">
 <li><code>lock.json</code> 合上面的格式，它的 <code>dut</code> 和测试用例和入口文件一致。</li>
 <li><code>evidence</code> 的每个 <code>path</code> 都是对象里 <code>evidence/</code> 下的文件。</li>
@@ -2973,10 +3143,16 @@ library.source.jsonl</code></pre>
 <li>一棵展开树里，每个模块定义只有一个电路网表：同一个模块定义的两个电路网表是同一个子电路的两份定义，仿真会拒绝。</li>
 <li>找得到测试用例时，<code>probes</code> 写的恰好是它们列出的探针。</li>
 </ol>
-<h3 class="type-spec" id="types-evd-5">可读名</h3>
+<p>种类为 <code>mc</code> 的验证记录，还要：</p>
+<ol start="7" type="1">
+<li><code>statistics</code> 遵守上面的规则。</li>
+<li>每个指标的 <code>n + failed</code> 等于 <code>points</code>，<code>mean</code>、<code>sigma</code>、<code>min</code> 和 <code>max</code> 按 <code>n</code> 的要求写。</li>
+<li><code>evidence/samples.csv</code> 合上面的格式，每个样本一行，各列就是 <code>metrics</code> 里的指标；每个指标的 <code>n</code> 和 <code>failed</code> 和它一致。</li>
+</ol>
+<h3 class="type-spec" id="types-evd-7">可读名</h3>
 <p><code>evd/&lt;interface name&gt;/&lt;record label&gt;/</code>，标签是 <code>&lt;UTC time&gt;-&lt;short name&gt;</code>，例如 <code>evd/strongarm-comp/20261103T1200Z-wrap-off/evd_…/</code>（<a href="#6.2" class="ref">6.2</a>）。</p>
 <p>可读名去掉类型目录和两头的斜杠，例如 <code>strongarm-comp/20261103T1200Z-wrap-off</code>，就是工具在来源表里给这条验证记录写的 <code>label</code>（<a href="#5.1" class="ref">5.1</a>），也是工具显示它时用的名字。<code>&lt;interface name&gt;</code> 是 <code>dut</code> 所指对象的模块定义的 <code>name</code>；找不到时，用 <code>dut</code> 里对象名的前 12 个字符代替。验证记录的标签不在入口文件里：建验证记录的工具取建立时的 UTC 时间，写成 <code>YYYYMMDDTHHMMZ</code>，再向使用者要一个短名。显示别人建的验证记录时，工具用它在来源表里那一行的 <code>label</code>，没有就用 <code>&lt;interface name&gt;/</code> 加验证记录名的前 12 个字符。</p>
-<h3 class="type-spec" id="types-evd-6">例子</h3>
+<h3 class="type-spec" id="types-evd-8">例子</h3>
 <div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> evd</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> MIT</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">kind</span><span class="kw">:</span><span class="at"> sim</span></span>
@@ -2991,10 +3167,32 @@ library.source.jsonl</code></pre>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">models</span><span class="kw">:</span></span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> sky130.lib.spice</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;0.20.1&#39;</span><span class="kw">}</span></span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">environment</span><span class="kw">:</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">simulator</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;23.1.0&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">command</span><span class="kw">:</span><span class="at"> spectre tb.scs +aps</span><span class="kw">}</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">simulator</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;23.1.0&#39;</span><span class="kw">,</span><span class="at"> </span><span class="fu">command</span><span class="kw">:</span><span class="at"> spectre input.scs +aps</span><span class="kw">}</span></span>
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">analysis</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;3.11.9&#39;</span><span class="kw">}</span></span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
 <span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">tb_offset.offset</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.7</span></span></code></pre></div>
+<p>同一个电路网表的一次 Monte Carlo 仿真：</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> evd</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> MIT</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">kind</span><span class="kw">:</span><span class="at"> mc</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dut</span><span class="kw">:</span><span class="at"> ckt_1ec6249c0d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tbs</span><span class="kw">:</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> tb_ad96a1470e2d4c6b8a9f1e3d5c7b9a0e2f4d6c8b</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> Alice Zhang</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">probes</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">latch_p</span><span class="kw">:</span><span class="at"> LP</span><span class="kw">,</span><span class="at"> </span><span class="fu">latch_n</span><span class="kw">:</span><span class="at"> LM</span><span class="kw">}</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">conditions</span><span class="kw">:</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">parameters</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">vdd</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.8</span><span class="kw">}</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">options</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">temp</span><span class="kw">:</span><span class="at"> </span><span class="dv">27</span><span class="kw">}</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">models</span><span class="kw">:</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">file</span><span class="kw">:</span><span class="at"> sky130.lib.spice</span><span class="kw">,</span><span class="at"> </span><span class="fu">section</span><span class="kw">:</span><span class="at"> tt</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;0.20.1&#39;</span><span class="kw">}</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">statistics</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">method</span><span class="kw">:</span><span class="at"> mismatch</span><span class="kw">,</span><span class="at"> </span><span class="fu">points</span><span class="kw">:</span><span class="at"> </span><span class="dv">200</span><span class="kw">,</span><span class="at"> </span><span class="fu">sampling</span><span class="kw">:</span><span class="at"> lds</span><span class="kw">,</span><span class="at"> </span><span class="fu">seed</span><span class="kw">:</span><span class="at"> </span><span class="dv">12345</span><span class="kw">,</span><span class="at"> </span><span class="fu">run</span><span class="kw">:</span><span class="at"> batch</span><span class="kw">}</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="fu">environment</span><span class="kw">:</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">simulator</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">name</span><span class="kw">:</span><span class="at"> spectre</span><span class="kw">,</span><span class="at"> </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;23.1.0&#39;</span><span class="kw">}</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">analysis</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">python</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;3.11.9&#39;</span><span class="kw">}</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="fu">metrics</span><span class="kw">:</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">tb_offset.offset</span><span class="kw">:</span><span class="at"> </span><span class="kw">{</span><span class="fu">n</span><span class="kw">:</span><span class="at"> </span><span class="dv">199</span><span class="kw">,</span><span class="at"> </span><span class="fu">failed</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span><span class="kw">,</span><span class="at"> </span><span class="fu">mean</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.08</span><span class="kw">,</span><span class="at"> </span><span class="fu">sigma</span><span class="kw">:</span><span class="at"> </span><span class="fl">1.93</span><span class="kw">,</span><span class="at"> </span><span class="fu">min</span><span class="kw">:</span><span class="at"> </span><span class="fl">-5.12</span><span class="kw">,</span><span class="at"> </span><span class="fu">max</span><span class="kw">:</span><span class="at"> </span><span class="fl">5.47</span><span class="kw">}</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="fu">evidence</span><span class="kw">:</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="kw">{</span><span class="fu">path</span><span class="kw">:</span><span class="at"> evidence/samples.csv</span><span class="kw">,</span><span class="at"> </span><span class="fu">kind</span><span class="kw">:</span><span class="at"> table</span><span class="kw">}</span></span></code></pre></div>
 <h2 class="type-spec" id="types-doc">类型规格 <code>doc</code>：文档</h2>
 <p>文档是关于模块定义、电路网表、测试用例、验证记录或冻结库的文字：设计笔记、测试用例的使用说明、架构说明、参考资料。它的正文是对象的 <code>README.md</code>。前缀是 <code>doc</code>。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/doc.schema.json</code>。</p>
 <h3 class="type-spec" id="types-doc-1">字段</h3>
@@ -3074,13 +3272,13 @@ library.source.jsonl</code></pre>
 <p><code>doc/&lt;interface name&gt;/&lt;short name&gt;/</code>，例如 <code>doc/strongarm-comp/kickback-mitigation/doc_…/</code>（<a href="#6.2" class="ref">6.2</a>）。</p>
 <p>可读名去掉类型目录和两头的斜杠，例如 <code>strongarm-comp/kickback-mitigation</code>，就是工具在来源表里给这份文档写的 <code>label</code>（<a href="#5.1" class="ref">5.1</a>），也是工具显示它时用的名字。<code>&lt;interface name&gt;</code> 是 <code>refs</code> 里第一个模块定义的 <code>name</code>；<code>refs</code> 里没有模块定义的文档没有这一级，例如 <code>doc/kickback-mitigation/doc_…/</code>。短名不在入口文件里：建文档的工具向使用者要。显示别人建的文档时，工具用它在来源表里那一行的 <code>label</code>，没有就用它的标题。</p>
 <h3 class="type-spec" id="types-doc-5">例子</h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> doc</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CC-BY-4.0</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Reducing kickback in StrongARM comparators</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tags</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">design-note</span><span class="kw">,</span><span class="at"> comparator</span><span class="kw">]</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">refs</span><span class="kw">:</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> ifc_945cdda7d9b4c0f6a2e1d3b5c7a9e0f1d2c3b4a5</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;2026-10-28&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> doc</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CC-BY-4.0</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Reducing kickback in StrongARM comparators</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tags</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">design-note</span><span class="kw">,</span><span class="at"> comparator</span><span class="kw">]</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">refs</span><span class="kw">:</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> ifc_945cdda7d9b4c0f6a2e1d3b5c7a9e0f1d2c3b4a5</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;2026-10-28&#39;</span></span></code></pre></div>
 <h2 class="type-spec" id="types-lib">类型规格 <code>lib</code>：冻结库</h2>
 <p>冻结库是冻结成一个对象的一组对象：一个库在某一刻的样子，例如它的一次发布，或者从几个库里挑出的一组对象。它带一份来源表格式的成员表；它是对象，所以这份表永远不变。前缀是 <code>lib</code>。本规格需要 TOA <code>0.1</code> 或更新版本的公共规则（第 2 到 8 章）；它的字段定义是 <code>types/lib.schema.json</code>。</p>
 <ul>
@@ -3184,12 +3382,12 @@ library.source.jsonl</code></pre>
 <p><code>lib/&lt;name&gt;.g&lt;generation&gt;/</code>，例如 <code>lib/toa-official.g3/lib_…/</code>（<a href="#6.2" class="ref">6.2</a>）。代数就是它的 <code>history.json</code> 里写的那个（<a href="#3.4" class="ref">3.4</a>）。冻结库没有模块名这一级。</p>
 <p>可读名去掉类型目录和两头的斜杠，即 <code>&lt;name&gt;.g&lt;generation&gt;</code>，例如 <code>toa-official.g3</code>，就是工具在来源表里给这个冻结库写的 <code>label</code>（<a href="#5.1" class="ref">5.1</a>），也是工具显示它时用的名字。</p>
 <h3 class="type-spec" id="types-lib-7">例子</h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> lib</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CC0-1.0</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> toa-official</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> TOA official library, 2026-12</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">base</span><span class="kw">:</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> lib_3b9e5c1d7a2f4e6b8c0d9a1e3f5b7c9d2e4f6a8b</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">type</span><span class="kw">:</span><span class="at"> lib</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">license</span><span class="kw">:</span><span class="at"> CC0-1.0</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> toa-official</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> TOA official library, 2026-12</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">base</span><span class="kw">:</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> lib_3b9e5c1d7a2f4e6b8c0d9a1e3f5b7c9d2e4f6a8b</span></span></code></pre></div>
 <p>它的 <code>members.source.jsonl</code> 的头几行：</p>
 <pre class="text"><code>{&quot;toa&quot;: &quot;source/1&quot;}
 {&quot;object&quot;: &quot;ckt_1ec6249c0d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a&quot;, &quot;label&quot;: &quot;strongarm-comp/wrap-lee.g2&quot;, &quot;group&quot;: &quot;strongarm-comp&quot;, &quot;sources&quot;: [{&quot;git&quot;: &quot;https://example.org/toa-lib.git&quot;}]}

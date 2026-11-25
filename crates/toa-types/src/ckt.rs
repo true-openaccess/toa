@@ -89,15 +89,7 @@ pub(crate) fn check(o: &Object, lookup: &dyn Lookup, out: &mut Vec<Problem>) {
 /// a pin of `width` N stands for N ports (types/ifc). Checked only when the count can be told: the
 /// interface's pins are well formed and the netlist's top subcircuit is plain to see.
 fn ports(v: &mut V, o: &Object, m: &Node, ifc: &str, found: &Node) {
-    let Some(pins) = found.get("pins").and_then(Node::as_seq) else { return };
-    let mut want = 0i64;
-    for p in pins {
-        match p.get("width").map(|w| &w.value) {
-            None => want += 1,
-            Some(toa_core::manifest::Value::Int(w)) if *w >= 1 => want += w,
-            Some(_) => return,
-        }
-    }
+    let Some(want) = crate::ifc::pin_count(found) else { return };
     let first = m.get("files").and_then(|f| f.get("netlist")).and_then(Node::as_seq).and_then(|l| l.first());
     let Some(path) = first.and_then(Node::as_str) else { return };
     let Some(bytes) = o.bytes(path) else { return };
@@ -167,6 +159,7 @@ fn specifications(v: &mut V, n: &Node) {
                 v.shaped(x, &at, v::process_name, "a short name such as sky130: [a-z][a-z0-9_-]{0,39}");
             }
             "vdd" | "temp" => numeric(v, x, &at, false),
+            "targets" => targets(v, x, &at),
             "pins" => match x.as_map() {
                 Some(pins) => {
                     for (p, e) in pins {
@@ -176,6 +169,49 @@ fn specifications(v: &mut V, n: &Node) {
                 None => v.err("E_FIELD", &at, "pins is a mapping from pin names"),
             },
             _ => numeric(v, x, &at, true),
+        }
+    }
+}
+
+/// `specifications.targets`: full metric names to one target or a list; a target is `{min, max,
+/// preset}` with at least one of `min` and `max`.
+fn targets(v: &mut V, n: &Node, at: &str) {
+    let Some(map) = n.as_map() else {
+        v.err("E_FIELD", at, "targets maps full metric names to a target or a list of targets");
+        return;
+    };
+    for (k, x) in map {
+        let kat = format!("{at}/{}", k.text);
+        if !v::full_metric(&k.text) {
+            v.err("E_FIELD", &kat, "a full metric name <testbench name>.<id>");
+        }
+        let items: Vec<(String, &Node)> = match x.as_seq() {
+            Some([]) => {
+                v.err("E_FIELD", &kat, "a list of targets has at least one");
+                Vec::new()
+            }
+            Some(list) => list.iter().enumerate().map(|(i, t)| (format!("{kat}/{i}"), t)).collect(),
+            None => vec![(kat.clone(), x)],
+        };
+        for (tat, t) in items {
+            if !v.fields(t, &tat, &["min", "max", "preset"], &[]) {
+                continue;
+            }
+            if t.get("min").is_none() && t.get("max").is_none() {
+                v.err("E_FIELD", &tat, "a target has min, max or both");
+            }
+            let lo = t.get("min").and_then(|y| v.number(y, &format!("{tat}/min")));
+            let hi = t.get("max").and_then(|y| v.number(y, &format!("{tat}/max")));
+            if let (Some(lo), Some(hi)) = (lo, hi) {
+                if lo > hi {
+                    v.err("E_FIELD", &tat, "min is not above max");
+                }
+            }
+            if let Some(p) = t.get("preset") {
+                if v.string(p, &format!("{tat}/preset")).is_some_and(str::is_empty) {
+                    v.err("E_FIELD", &format!("{tat}/preset"), "preset names a preset of the testbench");
+                }
+            }
         }
     }
 }
@@ -429,6 +465,21 @@ mod tests {
                 [("E_FIELD_MISSING", "toa.yaml:specifications/process".to_string())]
             );
         }
+    }
+
+    #[test]
+    fn targets() {
+        let text = format!(
+            "type: ckt\nlicense: MIT\nifc: {IFC}\nname: wrap\nform: ideal\nfiles:\n  netlist: [a.scs]\n\
+             specifications:\n  targets:\n    tb_offset.offset: {{max: 2}}\n    tb_static.gain:\n    - {{min: 40, preset: nom}}\n    - {{min: 30, max: 90}}\n"
+        );
+        assert_eq!(run(&text, &[("a.scs", "")], &crate::Nothing), []);
+        let bad = text
+            .replace("{max: 2}", "{typ: 2}")
+            .replace("{min: 30, max: 90}", "{min: 90, max: 30}")
+            .replace("tb_static.gain", "gain");
+        let codes: Vec<&str> = run(&bad, &[("a.scs", "")], &crate::Nothing).iter().map(|x| x.0).collect();
+        assert_eq!(codes, ["E_FIELD_UNKNOWN", "E_FIELD", "E_FIELD", "E_FIELD"]);
     }
 
     #[test]

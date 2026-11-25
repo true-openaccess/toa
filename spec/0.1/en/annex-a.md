@@ -20,7 +20,6 @@ The limits set throughout this standard, gathered for implementers. Where this t
 | `lock.json` | 1 MiB | 3.3 |
 | A note | 256 KiB | 4.1 |
 | A source list beside an object; a removal record | 1 MiB each | 4 |
-| A timestamp proof | 64 KiB | 4.3 |
 | `reason` of a removal record | 1,000 characters | 4.2 |
 | Sources in a removal record | 3 | 4.2 |
 | A line of a source list | 64 KiB | 5.1 |

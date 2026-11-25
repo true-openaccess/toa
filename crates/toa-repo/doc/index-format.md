@@ -249,11 +249,14 @@ Field by field:
     and size. `text` is the note as written when it is at most 64 KiB, else `null` (a note is at
     most 256 KiB; the reader fetches it by library, commit and path). Notes are untrusted text of
     others (chapter 11).
-  - `stamps`: the timestamp proofs beside this copy (4.3), the files placed directly in its
-    `.stamps/` directory, sorted by name: the file name, its `kind` by the extension
-    (`opentimestamps` for `.ots`, `rfc3161` for `.tsr`, `other` otherwise), its size, and the
-    commit that first added a file of that name, with its date; a proof replaced later by its
-    completed form (4.3) keeps that commit. **The proofs are not checked**: a reader that shows
+  - `stamps`: the timestamp proofs beside this copy (4.3): every file of its `.stamps/`
+    directory, in directories inside it too, sorted by `file`, its path relative to the
+    directory (`/` between levels, so it may hold `/`). What the directory holds is not
+    restricted: any proof, of any kind, size or name. With each: `kind`, **only a hint guessed
+    from the extension** of the file's name (`opentimestamps` for `.ots`, `rfc3161` for `.tsr`,
+    `other` otherwise; the file is not read to tell), its size, and the commit that first
+    added a file of that path, with its date; a proof replaced later by its completed form
+    keeps that commit. **The proofs are not checked**: a reader that shows
     them checks a proof itself against the service it names, or says it did not (4.3, chapter 11).
   - `source_list`: the path of the source list beside this copy, or `null`.
   - `label`: the `label` of this object's line in the library list or the volumes it includes

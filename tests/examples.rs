@@ -105,6 +105,45 @@ impl Build {
         write(&d.join(".gitattributes"), b"* -text\n");
     }
 
+    /// Seal the drafts there are now, without publishing or committing.
+    fn seal_only(&mut self, lib: &str) {
+        let ws = self.root.join("workspace.source.jsonl");
+        let sealed = seal::seal(
+            &self.sg(),
+            &self.root.join(lib),
+            &seal::SealOptions { dry_run: false, lookup: Vec::new(), workspace: Some(ws) },
+        )
+        .unwrap_or_else(|e| panic!("{lib}: sealing: {e:?}"));
+        for (d, o, _) in sealed.objects {
+            self.names.insert(d, o);
+        }
+    }
+
+    /// Write an object as it was sealed by an earlier version of the tool, under the name its
+    /// files give it: an object published before the rules of its type changed (`$(draft)` in
+    /// its files filled first). Sealing leaves it as it is.
+    fn put_sealed(&mut self, lib: &str, parent: &str, draft: &str, files: &[(&str, String)]) {
+        let filled: Vec<(String, String)> = files
+            .iter()
+            .map(|(p, t)| {
+                let mut s = t.clone();
+                while let Some(i) = s.find("$(") {
+                    let j = s[i..].find(')').unwrap() + i;
+                    let v = self.n(&s[i + 2..j]);
+                    s.replace_range(i..=j, &v);
+                }
+                (p.to_string(), s)
+            })
+            .collect();
+        let refs: Vec<(&str, &[u8])> = filled.iter().map(|(p, t)| (p.as_str(), t.as_bytes())).collect();
+        let prefix = &draft[..draft.find('_').unwrap()];
+        let name = format!("{prefix}_{}", hash::hash_files(Algorithm::Sha1, &refs).unwrap());
+        for (p, t) in &filled {
+            write(&self.root.join(lib).join(parent).join(&name).join(p), t.as_bytes());
+        }
+        self.names.insert(draft.to_string(), name);
+    }
+
     /// Seal the drafts, tidy by `toa publish` (7.2) and commit: one commit, checked by 6.4
     /// against the one before.
     fn step(&mut self, lib: &str, date: &str, msg: &str, volumes: bool) -> String {
@@ -223,6 +262,18 @@ dut (inp inn clk outp outn vdd 0) strongarm_comp
 tran tran stop=1u
 ";
 
+/// The netlist of `tb_offset.g2`: the supply's value is not declared here; assembling a run
+/// writes it with the conditions (7.6).
+const TB2: &str = "// Input-referred offset: a slow differential ramp, the comparator clocked at 100 MHz
+simulator lang=spectre
+vdd (vdd 0) vsource dc=vdd
+vclk (clk 0) vsource type=pulse val0=0 val1=vdd period=10n width=5n rise=50p fall=50p
+vinp (inp 0) vsource type=pwl wave=[0 0.9-1m 1u 0.9+1m]
+vinn (inn 0) vsource dc=0.9
+dut (inp inn clk outp outn vdd 0) strongarm_comp
+tran tran stop=1u
+";
+
 const ANALYZE: &str = "\"\"\"The offset: the input at which the decisions turn over.\"\"\"
 
 
@@ -299,13 +350,22 @@ fn build(root: &Path, home: &Path) -> Build {
         "type: ckt\nlicense: CC0-1.0\nifc: ifc_draft-comp\nname: sky130-razavi\nform: transistor\nspecifications: {process: sky130}\n\
          description: The classic StrongARM latch.\nfiles:\n  netlist:\n  - strongarm_comp.scs\n");
     b.put("official", "ckt/strongarm-comp/sky130-razavi.g1/ckt_draft-razavi/strongarm_comp.scs", RAZAVI);
-    b.put("official", "tb/strongarm-comp/tb_offset.g1/tb_draft-offset/toa.yaml",
-        "type: tb\nlicense: CC0-1.0\nifc: ifc_draft-comp\nname: tb_offset\ntitle: Input-referred offset by a slow ramp\n\
+    // the testbench g1 was sealed before B36 (no socket, no format of results, its netlist
+    // declaring vdd): it is kept as it was published, and the rules of today seal only g2 (step 4)
+    b.seal_only("official");
+    b.put_sealed(
+        "official",
+        "tb/strongarm-comp/tb_offset.g1",
+        "tb_draft-offset",
+        &[
+            ("toa.yaml", "type: tb\nlicense: CC0-1.0\nifc: $(ifc_draft-comp)\nname: tb_offset\ntitle: Input-referred offset by a slow ramp\n\
          files:\n  netlist:\n  - tb.scs\nsimulators:\n- {name: spectre, version: '21.1'}\nrun: spectre tb.scs +aps -format psfxl -raw psf\n\
          analyze: {entry: analyze.py, python: '>=3.10'}\nmetrics:\n- {id: offset, unit: mV, better: lower, tolerance: {abs: 0.2}}\n\
-         parameters:\n  vdd: {unit: V, description: Supply voltage}\n");
-    b.put("official", "tb/strongarm-comp/tb_offset.g1/tb_draft-offset/tb.scs", TB);
-    b.put("official", "tb/strongarm-comp/tb_offset.g1/tb_draft-offset/analyze.py", ANALYZE);
+         parameters:\n  vdd: {unit: V, description: Supply voltage}\n".to_string()),
+            ("tb.scs", TB.to_string()),
+            ("analyze.py", ANALYZE.to_string()),
+        ],
+    );
     let first = b.step(
         "official",
         "2026-11-01T09:00:00+08:00",
@@ -440,6 +500,21 @@ fn build(root: &Path, home: &Path) -> Build {
     let r = remove::remove(&b.sg(), &b.root.join("lee"), &v1, &opts).unwrap_or_else(|e| panic!("lee: removing: {e:?}"));
     assert_eq!(r.record.as_deref(), Some(format!("ckt/dyn-latch-cmp/lee-sky130.g1/{v1}.removed.json").as_str()));
     b.step("lee", "2026-11-14T14:00:00Z", "Remove lee-sky130.g1, leaving a removal record", false);
+
+    // official, 4: the testbench under the rules of B36, a new generation of g1: the block measured
+    // by its socket, the format of the results, the conditions in presets and not in the netlist
+    b.put("official", "tb/strongarm-comp/tb_offset.g2/tb_draft-offset2/toa.yaml",
+        "type: tb\nlicense: CC0-1.0\nifc: $(ifc_draft-comp)\nbase: [$(tb_draft-offset)]\nname: tb_offset\n\
+         title: Input-referred offset by a slow ramp\nsocket: strongarm_comp\n\
+         files:\n  netlist:\n  - tb.scs\nsimulators:\n- {name: spectre, version: '21.1'}\nrun: spectre input.scs +aps -format psfascii -raw psf\n\
+         analyze: {entry: analyze.py, python: '>=3.10', results: psfascii}\nmetrics:\n- {id: offset, unit: mV, better: lower, tolerance: {abs: 0.2}}\n\
+         parameters:\n  vdd: {unit: V, description: Supply voltage}\n\
+         presets:\n  nom:\n    parameters: {vdd: 1.8}\n    options: {temp: 27}\n    models:\n    - {file: sky130.lib.spice, section: tt, process: sky130}\n\
+         \x20 supply:\n  - parameters: {vdd: 1.62}\n    options: {temp: 27}\n    models:\n    - {file: sky130.lib.spice, section: tt, process: sky130}\n\
+         \x20 - parameters: {vdd: 1.98}\n    options: {temp: 27}\n    models:\n    - {file: sky130.lib.spice, section: tt, process: sky130}\n");
+    b.put("official", "tb/strongarm-comp/tb_offset.g2/tb_draft-offset2/tb.scs", TB2);
+    b.put("official", "tb/strongarm-comp/tb_offset.g2/tb_draft-offset2/analyze.py", ANALYZE);
+    b.step("official", "2026-11-24T09:00:00+08:00", "Publish tb_offset.g2, the testbench under B36", false);
     b
 }
 
@@ -495,7 +570,7 @@ fn the_examples() {
     };
     let r = index::build(g.as_ref(), &o).unwrap();
     assert!(r.unreadable.is_empty() && !r.not_fetched, "{:?}", r.unreadable);
-    assert_eq!((r.libraries, r.objects, r.valid), (4, 11, 11));
+    assert_eq!((r.libraries, r.objects, r.valid), (4, 12, 12));
     let problems = std::fs::read_to_string(out.join("problems.jsonl")).unwrap_or_default();
     let errors: Vec<&str> = problems.lines().filter(|l| l.contains("\"level\":\"error\"")).collect();
     assert!(errors.is_empty(), "{errors:#?}");

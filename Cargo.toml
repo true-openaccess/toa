@@ -20,7 +20,7 @@ publish = false
 sha1-checked = { version = "0.10", default-features = false }
 sha2 = { version = "0.10", default-features = false }
 serde = { version = "1", features = ["derive"] }
-serde_json = { version = "1", features = ["preserve_order"] }
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 toa-core = { path = "crates/toa-core" }
 toa-types = { path = "crates/toa-types" }
 toa-repo = { path = "crates/toa-repo", default-features = false }

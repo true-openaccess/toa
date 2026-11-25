@@ -156,7 +156,14 @@ pub fn check(entries: &[Entry], source: Source) -> Vec<Problem> {
                     err("E_TREE_FILE_SIZE", path, format!("a file has at most {MAX_FILE_BYTES} bytes"));
                 }
                 if e.executable == Some(true) {
-                    err("E_TREE_EXECUTABLE", path, "a file in an object has no executable bit".into());
+                    err(
+                        "E_TREE_EXECUTABLE",
+                        path,
+                        "a file in an object has no executable bit; clear it with chmod a-x <file>, in git also with \
+                         git update-index --chmod=-x <file> (files copied from Windows, by tar for example, often \
+                         have it, a script that starts with #! in particular)"
+                            .into(),
+                    );
                 }
                 if path == MANIFEST {
                     has_manifest = true;
