@@ -441,3 +441,18 @@ ol.rules li b{display:block;margin-bottom:2px}
   .prose table.cmds td:first-child{padding-bottom:0}
 }
 .prose table.cmds code .nw{white-space:nowrap}
+
+/* the timeline: timeline.html, and the latest three in the status of the home page */
+.tl{list-style:none;margin:0;padding:0 0 0 26px;position:relative;display:grid;gap:18px}
+.tl::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--line-2)}
+.tl li{position:relative;display:grid;gap:2px}
+.tl li::before{content:"";position:absolute;left:-25px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--ink)}
+.tl li.now::before{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.tl time{font:600 var(--fs-1)/1.5 var(--mono);color:var(--muted);letter-spacing:.04em}
+.tl b{font-size:var(--fs-3)}
+.tl p{color:var(--muted);font-size:var(--fs-2)}
+.tl-card .card-body{padding:18px 20px}
+.tl-card .card-head a.tag:hover{color:var(--accent)}
+.status-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}
+.doc.single{display:block;max-width:880px}
+@media (max-width:1000px){ .status-grid{grid-template-columns:1fr} }

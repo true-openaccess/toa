@@ -915,17 +915,29 @@
         <span class="kick">状态</span>
         <h2>开发中，尚未发布</h2>
       </header>
-      <div class="table-wrap">
-        <table class="data">
-          <thead><tr><th>组件</th><th>状态</th><th>入口</th></tr></thead>
-          <tbody>
-            <tr><td>TOA 0.1 标准</td><td><span class="pill draft">起草中</span></td><td><a href="spec/0.1/">阅读草稿</a></td></tr>
-            <tr><td>参考工具 <code>toa</code>（Windows / Linux / macOS）</td><td><span class="pill draft">开发中</span></td><td><a href="tools.html">从源码编译</a></td></tr>
-            <tr><td>测试向量和一致性测试</td><td><span class="pill draft">开发中</span></td><td><a href="https://github.com/true-openaccess/toa">源码仓库</a></td></tr>
-            <tr><td>Gazettoa（在线库浏览器）</td><td><span class="pill plain">预览</span></td><td><a href="https://true-openaccess.github.io/gazettoa/">浏览库</a></td></tr>
-            <tr><td>中文译本（网站与标准）</td><td><span class="pill plain">预览</span></td><td><a href="translation.html">翻译进度</a></td></tr>
-          </tbody>
-        </table>
+      <div class="status-grid">
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>组件</th><th>状态</th><th>入口</th></tr></thead>
+            <tbody>
+              <tr><td>TOA 0.1 标准</td><td><span class="pill draft">起草中</span></td><td><a href="spec/0.1/">阅读草稿</a></td></tr>
+              <tr><td>参考工具 <code>toa</code>（Windows / Linux / macOS）</td><td><span class="pill draft">开发中</span></td><td><a href="tools.html">从源码编译</a></td></tr>
+              <tr><td>测试向量和一致性测试</td><td><span class="pill draft">开发中</span></td><td><a href="https://github.com/true-openaccess/toa">源码仓库</a></td></tr>
+              <tr><td>Gazettoa（在线库浏览器）</td><td><span class="pill plain">预览</span></td><td><a href="https://true-openaccess.github.io/gazettoa/">浏览库</a></td></tr>
+              <tr><td>中文译本（网站与标准）</td><td><span class="pill plain">预览</span></td><td><a href="translation.html">翻译进度</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card tl-card">
+          <div class="card-head"><h3>最近</h3><a class="tag" href="timeline.html">完整时间轴 →</a></div>
+          <div class="card-body">
+            <ol class="tl">
+        <li class="now"><time datetime="2026-11-25">2026-11-25</time><b>时间戳交给对象的主人</b><p>时间戳目录里放什么，由对象的主人决定。工具页建议用 OpenTimestamps；对象没有证明时，Gazettoa 会链到这条建议。 <a href="tools.html#timestamps">了解更多</a></p></li>
+        <li><time datetime="2026-11-25">2026-11-25</time><b>Monte Carlo 记录</b><p>标准草稿加入 <code>mc</code> 类的验证记录，用于 Monte Carlo 仿真；Gazettoa 能显示测试用例和这些记录。</p></li>
+        <li><time datetime="2026-11-24">2026-11-24</time><b>测试用例写进标准草稿</b><p>标准草稿写明测试用例怎样测一个电路网表：它的 socket 和探针、一次仿真怎样组装，以及电路网表可以写明的目标。首页介绍了怎样先发布性能、后发布设计。 <a href="index.html#results-first">这种用法</a></p></li>
+            </ol>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -956,11 +968,13 @@
       <a href="tools.html">工具</a>
       <a href="agents.html">Agent</a>
       <a href="../llms.txt">llms.txt</a>
+      <a href="timeline.html">时间轴</a>
       <a href="translation.html">翻译进度</a>
       <a href="https://true-openaccess.github.io/gazettoa/">Gazettoa</a>
       <a href="https://github.com/true-openaccess/toa">GitHub</a>
     </nav>
   </div>
 </footer>
+
 </body>
 </html>

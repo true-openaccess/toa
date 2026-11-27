@@ -21,7 +21,10 @@ them:
   the language's pages: empty on them), and on the translation page the tables made from
   scripts/i18n/status.py and the glossaries, status_langs, status_<surface> (one row of the table,
   the id of the surface with every run of other characters than a-z as _, such as status_site_pages),
-  glossary_head and glossary_rows.
+  glossary_head and glossary_rows; timeline (the latest three events, on the home page) and
+  timeline_all (every event, on the timeline page), made from site/src/timeline.json, whose texts are
+  groups too, translated in i18n/<lang>/site/timeline.json.json and counted with the page that shows
+  them; analytics, the tag of Cloudflare Web Analytics, written once, in ANALYTICS below.
 
 The standard's pages are made by scripts/spec/build.py --site DIR from the template
 site/src/spec-page.html, which fills the standard's parts; site/build.py --out DIR, run after it on the
@@ -53,6 +56,7 @@ Usage, from the root of the repository (the folder toa/), standard library only:
     python site/build.py --spec-href URL      where the pages link the standard (default spec/0.1/)
     python site/build.py --preview            say on every page that the site is a preview
     python site/build.py --note TEXT          a line at the top of every page, such as "mockup"
+    python site/build.py --no-analytics       leave out the analytics tag, as for a local mockup
 
 The whole site, with the standard (pandoc and, for the PDFs, typst):
     python scripts/spec/build.py --site site/dist && python site/build.py
@@ -68,7 +72,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent          # the folder toa/
 SRC = ROOT / "site" / "src"
 I18N = ROOT / "i18n"
-PAGES = ["index.html", "tools.html", "agents.html", "translation.html"]
+PAGES = ["index.html", "tools.html", "agents.html", "translation.html", "timeline.html"]
 SPEC_PAGE = "spec-page.html"
 # The parts of the standard's page that scripts/spec/build.py fills before this build sees it.
 SPEC_FIELDS = {"lang", "title", "version", "revision", "other_lang", "downloads", "toc", "chapters", "body"}
@@ -82,8 +86,15 @@ EN_TAG_RE = re.compile(r"</?en\b[^>]*>")
 FIELD_RE = re.compile(r"\{\{([a-z_]+)\}\}")
 MESSAGE_FIELD_RE = re.compile(r"\{([a-z_]+)\}")
 CJK_RE = re.compile(r"[　-〿㐀-䶿一-鿿＀-￯]")
-BUILT = {"html_lang", "fonts", "lang_menu", "preview_bar", "href_spec", "home",
+BUILT = {"html_lang", "fonts", "lang_menu", "preview_bar", "href_spec", "home", "analytics",
          "status_langs", "glossary_head", "glossary_rows", "spec_versions", "spec_notice"}
+# The timeline: its data, the parts of the pages that show it, and how many the home page shows.
+TIMELINE = SRC / "timeline.json"
+TIMELINE_FIELDS = {"timeline": 3, "timeline_all": None}
+DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+# Every page carries this tag, as Cloudflare gave it: the only place its token is written.
+ANALYTICS = ("<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' "
+             "data-cf-beacon='{\"token\": \"4a066cd3bb5a4232b6ef867802baa592\"}'></script><!-- End Cloudflare Web Analytics -->")
 
 GLOBE = ('<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" '
          'fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 8h13M8 1.5c2 2 2.8 4.2 2.8 6.5S10 '
@@ -113,7 +124,7 @@ def write(path, text):
 
 
 class Site:
-    def __init__(self, incubating=False, spec_href="spec/0.1/", note=None, preview=False):
+    def __init__(self, incubating=False, spec_href="spec/0.1/", note=None, preview=False, analytics=True):
         reg = read_json(I18N / "languages.json")
         self.default = reg.get("default", "en")
         self.all = reg["languages"]
@@ -124,7 +135,9 @@ class Site:
         self.spec_href = spec_href
         self.note = note
         self.preview = preview
+        self.analytics = analytics
         self.problems = []
+        self._timeline = None
 
     # ---- sources and catalogs ----
 
@@ -215,12 +228,71 @@ class Site:
             return ""
         return '<div class="preview-bar"><div class="wrap">' + " ".join(lines) + "</div></div>"
 
+    # ---- the timeline ----
+
+    def timeline_events(self):
+        """The events of site/src/timeline.json, checked, the latest first."""
+        if self._timeline is not None:
+            return self._timeline
+        name = "site/src/timeline.json"
+        raw = TIMELINE.read_bytes().decode("utf-8")
+        events = []
+        try:
+            data = json.loads(raw)
+        except ValueError as e:
+            self.problems.append(f"{name}: {e}")
+            data = {}
+        ids = set()
+        for i, e in enumerate(data.get("events", []) if isinstance(data, dict) else []):
+            where = f"{name}: {e.get('id', i) if isinstance(e, dict) else i}"
+            if not isinstance(e, dict) or not isinstance(e.get("id"), str) or e["id"] in ids:
+                self.problems.append(f"{where}: an event needs an id of its own")
+                continue
+            ids.add(e["id"])
+            if not isinstance(e.get("date"), str) or not DATE_RE.fullmatch(e["date"]):
+                self.problems.append(f"{where}: date must be YYYY-MM-DD")
+                continue
+            for key in ("title", "text", "link"):
+                v = e.get(key)
+                if key == "link" and v is None and "url" not in e:
+                    continue
+                if not isinstance(v, str) or not EN_GROUP_RE.fullmatch(v.strip()):
+                    self.problems.append(f"{where}: {key} must be one whole <en> group")
+                elif '"' in v or "\\" in v:
+                    self.problems.append(f"{where}: {key} holds a double quote or a backslash")
+            url = e.get("url")
+            if url is not None and (not isinstance(url, str) or re.search(r"[\s<>\"'\\]", url)
+                                    or (re.match(r"[a-z][a-z0-9+.-]*:|//", url, re.I) and not url.startswith("https://"))):
+                self.problems.append(f"{where}: url must be a page of the site or an https address")
+                continue
+            events.append(e)
+        # the latest first; of one day, the one written last in the file first
+        order = {id(e): i for i, e in enumerate(events)}
+        self._timeline = sorted(events, key=lambda e: (e["date"], order[id(e)]), reverse=True)
+        return self._timeline
+
+    def timeline_rows(self, count=None):
+        """The rows of the timeline, with their groups still to translate; count: the latest so many."""
+        events = self.timeline_events()
+        rows = []
+        for e in events[:count] if count else events:
+            now = ' class="now"' if e is events[0] else ""
+            link = f' <a href="{html.escape(e["url"])}">{e["link"]}</a>' if e.get("url") else ""
+            rows.append(f'        <li{now}><time datetime="{e["date"]}">{e["date"]}</time>'
+                        f'<b>{e["title"]}</b><p>{e["text"]}{link}</p></li>')
+        return "\n".join(rows)
+
     # ---- pages ----
 
     def render(self, page, text, lang, extra=None, fields=()):
         """The page in the language; extra: built parts of this page besides the common ones."""
-        keys = self.groups(page, text, fields)
         catalog = self.catalog(lang["code"], page)
+        # The timeline's texts are groups of the page that shows them, with their own catalog.
+        if any("{{" + f + "}}" in text for f in TIMELINE_FIELDS):
+            for f, count in TIMELINE_FIELDS.items():
+                text = text.replace("{{" + f + "}}", self.timeline_rows(count))
+            catalog = {**self.catalog(lang["code"], TIMELINE.name), **catalog}
+        keys = self.groups(page, text, fields)
         msg = self.messages(lang)
         distinct = list(dict.fromkeys(keys))
         done = [k for k in distinct if isinstance(catalog.get(k), str)]
@@ -246,6 +318,7 @@ class Site:
             "preview_bar": self.preview_bar(lang, msg, notice),
             "href_spec": html.escape(self.spec_href),
             "home": "",
+            "analytics": ANALYTICS if self.analytics else "",
         }
         if page == "translation.html":
             built.update(self.progress(msg))
@@ -482,8 +555,10 @@ def main(argv=None):
     p.add_argument("--spec-href", default="spec/0.1/")
     p.add_argument("--note")
     p.add_argument("--preview", action="store_true")
+    p.add_argument("--no-analytics", action="store_true")
     a = p.parse_args(argv)
-    site = Site(incubating=a.incubating, spec_href=a.spec_href, note=a.note, preview=a.preview)
+    site = Site(incubating=a.incubating, spec_href=a.spec_href, note=a.note, preview=a.preview,
+                analytics=not a.no_analytics)
     try:
         report = site.build(a.out.resolve(), check=a.check)
     except BuildError as e:

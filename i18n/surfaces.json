@@ -38,11 +38,12 @@
       "markers": "en-groups",
       "source": [
         "site/src/*.html",
-        "site/src/assets/*.js"
+        "site/src/assets/*.js",
+        "site/src/timeline.json"
       ],
       "translation": "i18n/{lang}/site/{path}.json",
       "owner": "site",
-      "notes": "The source files hold the English only, each text in a group <en>…</en>; a group that names a context, <en ctx=NAME>, has the key NAME|English. The catalog of a file is named after its path under site/src/, such as i18n/zh/site/index.html.json.",
+      "notes": "The source files hold the English only, each text in a group <en>…</en>; a group that names a context, <en ctx=NAME>, has the key NAME|English. The catalog of a file is named after its path under site/src/, such as i18n/zh/site/index.html.json. The texts of the timeline, site/src/timeline.json, are groups too, and so have the catalog i18n/zh/site/timeline.json.json.",
       "base": "site/src"
     },
     {

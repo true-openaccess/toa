@@ -144,7 +144,7 @@
           <h1>TOA 0.1（中文版）</h1>
           <p>定义 TOA 对象、命名、入口文件、来源表、库、工作区及操作，任何工具均可据此独立实现。</p>
           <div class="rev">
-            <span>尚未发布 · 2026-11-25 · d5316dd</span>
+            <span>尚未发布 · 2026-11-25 · c3c884a</span>
             <span class="faint">版本：<a href="../0.1/">0.1</a></span>
           </div>
           <ul class="downloads">
@@ -854,7 +854,7 @@
 </tbody>
 </table>
 <ul>
-<li><strong>别的名字不得以 <code>&lt;object name&gt;.</code> 开头。</strong></li>
+<li><strong>别的名字不得以 <code>&lt;object name&gt;.</code> 开头。</strong> 这条只管库自己的各级目录，不管说明目录和时间戳目录里面；那里面的名字不当作旁挂文件。这两种目录里面，任何一级的名字都不得是对象名，这样里面的东西不会被当成对象；草稿名和别处一样不得出现（<a href="#2.4" class="ref">2.4</a>）。</li>
 <li><strong>它们必须是普通的目录和普通的文件，</strong> 不得是符号链接。来源表、删除记录各不超过 1 MiB。</li>
 <li><strong>同一个对象在库里放了几份时，</strong> 每份旁边都可以有自己的旁挂文件。各份的说明是什么关系见 <a href="#4.1" class="ref">4.1</a>。</li>
 <li>库里可以有某个对象的旁挂文件而没有那个对象本身。删除记录就是这样；别的旁挂文件这时放在哪都行。</li>
@@ -955,33 +955,13 @@
 <li><p>删除记录里的文字是别人写的，按第 11 章对待。</p></li>
 </ul>
 <h3 id="4.3"><span class="sec">4.3</span>时间戳证明<a href="#4.3" class="anchor" aria-label="Link to 4.3">#</a></h3>
-<p>库可以在对象旁边放第三方做的证明，证明这个对象名在某个时间已经存在。本标准不要求有。</p>
+<p>库可以在对象旁边放第三方做的证明，证明这个对象名在某个时间已经存在。本标准不要求有，也不规定可以放哪些种类的证明。</p>
 <ul>
-<li><p><strong>目录：</strong> <code>&lt;object name&gt;.stamps/</code>，里面只有直接放着的普通文件，每个不超过 64 KiB。文件名守 <a href="#3.1" class="ref">3.1</a> 第 3 条，应当写成 <code>&lt;date&gt;-&lt;short name&gt;.&lt;extension&gt;</code>，例如 <code>20261124-btc.ots</code>。</p></li>
-<li><p><strong>盖时间戳的是对象名：</strong> 它的 ASCII 字节，不带换行。给一个名字做的证明，对这个对象放在哪里都成立。</p></li>
-<li><p><strong>扩展名说明文件是哪种证明：</strong></p>
-<table>
-<thead>
-<tr>
-<th>扩展名</th>
-<th>证明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>.ots</code></td>
-<td>OpenTimestamps 的证明</td>
-</tr>
-<tr>
-<td><code>.tsr</code></td>
-<td>RFC 3161 的时间戳令牌，DER 编码</td>
-</tr>
-</tbody>
-</table>
-<p>可以用别的扩展名。不认识的，工具原样留着。</p></li>
-<li><p><strong>证明随时可以加、换、删；</strong> 例如 OpenTimestamps 的证明锚定之后，换成完整的那一份。库里别的东西都不依赖它们。</p></li>
-<li><p><strong>证明由工具自己核对，</strong> 对着它写明的服务核对。库的检查只看文件的名字、种类和大小（<a href="#6.4" class="ref">6.4</a> 第 5 项）。证明能说明什么、不能说明什么，见第 11 章。</p></li>
-<li><p><strong>对象在库里放了几份时，</strong> 每份旁边都可以有时间戳目录，合起来算一个。草稿没有时间戳目录，因为它的名字还没定。</p></li>
+<li><strong>目录：</strong> <code>&lt;object name&gt;.stamps/</code>。里面的东西只守对象之外的每条路径都守的规则，即每一级名字的规则和路径预算（<a href="#6.2" class="ref">6.2</a>），以及每个旁挂目录都守的规则：里面没有名字是对象名或草稿名（见上）。</li>
+<li><strong>证明随时可以加、换、删。</strong> 库里别的东西都不依赖它们。不认识的文件，工具原样留着。</li>
+<li><strong>证明由工具自己核对，</strong> 对着做证明的服务核对。库的检查对时间戳目录只像对别的路径一样检查（<a href="#6.4" class="ref">6.4</a> 第 5 项）。证明能说明什么、不能说明什么，见第 11 章。</li>
+<li><strong>对象在库里放了几份时，</strong> 每份旁边都可以有时间戳目录，合起来算一个。草稿没有时间戳目录，因为它的名字还没定。</li>
+<li><strong>建议，不是要求：</strong> 用 OpenTimestamps 给对象名盖时间戳，盖的是它的 ASCII 字节，不带换行；文件名写日期和种类，例如 <code>20261124-btc.ots</code>；证明锚定之后，换成完整的那一份。给一个名字做的证明，对这个对象放在哪里都成立。也可以放别的证明，例如 RFC 3161 的时间戳令牌。</li>
 </ul>
 <h2 id="5"><span class="sec">5</span>来源表<a href="#5" class="anchor" aria-label="Link to 5">#</a></h2>
 <p>来源表是一个文件名以 <code>.source.jsonl</code> 结尾的文件。它列出一批 TOA 对象，每个对象带一些缓存的信息和零到多个已知来源；它还可以包含别的来源表。对象旁边的来源表、库顶层的库的清单、使用者的工作区清单，都是这一种表。对象目录里面的文件是对象的内容，不管叫什么名字，都不是来源表；只有一个例外：对象顶层的 <code>members.source.jsonl</code> 同时也是来源表（<a href="#3.3" class="ref">3.3</a>），工作区清单可以包含它。</p>
@@ -1397,7 +1377,7 @@ library.source.jsonl</code></pre>
 </ul></li>
 <li><strong>没有草稿名</strong>（<a href="#2.4" class="ref">2.4</a> 列的几处）。</li>
 <li><strong>每个对象的文件：</strong> <code>toa.yaml</code> 合乎 <a href="#3.2" class="ref">3.2</a> 的写法，公共字段合格，<code>type</code> 等于前缀；<code>lock.json</code> 和 <code>members.source.jsonl</code>（有的话）合乎 <a href="#3.3" class="ref">3.3</a>；<code>history.json</code> 是那一种写法，和 <code>base</code> 相符，上一代在本库时它的 <code>generation</code> 也和上一代相符（<a href="#3.4" class="ref">3.4</a>）；<code>base</code> 的每一项和对象本身前缀相同。</li>
-<li><strong>对象之外：</strong> 每一级名字的规则；路径预算；以”对象名加点”开头的名字只有四种：<code>.notes</code> 目录、<code>.source.jsonl</code> 普通文件、<code>.removed.json</code> 普通文件和 <code>.stamps</code> 目录，目录里只有直接放着的普通文件，每个不超过 64 KiB，名字守 <a href="#3.1" class="ref">3.1</a> 第 3 条（<a href="#4.3" class="ref">4.3</a>）。</li>
+<li><strong>对象之外：</strong> 每一级名字的规则；路径预算；在 <code>.notes</code> 目录和 <code>.stamps</code> 目录之外，以”对象名加点”开头的名字只有四种：<code>.notes</code> 目录、<code>.source.jsonl</code> 普通文件、<code>.removed.json</code> 普通文件和 <code>.stamps</code> 目录；在这两种目录里面，任何一级的名字都不是对象名（第 4 章）。</li>
 <li><strong>来源表</strong>（对象目录之外、名字以 <code>.source.jsonl</code> 结尾的所有文件；对象目录里面的文件是对象的内容，不是来源表；对象顶层的 <code>members.source.jsonl</code> 由第 4 项检查）：大小不超限；按严格的读法合格（<a href="#5.1" class="ref">5.1</a>）；对象旁边的表没有 <code>local</code> 来源；库的清单和分卷的 <code>local</code> 是相对于库的路径；不带 <code>sources</code> 的包含行指向这个提交里的一份表；<code>library.source/</code> 下的每一份都从 <code>library.source.jsonl</code> 包含到，不超过 8 层。<code>latest</code> 标记守 <a href="#5.2" class="ref">5.2</a>：标了的对象在本库里、没有删掉，本库里同一支的两个标了的对象，哪一个都不在另一个的 <code>history</code> 里。表指向哪里不查。</li>
 <li><strong>说明目录：</strong> 只有直接放在里面的普通 <code>.md</code> 文件，每份不超过 256 KiB；同一个对象几份旁边同名的说明内容相同；和基准相比，已有的说明（按对象名加文件名认）没有被改、没有被删，删掉了的对象的说明除外。</li>
 <li><strong>删除记录属实：</strong> 每份新加的或改过的删除记录合乎 <a href="#4.2" class="ref">4.2</a> 并且属实。不要求消失的对象留记录，也不要求已有的记录一直留着。</li>
@@ -2018,11 +1998,6 @@ library.source.jsonl</code></pre>
 <td>对象旁边的来源表；删除记录</td>
 <td>各 1 MiB</td>
 <td>4</td>
-</tr>
-<tr>
-<td>一份时间戳证明</td>
-<td>64 KiB</td>
-<td><a href="#4.3" class="ref">4.3</a></td>
 </tr>
 <tr>
 <td>删除记录的 <code>reason</code></td>
@@ -3406,11 +3381,13 @@ library.source.jsonl</code></pre>
       <a href="../../tools.html">工具</a>
       <a href="../../agents.html">Agent</a>
       <a href="../../../llms.txt">llms.txt</a>
+      <a href="../../timeline.html">时间轴</a>
       <a href="../../translation.html">翻译进度</a>
       <a href="https://true-openaccess.github.io/gazettoa/">Gazettoa</a>
       <a href="https://github.com/true-openaccess/toa">GitHub</a>
     </nav>
   </div>
 </footer>
+
 </body>
 </html>

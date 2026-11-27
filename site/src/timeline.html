@@ -1,0 +1,80 @@
+<!doctype html>
+<!-- The timeline: what of TOA has been made public, the latest first. The events are in
+     site/src/timeline.json; the build fills {{timeline_all}} with them, and the home page's
+     {{timeline}} with the latest three. The same conventions as index.html. -->
+<html lang="{{html_lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><en>Timeline</en> · {{full_name}}</title>
+<meta name="description" content="<en>What of TOA has been made public, the latest first.</en>">
+{{fonts}}
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+{{preview_bar}}
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="<en>TOA home</en>">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="8" width="12" height="12" rx="2" fill="var(--accent)"/></svg>
+      TOA <small>{{full_name}}</small>
+    </a>
+    <nav class="nav" aria-label="<en>Pages</en>">
+      <a href="index.html">{{intro}}</a>
+      <a href="{{href_spec}}">{{spec}}</a>
+      <a href="tools.html">{{tools}}</a>
+      <a href="agents.html">{{agents}}</a>
+      <a href="https://true-openaccess.github.io/gazettoa/">{{gazettoa}}</a>
+      <a href="https://github.com/true-openaccess/toa">{{github}}</a>
+    </nav>
+    <div class="top-tools">
+      {{lang_menu}}
+      <button id="theme-btn" class="btn small" type="button" aria-label="{{theme_dark}}" data-dark="{{theme_dark}}" data-light="{{theme_light}}">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13z" fill="currentColor"/><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        {{theme}}
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap doc single">
+    <div class="doc-main">
+      <div class="card doc-head">
+        <div class="card-body">
+          <div class="kicker" style="margin:0"><en>History</en></div>
+          <h1><en>Timeline</en></h1>
+          <p><en>What of TOA has been made public, the latest first. Dates are in Shanghai time (UTC+8).</en></p>
+        </div>
+      </div>
+
+      <section class="card tl-card" aria-label="<en>Timeline</en>">
+        <div class="card-body">
+          <ol class="tl">
+{{timeline_all}}
+          </ol>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>{{foot}}</div>
+    <nav aria-label="<en>Footer</en>">
+      <a href="{{href_spec}}">{{spec}}</a>
+      <a href="tools.html">{{tools}}</a>
+      <a href="agents.html">{{agents}}</a>
+      <a href="../llms.txt">llms.txt</a>
+      <a class="on" href="timeline.html" aria-current="page">{{timeline_nav}}</a>
+      <a href="translation.html">{{translation}}</a>
+      <a href="https://true-openaccess.github.io/gazettoa/">{{gazettoa}}</a>
+      <a href="https://github.com/true-openaccess/toa">{{github}}</a>
+    </nav>
+  </div>
+</footer>
+{{analytics}}
+</body>
+</html>

@@ -915,17 +915,29 @@
         <span class="kick">Status</span>
         <h2>In development (pre-release)</h2>
       </header>
-      <div class="table-wrap">
-        <table class="data">
-          <thead><tr><th>Component</th><th>Status</th><th>Link</th></tr></thead>
-          <tbody>
-            <tr><td>TOA 0.1 standard</td><td><span class="pill draft">Draft</span></td><td><a href="spec/0.1/">Read draft</a></td></tr>
-            <tr><td><code>toa</code> CLI (Windows, Linux, macOS)</td><td><span class="pill draft">In development</span></td><td><a href="tools.html">Build from source</a></td></tr>
-            <tr><td>Test vectors and conformance tests</td><td><span class="pill draft">In development</span></td><td><a href="https://github.com/true-openaccess/toa">Repository</a></td></tr>
-            <tr><td>Gazettoa (web library browser)</td><td><span class="pill plain">Preview</span></td><td><a href="https://true-openaccess.github.io/gazettoa/">Browse libraries</a></td></tr>
-            <tr><td>Chinese translation (site &amp; standard)</td><td><span class="pill plain">Preview</span></td><td><a href="translation.html">Translation status</a></td></tr>
-          </tbody>
-        </table>
+      <div class="status-grid">
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Component</th><th>Status</th><th>Link</th></tr></thead>
+            <tbody>
+              <tr><td>TOA 0.1 standard</td><td><span class="pill draft">Draft</span></td><td><a href="spec/0.1/">Read draft</a></td></tr>
+              <tr><td><code>toa</code> CLI (Windows, Linux, macOS)</td><td><span class="pill draft">In development</span></td><td><a href="tools.html">Build from source</a></td></tr>
+              <tr><td>Test vectors and conformance tests</td><td><span class="pill draft">In development</span></td><td><a href="https://github.com/true-openaccess/toa">Repository</a></td></tr>
+              <tr><td>Gazettoa (web library browser)</td><td><span class="pill plain">Preview</span></td><td><a href="https://true-openaccess.github.io/gazettoa/">Browse libraries</a></td></tr>
+              <tr><td>Chinese translation (site &amp; standard)</td><td><span class="pill plain">Preview</span></td><td><a href="translation.html">Translation status</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card tl-card">
+          <div class="card-head"><h3>Latest</h3><a class="tag" href="timeline.html">Full timeline →</a></div>
+          <div class="card-body">
+            <ol class="tl">
+        <li class="now"><time datetime="2026-11-25">2026-11-25</time><b>Timestamps left to their owners</b><p>What a stamps directory holds is up to the owner of the object. The tools page suggests OpenTimestamps, and Gazettoa links to that advice for an object without a proof. <a href="tools.html#timestamps">Learn more</a></p></li>
+        <li><time datetime="2026-11-25">2026-11-25</time><b>Monte Carlo records</b><p>The draft standard adds evidence records of the kind <code>mc</code>, for Monte Carlo simulations; Gazettoa shows testbenches and these records.</p></li>
+        <li><time datetime="2026-11-24">2026-11-24</time><b>Testbenches in the draft standard</b><p>The draft standard says how a testbench measures a circuit: its socket and probes, how a run is assembled, and the targets a circuit can state. The home page shows how to publish the results first and the design later. <a href="index.html#results-first">The use case</a></p></li>
+            </ol>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -956,11 +968,13 @@
       <a href="tools.html">Tools</a>
       <a href="agents.html">Agents</a>
       <a href="../llms.txt">llms.txt</a>
+      <a href="timeline.html">Timeline</a>
       <a href="translation.html">Translation status</a>
       <a href="https://true-openaccess.github.io/gazettoa/">Gazettoa</a>
       <a href="https://github.com/true-openaccess/toa">GitHub</a>
     </nav>
   </div>
 </footer>
+
 </body>
 </html>

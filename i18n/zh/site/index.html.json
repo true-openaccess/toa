@@ -193,5 +193,7 @@
   "Give the circuit's name and the metrics of its evidence records. A timestamp proof can date the name.": "写出电路网表的对象名和验证记录里的指标；还可以给对象名加时间戳证明。",
   "Publish after": "发表后公开",
   "Once the paper is out, publish the objects. Readers verify the names and can rerun the testbenches.": "论文发表后公开这些对象。读者核对对象名，也可以重跑测试用例。",
-  "A name shows only that the design has not changed. Whether the results hold, others confirm by rerunning the testbenches once it is public.": "对象名只证明设计没改过；结果是否属实，要等公开后由别人重跑测试用例确认。"
+  "A name shows only that the design has not changed. Whether the results hold, others confirm by rerunning the testbenches once it is public.": "对象名只证明设计没改过；结果是否属实，要等公开后由别人重跑测试用例确认。",
+  "Latest": "最近",
+  "Full timeline →": "完整时间轴 →"
 }

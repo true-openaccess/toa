@@ -144,7 +144,7 @@
           <h1>TOA 0.1</h1>
           <p>Defines TOA objects, naming, manifests, source lists, libraries, workspaces, and operations—self-contained for any implementation.</p>
           <div class="rev">
-            <span>not released · 2026-11-25 · d5316dd</span>
+            <span>not released · 2026-11-25 · c3c884a</span>
             <span class="faint">Versions: <a href="../0.1/">0.1</a></span>
           </div>
           <ul class="downloads">
@@ -854,7 +854,7 @@ hash        = 40 characters, each 0-9 or a-f                               lower
 </tbody>
 </table>
 <ul>
-<li><strong>No other name may start with <code>&lt;object name&gt;.</code></strong></li>
+<li><strong>No other name may start with <code>&lt;object name&gt;.</code></strong> This holds for the directories of the library itself, not within a notes or stamps directory, where no name is taken as a sidecar file. Within those two directories no name, at any level, is an object name, so nothing in them is taken for an object; draft names are kept out of them as out of every place (<a href="#2.4" class="ref">2.4</a>).</li>
 <li><strong>They must be regular directories and regular files,</strong> not symbolic links. A source list and a removal record are at most 1 MiB each.</li>
 <li><strong>When an object is kept several times in a library,</strong> each copy may have sidecar files of its own. <a href="#4.1" class="ref">4.1</a> says how their notes relate.</li>
 <li>A library may hold sidecar files of an object without the object itself. A removal record is such a file; other sidecar files may then be anywhere.</li>
@@ -955,33 +955,13 @@ hash        = 40 characters, each 0-9 or a-f                               lower
 <li><p>The text of a removal record is written by others, and is treated as chapter 11 says.</p></li>
 </ul>
 <h3 id="4.3"><span class="sec">4.3</span>Timestamp proofs<a href="#4.3" class="anchor" aria-label="Link to 4.3">#</a></h3>
-<p>A library may keep beside an object proofs, made by third parties, that the object name existed at some time. This standard requires none.</p>
+<p>A library may keep beside an object proofs, made by third parties, that the object name existed at some time. This standard requires none, and does not say which kinds of proof may be kept.</p>
 <ul>
-<li><p><strong>The directory:</strong> <code>&lt;object name&gt;.stamps/</code>, holding only regular files placed directly in it, each at most 64 KiB. A file name keeps item 3 of <a href="#3.1" class="ref">3.1</a>, and should be written <code>&lt;date&gt;-&lt;short name&gt;.&lt;extension&gt;</code>, such as <code>20261124-btc.ots</code>.</p></li>
-<li><p><strong>What is stamped is the object name:</strong> its ASCII bytes, with no line end. A proof made for a name holds for that object wherever it is kept.</p></li>
-<li><p><strong>The extension says what kind of proof a file is:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Extension</th>
-<th>Proof</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>.ots</code></td>
-<td>An OpenTimestamps proof</td>
-</tr>
-<tr>
-<td><code>.tsr</code></td>
-<td>A time-stamp token of RFC 3161, in DER</td>
-</tr>
-</tbody>
-</table>
-<p>Other extensions may be used. A tool that does not know one leaves the file as it is.</p></li>
-<li><p><strong>Proofs may be added, replaced or removed at any time;</strong> an OpenTimestamps proof, for example, is replaced by its completed form once it is anchored. Nothing else in a library depends on them.</p></li>
-<li><p><strong>A tool checks a proof itself,</strong> against the service it names. The library check looks only at the names, kinds and sizes of the files (<a href="#6.4" class="ref">6.4</a>, item 5). What a proof shows, and what it does not, is said in chapter 11.</p></li>
-<li><p><strong>When an object is kept several times in a library,</strong> each copy may have a stamps directory; together they count as one. A draft has none, since its name is not yet fixed.</p></li>
+<li><strong>The directory:</strong> <code>&lt;object name&gt;.stamps/</code>. What it holds keeps only the rules that every path outside objects keeps, the names of its levels and the path budget (<a href="#6.2" class="ref">6.2</a>), and those of every sidecar directory: no name in it is an object name or a draft name (above).</li>
+<li><strong>Proofs may be added, replaced or removed at any time.</strong> Nothing else in a library depends on them. A tool leaves a file it does not know as it is.</li>
+<li><strong>A tool checks a proof itself,</strong> against the service that made it. The library check looks at the stamps directory only as at any other path (<a href="#6.4" class="ref">6.4</a>, item 5). What a proof shows, and what it does not, is said in chapter 11.</li>
+<li><strong>When an object is kept several times in a library,</strong> each copy may have a stamps directory; together they count as one. A draft has none, since its name is not yet fixed.</li>
+<li><strong>A recommendation, not a requirement:</strong> stamp the object name, its ASCII bytes with no line end, with OpenTimestamps, and name the file by its date and its kind, such as <code>20261124-btc.ots</code>; once the proof is anchored, replace it by its completed form. A proof made for a name holds for that object wherever it is kept. Other proofs, such as a time-stamp token of RFC 3161, may be kept as well.</li>
 </ul>
 <h2 id="5"><span class="sec">5</span>Source lists<a href="#5" class="anchor" aria-label="Link to 5">#</a></h2>
 <p>A source list is a file whose name ends in <code>.source.jsonl</code>. It lists some TOA objects, each with some cached information and zero or more known sources, and it may include other source lists. The source list beside an object, the library list at the top of a library and the user’s workspace list are all of this one kind. A file inside an object directory is content of the object, never a source list, whatever its name, with one exception: a <code>members.source.jsonl</code> at the top of an object is a source list too (<a href="#3.3" class="ref">3.3</a>), which a workspace list may include.</p>
@@ -1401,7 +1381,7 @@ library.source.jsonl</code></pre>
 </ul></li>
 <li><strong>No draft names</strong> (the places of <a href="#2.4" class="ref">2.4</a>).</li>
 <li><strong>The files of every object:</strong> <code>toa.yaml</code> keeps the syntax of <a href="#3.2" class="ref">3.2</a>, its common fields are valid and its <code>type</code> is the prefix; <code>lock.json</code> and <code>members.source.jsonl</code>, where present, keep <a href="#3.3" class="ref">3.3</a>; <code>history.json</code> is written the one way and agrees with <code>base</code>, and its <code>generation</code> with the parent where the parent is in the library (<a href="#3.4" class="ref">3.4</a>); every item of <code>base</code> has the prefix of the object.</li>
-<li><strong>Outside objects:</strong> the rules on the names of every level; the path budget; names that start with an object name and a dot are only of four kinds: the <code>.notes</code> directory, the regular file <code>.source.jsonl</code>, the regular file <code>.removed.json</code> and the <code>.stamps</code> directory, which holds only regular files placed directly in it, each at most 64 KiB, named by item 3 of <a href="#3.1" class="ref">3.1</a> (<a href="#4.3" class="ref">4.3</a>).</li>
+<li><strong>Outside objects:</strong> the rules on the names of every level; the path budget; outside <code>.notes</code> and <code>.stamps</code> directories, names that start with an object name and a dot are only of four kinds: the <code>.notes</code> directory, the regular file <code>.source.jsonl</code>, the regular file <code>.removed.json</code> and the <code>.stamps</code> directory; within those directories, no name at any level is an object name (chapter 4).</li>
 <li><strong>Source lists</strong> (every file outside object directories whose name ends in <code>.source.jsonl</code>; a file inside an object directory is content of the object, not a source list; a <code>members.source.jsonl</code> at the top of an object is checked by item 4): within the size limits; valid when read strictly (<a href="#5.1" class="ref">5.1</a>); no <code>local</code> source beside an object; the <code>local</code> sources of the library list and its volumes are paths relative to the library; an include line without <code>sources</code> points to a list in this commit; every list under <code>library.source/</code> is included from <code>library.source.jsonl</code>, within 8 levels. <code>latest</code> marks keep <a href="#5.2" class="ref">5.2</a>: every marked object is in this library and not removed, and of two marked objects of one series, neither is in the <code>history</code> of the other. Where lists point is not checked.</li>
 <li><strong>Notes directories:</strong> only regular <code>.md</code> files placed directly in them, each at most 256 KiB; notes of the same name beside copies of the same object have the same content; compared with the previous head, no note (known by object name and file name) was changed or removed, except the notes of removed objects.</li>
 <li><strong>Removal records are true:</strong> every removal record added or changed keeps <a href="#4.2" class="ref">4.2</a> and is true. Objects that disappeared need not leave a record, and existing records need not stay.</li>
@@ -2027,11 +2007,6 @@ library.source.jsonl</code></pre>
 <td>A source list beside an object; a removal record</td>
 <td>1 MiB each</td>
 <td>4</td>
-</tr>
-<tr>
-<td>A timestamp proof</td>
-<td>64 KiB</td>
-<td><a href="#4.3" class="ref">4.3</a></td>
 </tr>
 <tr>
 <td><code>reason</code> of a removal record</td>
@@ -3446,11 +3421,13 @@ When every metric agrees so, the records are statistically consistent. A tool sa
       <a href="../../tools.html">Tools</a>
       <a href="../../agents.html">Agents</a>
       <a href="../../../llms.txt">llms.txt</a>
+      <a href="../../timeline.html">Timeline</a>
       <a href="../../translation.html">Translation status</a>
       <a href="https://true-openaccess.github.io/gazettoa/">Gazettoa</a>
       <a href="https://github.com/true-openaccess/toa">GitHub</a>
     </nav>
   </div>
 </footer>
+
 </body>
 </html>

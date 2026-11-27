@@ -1,0 +1,104 @@
+<!doctype html>
+<!-- The timeline: what of TOA has been made public, the latest first. The events are in
+     site/src/timeline.json; the build fills         <li class="now"><time datetime="2026-11-25">2026-11-25</time><b>Timestamps left to their owners</b><p>What a stamps directory holds is up to the owner of the object. The tools page suggests OpenTimestamps, and Gazettoa links to that advice for an object without a proof. <a href="tools.html#timestamps">Learn more</a></p></li>
+        <li><time datetime="2026-11-25">2026-11-25</time><b>Monte Carlo records</b><p>The draft standard adds evidence records of the kind <code>mc</code>, for Monte Carlo simulations; Gazettoa shows testbenches and these records.</p></li>
+        <li><time datetime="2026-11-24">2026-11-24</time><b>Testbenches in the draft standard</b><p>The draft standard says how a testbench measures a circuit: its socket and probes, how a run is assembled, and the targets a circuit can state. The home page shows how to publish the results first and the design later. <a href="index.html#results-first">The use case</a></p></li>
+        <li><time datetime="2026-11-24">2026-11-24</time><b>Gazettoa online</b><p>Gazettoa, a read-only web browser of TOA libraries, goes online as a preview, with demo libraries. <a href="https://true-openaccess.github.io/gazettoa/">Open Gazettoa</a></p></li>
+        <li><time datetime="2026-11-24">2026-11-24</time><b>Preview published</b><p>The draft standard 0.1, the reference tool <code>toa</code> and this site are published as a preview, with no release yet. The standard is on the site as web pages, Markdown and PDF. <a href="https://github.com/true-openaccess/toa">Source</a></p></li>
+        <li><time datetime="2026-11-23">2026-11-23</time><b>Named TOA</b><p>The format standard for circuit design objects is named TOA, True-OpenAccess, with the GitHub organisation true-openaccess as its home. <a href="https://github.com/true-openaccess">Organisation</a></p></li> with them, and the home page's
+             <li class="now"><time datetime="2026-11-25">2026-11-25</time><b>Timestamps left to their owners</b><p>What a stamps directory holds is up to the owner of the object. The tools page suggests OpenTimestamps, and Gazettoa links to that advice for an object without a proof. <a href="tools.html#timestamps">Learn more</a></p></li>
+        <li><time datetime="2026-11-25">2026-11-25</time><b>Monte Carlo records</b><p>The draft standard adds evidence records of the kind <code>mc</code>, for Monte Carlo simulations; Gazettoa shows testbenches and these records.</p></li>
+        <li><time datetime="2026-11-24">2026-11-24</time><b>Testbenches in the draft standard</b><p>The draft standard says how a testbench measures a circuit: its socket and probes, how a run is assembled, and the targets a circuit can state. The home page shows how to publish the results first and the design later. <a href="index.html#results-first">The use case</a></p></li> with the latest three. The same conventions as index.html. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timeline · True-OpenAccess</title>
+<meta name="description" content="What of TOA has been made public, the latest first.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>:root{--sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;--mono:"IBM Plex Mono", "Cascadia Mono", "SFMono-Regular", Consolas, monospace;}</style>
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+<div class="preview-bar"><div class="wrap">Mockup of the site, phase 2: the home page, the standard, the tool, agents, translation status. The standard&#x27;s downloads are left out of the mockup.</div></div>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="TOA home">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8" y="8" width="12" height="12" rx="2" fill="var(--accent)"/></svg>
+      TOA <small>True-OpenAccess</small>
+    </a>
+    <nav class="nav" aria-label="Pages">
+      <a href="index.html">Overview</a>
+      <a href="spec/0.1/">Standard</a>
+      <a href="tools.html">Tools</a>
+      <a href="agents.html">Agents</a>
+      <a href="https://true-openaccess.github.io/gazettoa/">Gazettoa</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+    <div class="top-tools">
+      <details class="lang">
+        <summary class="btn small" aria-label="Choose language">
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 8h13M8 1.5c2 2 2.8 4.2 2.8 6.5S10 12.5 8 14.5C6 12.5 5.2 10.3 5.2 8S6 3.5 8 1.5z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+          EN
+        </summary>
+        <div class="lang-list">
+          <a href="../en/timeline.html" lang="en" aria-current="true">English <span class="code">EN</span></a>
+          <a href="../zh/timeline.html" lang="zh-CN">简体中文 <span class="code">ZH · preview</span></a>
+        </div>
+      </details>
+      <button id="theme-btn" class="btn small" type="button" aria-label="Switch to dark theme" data-dark="Switch to dark theme" data-light="Switch to light theme">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13z" fill="currentColor"/><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+        Theme
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap doc single">
+    <div class="doc-main">
+      <div class="card doc-head">
+        <div class="card-body">
+          <div class="kicker" style="margin:0">History</div>
+          <h1>Timeline</h1>
+          <p>What of TOA has been made public, the latest first. Dates are in Shanghai time (UTC+8).</p>
+        </div>
+      </div>
+
+      <section class="card tl-card" aria-label="Timeline">
+        <div class="card-body">
+          <ol class="tl">
+        <li class="now"><time datetime="2026-11-25">2026-11-25</time><b>Timestamps left to their owners</b><p>What a stamps directory holds is up to the owner of the object. The tools page suggests OpenTimestamps, and Gazettoa links to that advice for an object without a proof. <a href="tools.html#timestamps">Learn more</a></p></li>
+        <li><time datetime="2026-11-25">2026-11-25</time><b>Monte Carlo records</b><p>The draft standard adds evidence records of the kind <code>mc</code>, for Monte Carlo simulations; Gazettoa shows testbenches and these records.</p></li>
+        <li><time datetime="2026-11-24">2026-11-24</time><b>Testbenches in the draft standard</b><p>The draft standard says how a testbench measures a circuit: its socket and probes, how a run is assembled, and the targets a circuit can state. The home page shows how to publish the results first and the design later. <a href="index.html#results-first">The use case</a></p></li>
+        <li><time datetime="2026-11-24">2026-11-24</time><b>Gazettoa online</b><p>Gazettoa, a read-only web browser of TOA libraries, goes online as a preview, with demo libraries. <a href="https://true-openaccess.github.io/gazettoa/">Open Gazettoa</a></p></li>
+        <li><time datetime="2026-11-24">2026-11-24</time><b>Preview published</b><p>The draft standard 0.1, the reference tool <code>toa</code> and this site are published as a preview, with no release yet. The standard is on the site as web pages, Markdown and PDF. <a href="https://github.com/true-openaccess/toa">Source</a></p></li>
+        <li><time datetime="2026-11-23">2026-11-23</time><b>Named TOA</b><p>The format standard for circuit design objects is named TOA, True-OpenAccess, with the GitHub organisation true-openaccess as its home. <a href="https://github.com/true-openaccess">Organisation</a></p></li>
+          </ol>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>TOA, True-OpenAccess. Code MIT · text CC-BY-4.0 · data CC0-1.0. The English text of the standard is normative.</div>
+    <nav aria-label="Footer">
+      <a href="spec/0.1/">Standard</a>
+      <a href="tools.html">Tools</a>
+      <a href="agents.html">Agents</a>
+      <a href="../llms.txt">llms.txt</a>
+      <a class="on" href="timeline.html" aria-current="page">Timeline</a>
+      <a href="translation.html">Translation status</a>
+      <a href="https://true-openaccess.github.io/gazettoa/">Gazettoa</a>
+      <a href="https://github.com/true-openaccess/toa">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
