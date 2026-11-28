@@ -24,7 +24,8 @@ them:
   glossary_head and glossary_rows; timeline (the latest three events, on the home page) and
   timeline_all (every event, on the timeline page), made from site/src/timeline.json, whose texts are
   groups too, translated in i18n/<lang>/site/timeline.json.json and counted with the page that shows
-  them; analytics, the tag of Cloudflare Web Analytics, written once, in ANALYTICS below.
+  them; analytics, the tag of Cloudflare Web Analytics, written once, in ANALYTICS below, and
+  analytics_foot, the message analytics_note in the footer that says so; both empty with --no-analytics.
 
 The standard's pages are made by scripts/spec/build.py --site DIR from the template
 site/src/spec-page.html, which fills the standard's parts; site/build.py --out DIR, run after it on the
@@ -86,7 +87,7 @@ EN_TAG_RE = re.compile(r"</?en\b[^>]*>")
 FIELD_RE = re.compile(r"\{\{([a-z_]+)\}\}")
 MESSAGE_FIELD_RE = re.compile(r"\{([a-z_]+)\}")
 CJK_RE = re.compile(r"[　-〿㐀-䶿一-鿿＀-￯]")
-BUILT = {"html_lang", "fonts", "lang_menu", "preview_bar", "href_spec", "home", "analytics",
+BUILT = {"html_lang", "fonts", "lang_menu", "preview_bar", "href_spec", "home", "analytics", "analytics_foot",
          "status_langs", "glossary_head", "glossary_rows", "spec_versions", "spec_notice"}
 # The timeline: its data, the parts of the pages that show it, and how many the home page shows.
 TIMELINE = SRC / "timeline.json"
@@ -319,6 +320,8 @@ class Site:
             "href_spec": html.escape(self.spec_href),
             "home": "",
             "analytics": ANALYTICS if self.analytics else "",
+            "analytics_foot": (f'<p class="foot-note">{html.escape(msg["analytics_note"])}</p>'
+                               if self.analytics else ""),
         }
         if page == "translation.html":
             built.update(self.progress(msg))

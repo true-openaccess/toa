@@ -23,5 +23,6 @@
   "sums_label": "SHA-256 校验和",
   "foot": "TOA（{full_name}）· 代码 MIT · 文本 CC-BY-4.0 · 数据 CC0-1.0 · 标准以英文为准。",
   "preview": "预览版：TOA 还没有正式发布，标准、工具和本网站都还可能改动。",
-  "timeline_nav": "时间轴"
+  "timeline_nav": "时间轴",
+  "analytics_note": "本站用 Cloudflare Web Analytics 统计访问，不用 cookie。"
 }

@@ -49,7 +49,8 @@
         "terms_normative": "Only the English terms are normative.",
         "spec_translated": "Translation of the standard; where it differs from the English, the English prevails.",
         "spec_english": "Read English version",
-        "preview": "Preview: TOA has no release yet; the standard, the tool and this site may still change."
+        "preview": "Preview: TOA has no release yet; the standard, the tool and this site may still change.",
+        "analytics_note": "This site uses Cloudflare Web Analytics to count visits. It sets no cookies."
       }
     },
     {

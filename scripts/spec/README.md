@@ -35,11 +35,11 @@ For each version and language, in `dist/<version>/`, all from the chapters of on
 | `toa-0.1.html` | one web page: the chapters and then the type specifications, section anchors such as `#3.2`, a link on every section reference |
 | `toa-0.1.pdf` | the same as a PDF: title page, contents, the same links |
 | `toa-0.1-chapters.zip` | the chapters, the type specifications and their field definitions as files, with a `SHA256SUMS`; reproducible |
-| `SHA256SUMS` | hashes of all of the above |
+| `SHA256SUMS` | hashes of the downloads: all of the above but the web page |
 
 Chinese files have `.zh` before the extension.
 
-With `--site DIR`, the page of each language goes to `DIR/en/spec/<version>/index.html` and `DIR/zh/spec/<version>/index.html` with its downloads, and `DIR/<lang>/spec/index.html` leads to the newest version, keeping the section of the address.
+With `--site DIR`, the page of each language goes to `DIR/en/spec/<version>/index.html` and `DIR/zh/spec/<version>/index.html` with its downloads (the files above but `toa-0.1.html`, which is that page), and `DIR/<lang>/spec/index.html` leads to the newest version, keeping the section of the address.
 
 **The shell of the page** comes from the website: `site/src/spec-page.html`, which the site line provides. `build.py` fills these placeholders in it:
 
@@ -50,6 +50,8 @@ With `--site DIR`, the page of each language goes to `DIR/en/spec/<version>/inde
 | `{{chapters}}` | the chapters alone, as `<li>` |
 | `{{lang}}`, `{{title}}`, `{{version}}`, `{{revision}}`, `{{other_lang}}` | language code, title, version, revision label, code of the other language |
 | `{{downloads}}` | the downloads of the page, as `<li>` |
+
+The other placeholders of the template are the site's: `site/build.py`, run after `build.py --site DIR`, fills them in `DIR/<lang>/spec/<version>/index.html`, the only copy of the page in the site. So the page in `dist/` is not finished when the site's template exists; look at it in the built site.
 
 Until that template exists, `page.html` here stands in for it.
 

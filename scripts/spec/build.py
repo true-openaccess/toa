@@ -328,15 +328,18 @@ def main() -> int:
         for lang in st.LANGS:
             files = build(v, lang, lab, not args.no_pdf)
             built += files.values()
-        sums(built, DIST / v / "SHA256SUMS")
+        # The downloads. The page is not one: with the site's template it is left for the site build to
+        # finish (site/build.py), so its bytes here are not the bytes the site serves.
+        downloads = [p for p in built if p.suffix != ".html"]
+        sums(downloads, DIST / v / "SHA256SUMS")
         print(f"built {v}: {', '.join(p.name for p in built)}")
         if args.site:
             for lang in st.LANGS:
                 target = args.site / lang / "spec" / v
                 target.mkdir(parents=True, exist_ok=True)
                 stem = f"toa-{v}" if lang == "en" else f"toa-{v}.{lang}"
-                shutil.copyfile(DIST / v / f"{stem}.html", target / "index.html")
-                for p in built:
+                shutil.copyfile(DIST / v / f"{stem}.html", target / "index.html")  # the only page
+                for p in downloads:
                     shutil.copyfile(p, target / p.name)
                 shutil.copyfile(DIST / v / "SHA256SUMS", target / "SHA256SUMS")
             print(f"site: {args.site / 'en' / 'spec' / v}, {args.site / 'zh' / 'spec' / v}")
